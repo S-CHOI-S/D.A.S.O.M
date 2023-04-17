@@ -1,0 +1,8 @@
+prefix=/home/choisol/catkin_ws/devel
+
+Name: open_manipulator_dynamixel_ctrl
+Description: Description of open_manipulator_dynamixel_ctrl
+Version: 1.0.0
+Cflags: -I/home/choisol/catkin_ws/src/open_manipulator/open_manipulator_dynamixel_ctrl/include
+Libs: -L${prefix}/lib 
+Requires: roscpp sensor_msgs dynamixel_sdk dynamixel_workbench_toolbox

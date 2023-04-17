@@ -1,0 +1,8 @@
+prefix=/home/choisol/catkin_ws/install
+
+Name: open_manipulator_description
+Description: Description of open_manipulator_description
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

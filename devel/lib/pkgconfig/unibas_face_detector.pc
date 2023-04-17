@@ -1,0 +1,8 @@
+prefix=/home/choisol/catkin_ws/devel
+
+Name: unibas_face_detector
+Description: Description of unibas_face_detector
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

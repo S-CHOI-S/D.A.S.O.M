@@ -1,0 +1,8 @@
+prefix=/home/choisol/catkin_ws/devel
+
+Name: dynamixel_workbench_single_manager
+Description: Description of dynamixel_workbench_single_manager
+Version: 1.0.0
+Cflags: -I/home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_single_manager/include
+Libs: -L${prefix}/lib 
+Requires: roscpp dynamixel_workbench_msgs dynamixel_workbench_toolbox

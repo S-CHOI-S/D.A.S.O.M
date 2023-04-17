@@ -1,0 +1,8 @@
+prefix=/home/choisol/catkin_ws/devel
+
+Name: dynamixel_workbench_toolbox
+Description: Description of dynamixel_workbench_toolbox
+Version: 1.0.0
+Cflags: -I/home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include
+Libs: -L${prefix}/lib -ldynamixel_workbench_toolbox
+Requires: roscpp dynamixel_sdk

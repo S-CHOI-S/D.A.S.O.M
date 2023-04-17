@@ -1,0 +1,12 @@
+<launch>
+  <arg name="robot_name"      default="dasom"/>
+  <arg name="X_gain"          default="1"/>
+  <arg name="Y_gain"          default="1"/>
+
+  <param name="robot_name"    value="$(arg robot_name)"/>
+  <param name="X_gain"        value="$(arg X_gain)"/>
+  <param name="Y_gain"        value="$(arg Y_gain)"/>
+
+  <node name="torque_jacobian" pkg="test" type="torque_jacobian" required="true" output="screen"/>
+
+</launch>

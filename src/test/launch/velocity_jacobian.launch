@@ -1,0 +1,14 @@
+<launch>
+  <arg name="robot_name"      default="dasom"/>
+  <arg name="p_gain"          default="1"/>
+  <arg name="i_gain"          default="1"/>
+  <arg name="d_gain"          default="1"/>
+
+  <param name="robot_name"    value="$(arg robot_name)"/>
+  <param name="p_gain"        value="$(arg p_gain)"/>
+  <param name="i_gain"        value="$(arg i_gain)"/>
+  <param name="d_gain"        value="$(arg d_gain)"/>
+
+  <node name="velocity_jacobian" pkg="test" type="velocity_jacobian" required="true" output="screen"/>
+
+</launch>

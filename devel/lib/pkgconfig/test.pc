@@ -1,0 +1,8 @@
+prefix=/home/choisol/catkin_ws/devel
+
+Name: test
+Description: Description of test
+Version: 0.0.0
+Cflags: -I/home/choisol/catkin_ws/devel/include
+Libs: -L${prefix}/lib -lTEST
+Requires: geometry_msgs roscpp rospy std_msgs message_runtime

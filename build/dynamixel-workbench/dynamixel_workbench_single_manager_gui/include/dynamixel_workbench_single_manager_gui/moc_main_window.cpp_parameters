@@ -1,0 +1,7 @@
+-DROS_BUILD_SHARED_LIBS=1
+-DROS_BUILD_SHARED_LIBS=1
+-DROS_PACKAGE_NAME="dynamixel_workbench_single_manager_gui"
+-DROSCONSOLE_BACKEND_LOG4CXX
+-o
+/home/choisol/catkin_ws/build/dynamixel-workbench/dynamixel_workbench_single_manager_gui/include/dynamixel_workbench_single_manager_gui/moc_main_window.cpp
+/home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_single_manager_gui/include/dynamixel_workbench_single_manager_gui/main_window.hpp

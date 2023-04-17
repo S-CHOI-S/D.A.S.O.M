@@ -1,0 +1,8 @@
+prefix=/home/choisol/catkin_ws/install
+
+Name: open_manipulator_position_ctrl
+Description: Description of open_manipulator_position_ctrl
+Version: 1.0.0
+Cflags: -I${prefix}/include -I/usr/include/eigen3
+Libs: -L${prefix}/lib 
+Requires: roscpp std_msgs sensor_msgs geometry_msgs moveit_msgs open_manipulator_msgs moveit_core moveit_ros_planning moveit_ros_planning_interface
