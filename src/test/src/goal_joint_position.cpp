@@ -22,6 +22,7 @@ double X_command = 0.23209;
 double Y_command = 0;
 
 bool EndEffectorCommand(dynamixel_workbench_msgs::EECommand::Request &req, dynamixel_workbench_msgs::EECommand::Response &res)
+// rosservice call /EE_command X Y
 {
 	X_command = req.X;
 	Y_command = req.Y;

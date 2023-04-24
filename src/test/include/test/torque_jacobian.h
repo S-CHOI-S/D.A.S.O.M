@@ -23,8 +23,8 @@ class TorqJ
   double X = 0.23209;
   double Y = 0;
 
-  double X_gain = 1;
-  double Y_gain = 1;
+  double x_gain = 1;
+  double y_gain = 1;
 
   double X_vel_gain = 1;
   double Y_vel_gain = 1;
@@ -47,10 +47,12 @@ class TorqJ
   double measured_x_velocity = 0;
   double measured_y_velocity = 0;
 
-  //Eigen::MatrixXd X_dot;
-  Eigen::VectorXd X_dot;
-  Eigen::MatrixXd J;
-  Eigen::MatrixXd JT;
+  Eigen::Vector2d X_cmd;
+  Eigen::Vector2d X_dot;
+  Eigen::Vector2d X_measured;
+  Eigen::Vector2d X_gain;
+  Eigen::Matrix2d J;
+  Eigen::Matrix2d JT;
   Eigen::Vector2d EE_position;
   Eigen::Vector2d theta_dot;
   Eigen::Vector2d V_dot;

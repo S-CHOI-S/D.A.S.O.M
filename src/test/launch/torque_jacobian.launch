@@ -1,13 +1,13 @@
 <launch>
   <arg name="robot_name"      default="dasom"/>
-  <arg name="X_gain"          default="1"/>
-  <arg name="Y_gain"          default="1"/>
+  <arg name="x_gain"          default="1"/>
+  <arg name="y_gain"          default="1"/>
   <arg name="X_vel_gain"      default="1"/>
   <arg name="Y_vel_gain"      default="1"/>
 
   <param name="robot_name"    value="$(arg robot_name)"/>
-  <param name="X_gain"        value="$(arg X_gain)"/>
-  <param name="Y_gain"        value="$(arg Y_gain)"/>
+  <param name="x_gain"        value="$(arg x_gain)"/>
+  <param name="y_gain"        value="$(arg y_gain)"/>
   <param name="X_vel_gain"    value="$(arg X_vel_gain)"/>
   <param name="Y_vel_gain"    value="$(arg Y_vel_gain)"/>
 

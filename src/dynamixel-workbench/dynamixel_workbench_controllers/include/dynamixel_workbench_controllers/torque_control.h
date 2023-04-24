@@ -33,6 +33,10 @@
 
 class TorqueControl
 {
+ public:
+    int32_t goal_torque_[2]; // ADD
+
+
  private:
   // ROS NodeHandle
   ros::NodeHandle node_handle_;
@@ -60,6 +64,7 @@ class TorqueControl
   float p_gain_;
   float d_gain_;
   int32_t goal_position_[2];
+
 
  public:
   TorqueControl();
