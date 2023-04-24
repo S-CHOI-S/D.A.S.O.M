@@ -5,12 +5,7 @@ test/CMakeFiles/goal_joint_position.dir/src/goal_joint_position.cpp.o
  /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/EECommand.h
  /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/EECommandRequest.h
  /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/EECommandResponse.h
- /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h
- /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommandRequest.h
- /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommandResponse.h
  /home/choisol/catkin_ws/src/test/src/goal_joint_position.cpp
- /opt/ros/melodic/include/geometry_msgs/Twist.h
- /opt/ros/melodic/include/geometry_msgs/Vector3.h
  /opt/ros/melodic/include/ros/advertise_options.h
  /opt/ros/melodic/include/ros/advertise_service_options.h
  /opt/ros/melodic/include/ros/assert.h
@@ -69,6 +64,5 @@ test/CMakeFiles/goal_joint_position.dir/src/goal_joint_position.cpp.o
  /opt/ros/melodic/include/rosconsole/macros_generated.h
  /opt/ros/melodic/include/sensor_msgs/JointState.h
  /opt/ros/melodic/include/std_msgs/Header.h
- /opt/ros/melodic/include/std_msgs/String.h
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/melodic/include/xmlrpcpp/XmlRpcValue.h

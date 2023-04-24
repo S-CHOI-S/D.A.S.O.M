@@ -20,32 +20,47 @@ class TorqJ
   TorqJ();
   ~TorqJ();
 
-  double X = 0.23;
+  double X = 0.23209;
   double Y = 0;
 
-  double X_gain;
-  double Y_gain;
+  double X_gain = 1;
+  double Y_gain = 1;
+
+  double X_vel_gain = 1;
+  double Y_vel_gain = 1;
 
   double command_x_position = 0;
   double command_y_position = 0;
 
   double position_x_dot = 0;
   double position_y_dot = 0;
-  double position_z_dot = 0;
 
-  double measured_x_position = 0; // 현재 x값(위치)
+  double measured_x_position = 0;
   double measured_y_position = 0;
 
+  double pre_measured_x_position = 0;
+  double pre_measured_y_position = 0;
 
+  double velocity_x_dot = 0;
+  double velocity_y_dot = 0;
+
+  double measured_x_velocity = 0;
+  double measured_y_velocity = 0;
 
   //Eigen::MatrixXd X_dot;
   Eigen::VectorXd X_dot;
+  Eigen::MatrixXd J;
   Eigen::MatrixXd JT;
-  Eigen::MatrixXd EE_position;
-
+  Eigen::Vector2d EE_position;
+  Eigen::Vector2d theta_dot;
+  Eigen::Vector2d V_dot;
+  Eigen::Vector2d V_measured;
+  Eigen::Vector2d V_gain;
 
   //Eigen::MatrixXd q_dot;
-  Eigen::VectorXd q_dot;
+  Eigen::Vector2d tau_des;
+
+  //V_gain << 1,1;
 
   void calc_qdot();
 
@@ -66,13 +81,12 @@ class TorqJ
   *****************************************************************************/
   void initPublisher();
   void initSubscriber();
-  void initServer();
-  void initClient();
 
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
   //ros::Publisher dasom_command_TORQUE_pub_;
+  ros::Publisher joint_command_pub;
   ros::Subscriber joint_states_sub;
   ros::Subscriber EE_command_sub;
   //ros::ServiceClient client;
