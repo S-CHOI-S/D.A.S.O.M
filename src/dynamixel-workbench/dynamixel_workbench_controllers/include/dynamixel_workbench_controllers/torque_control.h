@@ -31,10 +31,13 @@
 #define PAN 0
 #define TILT 1
 
+#define PI 3.14159256359
+
 class TorqueControl
 {
  public:
     int32_t goal_torque_[2]; // ADD
+  DynamixelWorkbench *dxl_wb_;
 
 
  private:
@@ -57,13 +60,15 @@ class TorqueControl
   // ROS Service Client
 
   // Dynamixel Workbench Parameters
-  DynamixelWorkbench *dxl_wb_;
+  //DynamixelWorkbench *dxl_wb_;
   uint8_t dxl_id_[2];
   uint8_t dxl_cnt_;
 
   float p_gain_;
   float d_gain_;
   int32_t goal_position_[2];
+  float goal_torque[2];
+  int32_t input_torque[2];
 
 
  public:

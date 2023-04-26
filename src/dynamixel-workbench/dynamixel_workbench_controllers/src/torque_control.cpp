@@ -57,6 +57,7 @@ TorqueControl::TorqueControl()
 
   dxl_wb_->addSyncWrite("Goal_Current");
   dxl_wb_->addSyncRead("Present_Position");
+  dxl_wb_->addSyncRead("Present_Current");
 
   goal_position_[PAN]   = dxl_wb_->convertRadian2Value(dxl_id_[PAN],  0.0);
   goal_position_[TILT]  = dxl_wb_->convertRadian2Value(dxl_id_[TILT], 0.0);
@@ -174,49 +175,31 @@ void TorqueControl::controlLoop()
 
 void TorqueControl::gravityCompensation()
 {
-  sensor_msgs::JointState goal_; // ADD
-
   const float tilt_motor_mass = 0.082;
   const float gravity         = 9.8;
-  const float link_length     = 0.018;
+  // const float link_length     = 0.018;
+  const float link_length     = 0.12409;
 
-  // int32_t position_error[2] = {0, 0};
-  // static int32_t pre_position_error[2] = {0, 0};
-  // float calc_torque[2] = {0.0, 0.0};
-  // int32_t goal_torque[2] = {0, 0};
+  double abc[3] = {0, };
+  float calc_torque[2] = {0.0, 0.0};
 
   // int32_t* present_position = dxl_wb_->syncRead("Present_Position");
-
-  // position_error[PAN]  = goal_position_[PAN]  - present_position[PAN];
-  // position_error[TILT] = goal_position_[TILT] - present_position[TILT];
-
-  // calc_torque[PAN]  = p_gain_ * position_error[PAN] +
-  //                     d_gain_ * ((position_error[PAN] - pre_position_error[PAN]) / 0.004);
-
-  // calc_torque[TILT] = p_gain_ * position_error[TILT] +
-  //                     d_gain_ * ((position_error[TILT] - pre_position_error[TILT]) / 0.004) +
-  //                     tilt_motor_mass * gravity * link_length * cos(dxl_wb_->convertValue2Radian(dxl_id_[TILT], present_position[TILT]));
-
-
-  // goal_torque[PAN]  = (int32_t)(dxl_wb_->convertTorque2Value(dxl_id_[PAN] , calc_torque[PAN]));
-  // goal_torque[TILT] = (int32_t)(dxl_wb_->convertTorque2Value(dxl_id_[TILT], calc_torque[TILT]));
-
-  // dxl_wb_->syncWrite("Goal_Current", goal_torque);
-
-  // pre_position_error[PAN]  = position_error[PAN];
-  // pre_position_error[TILT] = position_error[TILT];
-
-  // ROS_INFO("ID 1 : %lf\nID 2 : %lf",goal_torque[PAN],goal_torque[TILT]);
-  // goal_.header.stamp = ros::Time::now();
-  // goal_.effort.push_back(calc_torque[PAN]);
-  // goal_.effort.push_back(calc_torque[TILT]);
-  // goal_torque_pub_.publish(goal_);
-
+  int32_t input_torque[2] = {0, 0};
   
-  dxl_wb_->syncWrite("Goal_Current", goal_torque_);
+  calc_torque[0] = goal_torque[0]; // 이거는 굳이 넣어줄 필요는 없지만 바꾸기 귀찮아서..!
+  calc_torque[1] = goal_torque[1]; // 6DOF 만들 때 깔끔하게 할게요..ㅎㅎ
+
+  abc[0] = 0; // 필요 없는 부분
+  abc[1] = dxl_wb_->convertTorque2Value(1,calc_torque[0]); // 1번 모터의 변환된 input 값
+  abc[2] = dxl_wb_->convertTorque2Value(2,calc_torque[1]); // 2번 모터의 변환된 input 값
+
+  input_torque[PAN] = abc[1]; // input_torque list에 집어넣음 -> why? int32_t 형으로 순서 맞춰서 넣어줘야 하니까!
+  input_torque[TILT] = abc[2]; // input_torque list에 집어넣음
+
+  dxl_wb_->syncWrite("Goal_Current", input_torque);
 }
 
-// srv로 cmd 값 넣어주기
+// srv로 cmd 값 넣어주기(현재 사용할 일이 없음)
 bool TorqueControl::jointCommandMsgCallback(dynamixel_workbench_msgs::JointCommand::Request &req,
                                             dynamixel_workbench_msgs::JointCommand::Response &res)
 {
@@ -245,33 +228,11 @@ bool TorqueControl::jointCommandMsgCallback(dynamixel_workbench_msgs::JointComma
   res.result = true;
 }
 
-// msg로 cmd 값 넣어주기
+// msg로 cmd 값 넣어주기(position이 아니라 cmd_effort 값 받아오고 있음)
 void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg)
 {
-  double goal_position[dxl_cnt_] = {0.0, };
-
-  // for (int index = 0; index < dxl_cnt_; index++)
-  //   goal_position[index] = msg->position.at(index);
-
-  // for (int index = 0; index < dxl_cnt_; index++)
-  // {
-  //   goal_position_[index] = dxl_wb_->convertRadian2Value(dxl_id_[index], goal_position[index]);
-  // }
-
-  double goal_torque[dxl_cnt_] = {0.0, };
-  // double goal_torque_[2] = {0.0, }; // ADD
-
   for (int index = 0; index < dxl_cnt_; index++)
     goal_torque[index]  = msg->effort.at(index);
-
-  for (int index = 0; index < dxl_cnt_; index++)
-  {
-    goal_torque_[index] = (int32_t)(dxl_wb_->convertTorque2Value(dxl_id_[index], goal_torque[index]));
-    goal_torque_[index] = goal_torque_[index]*3;
-  }
-  // 
-  ROS_INFO("goal_torque_1 = %lf, goal_torque_2 = %lf", goal_torque_[0], goal_torque_[1]);
-  // dxl_wb_->syncWrite("Goal_Current", goal_torque_);
 }
 
 int main(int argc, char **argv)

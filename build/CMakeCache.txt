@@ -734,12 +734,6 @@ actionlib_msgs_DIR:PATH=/opt/ros/melodic/share/actionlib_msgs/cmake
 //The directory containing a CMake configuration file for angles.
 angles_DIR:PATH=/opt/ros/melodic/share/angles/cmake
 
-//The directory containing a CMake configuration file for bond.
-bond_DIR:PATH=/opt/ros/melodic/share/bond/cmake
-
-//The directory containing a CMake configuration file for bondcpp.
-bondcpp_DIR:PATH=/opt/ros/melodic/share/bondcpp/cmake
-
 //The directory containing a CMake configuration file for catkin.
 catkin_DIR:PATH=/opt/ros/melodic/share/catkin/cmake
 
@@ -811,9 +805,6 @@ crazyflie_tools_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/crazyflie_ros/cr
 
 //Value Computed by CMake
 crazyflie_tools_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/crazyflie_ros/crazyflie_tools
-
-//The directory containing a CMake configuration file for cv_bridge.
-cv_bridge_DIR:PATH=/opt/ros/melodic/share/cv_bridge/cmake
 
 //The directory containing a CMake configuration file for dynamic_reconfigure.
 dynamic_reconfigure_DIR:PATH=/opt/ros/melodic/share/dynamic_reconfigure/cmake
@@ -1077,17 +1068,8 @@ moveit_ros_warehouse_DIR:PATH=/opt/ros/melodic/share/moveit_ros_warehouse/cmake
 //The directory containing a CMake configuration file for nav_msgs.
 nav_msgs_DIR:PATH=/opt/ros/melodic/share/nav_msgs/cmake
 
-//The directory containing a CMake configuration file for nodelet.
-nodelet_DIR:PATH=/opt/ros/melodic/share/nodelet/cmake
-
 //The directory containing a CMake configuration file for object_recognition_msgs.
 object_recognition_msgs_DIR:PATH=/opt/ros/melodic/share/object_recognition_msgs/cmake
-
-//Value Computed by CMake
-ocr_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/ocr
-
-//Value Computed by CMake
-ocr_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/ocr
 
 //The directory containing a CMake configuration file for octomap_msgs.
 octomap_msgs_DIR:PATH=/opt/ros/melodic/share/octomap_msgs/cmake
@@ -1152,12 +1134,6 @@ orocos_kdl_DIR:PATH=/opt/ros/melodic/share/orocos_kdl/cmake
 //The directory containing a CMake configuration file for pluginlib.
 pluginlib_DIR:PATH=/opt/ros/melodic/share/pluginlib/cmake
 
-//The directory containing a CMake configuration file for qt_gui.
-qt_gui_DIR:PATH=/opt/ros/melodic/share/qt_gui/cmake
-
-//The directory containing a CMake configuration file for qt_gui_cpp.
-qt_gui_cpp_DIR:PATH=/opt/ros/melodic/share/qt_gui_cpp/cmake
-
 //The directory containing a CMake configuration file for random_numbers.
 random_numbers_DIR:PATH=/opt/ros/melodic/share/random_numbers/cmake
 
@@ -1215,21 +1191,6 @@ rospy_DIR:PATH=/opt/ros/melodic/share/rospy/cmake
 //The directory containing a CMake configuration file for rostime.
 rostime_DIR:PATH=/opt/ros/melodic/share/rostime/cmake
 
-//The directory containing a CMake configuration file for rqt_gui.
-rqt_gui_DIR:PATH=/opt/ros/melodic/share/rqt_gui/cmake
-
-//The directory containing a CMake configuration file for rqt_gui_cpp.
-rqt_gui_cpp_DIR:PATH=/opt/ros/melodic/share/rqt_gui_cpp/cmake
-
-//Value Computed by CMake
-rqt_mypkg_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/rqt_mypkg
-
-//Dependencies for the target
-rqt_mypkg_LIB_DEPENDS:STATIC=general;/opt/ros/melodic/lib/librqt_gui_cpp.so;general;/opt/ros/melodic/lib/libqt_gui_cpp.so;general;/usr/lib/x86_64-linux-gnu/libtinyxml.so;general;/opt/ros/melodic/lib/libnodeletlib.so;general;/opt/ros/melodic/lib/libbondcpp.so;general;/usr/lib/x86_64-linux-gnu/libuuid.so;general;/opt/ros/melodic/lib/libclass_loader.so;general;/usr/lib/libPocoFoundation.so;general;/usr/lib/x86_64-linux-gnu/libdl.so;general;/opt/ros/melodic/lib/libroslib.so;general;/opt/ros/melodic/lib/librospack.so;general;/usr/lib/x86_64-linux-gnu/libpython2.7.so;general;/usr/lib/x86_64-linux-gnu/libboost_program_options.so;general;/usr/lib/x86_64-linux-gnu/libtinyxml2.so;general;/opt/ros/melodic/lib/libroscpp.so;general;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;general;/opt/ros/melodic/lib/librosconsole.so;general;/opt/ros/melodic/lib/librosconsole_log4cxx.so;general;/opt/ros/melodic/lib/librosconsole_backend_interface.so;general;/usr/lib/x86_64-linux-gnu/liblog4cxx.so;general;/usr/lib/x86_64-linux-gnu/libboost_regex.so;general;/opt/ros/melodic/lib/libxmlrpcpp.so;general;/opt/ros/melodic/lib/libroscpp_serialization.so;general;/opt/ros/melodic/lib/librostime.so;general;/opt/ros/melodic/lib/libcpp_common.so;general;/usr/lib/x86_64-linux-gnu/libboost_system.so;general;/usr/lib/x86_64-linux-gnu/libboost_thread.so;general;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;general;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;general;/usr/lib/x86_64-linux-gnu/libboost_atomic.so;general;/usr/lib/x86_64-linux-gnu/libpthread.so;general;/usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4;general;Qt5::Widgets;
-
-//Value Computed by CMake
-rqt_mypkg_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/rqt_mypkg
-
 //The directory containing a CMake configuration file for rviz.
 rviz_DIR:PATH=/opt/ros/melodic/share/rviz/cmake
 
@@ -1238,9 +1199,6 @@ sensor_msgs_DIR:PATH=/opt/ros/melodic/share/sensor_msgs/cmake
 
 //The directory containing a CMake configuration file for shape_msgs.
 shape_msgs_DIR:PATH=/opt/ros/melodic/share/shape_msgs/cmake
-
-//The directory containing a CMake configuration file for smclib.
-smclib_DIR:PATH=/opt/ros/melodic/share/smclib/cmake
 
 //The directory containing a CMake configuration file for srdfdom.
 srdfdom_DIR:PATH=/opt/ros/melodic/share/srdfdom/cmake
@@ -1253,8 +1211,6 @@ std_srvs_DIR:PATH=/opt/ros/melodic/share/std_srvs/cmake
 
 //Value Computed by CMake
 test_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/test
-
-test_DIR:PATH=
 
 //Value Computed by CMake
 test_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/test
@@ -1294,12 +1250,6 @@ two_link_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/two_link
 
 //Value Computed by CMake
 two_link_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/two_link
-
-//Value Computed by CMake
-unibas_face_detector_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/aruco_detector
-
-//Value Computed by CMake
-unibas_face_detector_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/aruco_detector
 
 //The directory containing a CMake configuration file for urdf.
 urdf_DIR:PATH=/opt/ros/melodic/share/urdf/cmake

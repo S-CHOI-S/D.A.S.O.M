@@ -34,6 +34,7 @@ TorqJ::TorqJ()
   initPublisher();
   initSubscriber();
 
+  X_gain << x_gain, y_gain;
   V_gain << X_vel_gain, Y_vel_gain;
   // std::cout<<V_gain<<std::endl<<"---------------------------------------"<<std::endl;
 
@@ -62,19 +63,21 @@ void TorqJ::initSubscriber()
 void TorqJ::commandCallback(const sensor_msgs::JointState::ConstPtr &msg)
 // cmd_position 값 받아서 X'구하기
 {
-  // X_command, Y_command 값 받아오기
+  // X_command, Y_command 값 받아오기(O)
   X_cmd[0] = msg->position.at(0);
   X_cmd[1] = msg->position.at(1);
 
+  // X_dot 계산하기(O)
 	X_dot[0] = X_gain[0] * (X_cmd[0] - X_measured[0]);
   X_dot[1] = X_gain[1] * (X_cmd[1] - X_measured[1]);
 
-  //
+  // V_dot 계산하기(O)
   V_dot[0] = V_gain[0] * (X_dot[0] - V_measured[0]);
   V_dot[1] = V_gain[1] * (X_dot[1] - V_measured[1]);
 
   // V_dot << velocity_x_dot, velocity_y_dot;
 
+  // std::cout<<V_dot<<std::endl<<"---------------------------------------"<<std::endl;
   // std::cout<<V_dot<<std::endl<<"---------------------------------------"<<std::endl;
   
   // ROS_INFO("command_position_fromGUI = %lf, p_gain = %lf, position_dot = %lf", command_position_fromGUI, p_gain, position_dot);
@@ -85,19 +88,19 @@ void TorqJ::commandCallback(const sensor_msgs::JointState::ConstPtr &msg)
 void TorqJ::poseCallback(const sensor_msgs::JointState::ConstPtr &msg)
 // 현재 joint angle 값 받아오기
 {
-  // EE_position 계산하기 = X_measured
+  // EE_position 계산하기 = X_measured(O)
   X_measured = EE_pos(msg->position.at(0), msg->position.at(1));
 
-  // Jacobian 계산하기
+  // Jacobian 계산하기(O)
   J = Jacobian(msg->position.at(0),msg->position.at(1));
-  // Jacobian transpose
+  // Jacobian transpose(O)
   JT = J.transpose();
 
   theta_dot << msg->velocity.at(0), msg->velocity.at(1);
 
   V_measured = J * theta_dot;
 
-  // std::cout<<EE_position<<std::endl<<"---------------------------------------"<<std::endl;
+  // std::cout<<theta_dot<<std::endl<<"---------------------------------------"<<std::endl;
   // std::cout<<V_measured<<std::endl<<"---------------------------------------"<<std::endl;
 }
 
