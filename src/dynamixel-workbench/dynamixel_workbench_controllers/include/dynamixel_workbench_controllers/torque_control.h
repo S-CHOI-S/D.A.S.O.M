@@ -21,8 +21,12 @@
 
 #include <ros/ros.h>
 
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
+
 #include "message_header.h"
 #include "sensor_msgs/JointState.h"
+#include "geometry_msgs/Twist.h"
 
 #include <dynamixel_workbench_toolbox/dynamixel_workbench.h>
 #include <dynamixel_workbench_msgs/DynamixelStateList.h>
@@ -31,15 +35,8 @@
 #define PAN 0
 #define TILT 1
 
-#define PI 3.14159256359
-
 class TorqueControl
 {
- public:
-    int32_t goal_torque_[2]; // ADD
-  DynamixelWorkbench *dxl_wb_;
-
-
  private:
   // ROS NodeHandle
   ros::NodeHandle node_handle_;
@@ -47,34 +44,36 @@ class TorqueControl
   // ROS Parameters
 
   // ROS Topic Publisher
-  ros::Publisher dynamixel_state_list_pub_;
   ros::Publisher joint_states_pub_;
-  ros::Publisher goal_torque_pub_;
+  ros::Publisher forwardkinematics_pub_;
 
   // ROS Topic Subscriber
   ros::Subscriber joint_command_sub_;
 
   // ROS Service Server
-  ros::ServiceServer joint_command_server_;
 
   // ROS Service Client
 
   // Dynamixel Workbench Parameters
-  //DynamixelWorkbench *dxl_wb_;
-  uint8_t dxl_id_[2];
+  DynamixelWorkbench *dxl_wb_;
+  uint8_t dxl_id_[20];
   uint8_t dxl_cnt_;
 
   float p_gain_;
   float d_gain_;
-  int32_t goal_position_[2];
-  float goal_torque[2];
-  int32_t input_torque[2];
 
+  Eigen::Vector2d EE_position;
+
+  int32_t goal_position_[2];
+  double goal_torque[];
+  double present_position_[];  
 
  public:
   TorqueControl();
   ~TorqueControl();
   void controlLoop(void);
+  void jointStatePublish();
+  void ForwardKinematics();
 
  private:
   void initMsg();
@@ -82,13 +81,34 @@ class TorqueControl
   void initPublisher();
   void initSubscriber();
   void dynamixelStatePublish();
-  void jointStatePublish();
 
   void initServer();
   bool jointCommandMsgCallback(dynamixel_workbench_msgs::JointCommand::Request &req,
                                dynamixel_workbench_msgs::JointCommand::Response &res);
   void goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg);
-  void gravityCompensation();
+  
+  static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
+{
+    double l1 = 0.12409;
+    double l2 = 0.108;
+    double cos1 = cos(theta_1);
+    double cos2 = cos(theta_2);
+    double sin1 = sin(theta_1);
+    double sin2 = sin(theta_2);
+    double cos12 = cos(theta_1 + theta_2);
+    double sin12 = sin(theta_1 + theta_2);
+
+    Eigen::MatrixXd EE_pos(2,1);
+
+    EE_pos <<
+    // X
+    l1 * cos1 + l2 * cos12,
+    // Y
+    l1 * sin1 + l2 * sin12;
+
+    return EE_pos;
+};
+
 };
 
 #endif //DYNAMIXEL_WORKBENCH_TORQUE_CONTROL_H

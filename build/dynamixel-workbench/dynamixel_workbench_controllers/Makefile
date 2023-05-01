@@ -243,6 +243,21 @@ sensor_msgs_generate_messages_eus/fast:
 .PHONY : sensor_msgs_generate_messages_eus/fast
 
 # Convenience name for target.
+dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/rule:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/rule
+.PHONY : dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/rule
+
+# Convenience name for target.
+torque_control_pre: dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/rule
+
+.PHONY : torque_control_pre
+
+# fast build rule for target.
+torque_control_pre/fast:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build
+.PHONY : torque_control_pre/fast
+
+# Convenience name for target.
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/velocity_control.dir/rule:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/velocity_control.dir/rule
 .PHONY : dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/velocity_control.dir/rule
@@ -425,6 +440,33 @@ src/torque_control.cpp.s:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.s
 .PHONY : src/torque_control.cpp.s
 
+src/torque_control_pre.o: src/torque_control_pre.cpp.o
+
+.PHONY : src/torque_control_pre.o
+
+# target to build an object file
+src/torque_control_pre.cpp.o:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/src/torque_control_pre.cpp.o
+.PHONY : src/torque_control_pre.cpp.o
+
+src/torque_control_pre.i: src/torque_control_pre.cpp.i
+
+.PHONY : src/torque_control_pre.i
+
+# target to preprocess a source file
+src/torque_control_pre.cpp.i:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/src/torque_control_pre.cpp.i
+.PHONY : src/torque_control_pre.cpp.i
+
+src/torque_control_pre.s: src/torque_control_pre.cpp.s
+
+.PHONY : src/torque_control_pre.s
+
+# target to generate assembly for a file
+src/torque_control_pre.cpp.s:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/src/torque_control_pre.cpp.s
+.PHONY : src/torque_control_pre.cpp.s
+
 src/velocity_control.o: src/velocity_control.cpp.o
 
 .PHONY : src/velocity_control.o
@@ -458,13 +500,14 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... install/local"
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... position_control"
-	@echo "... install/local"
 	@echo "... install/strip"
 	@echo "... force"
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_eus"
+	@echo "... torque_control_pre"
 	@echo "... velocity_control"
 	@echo "... sensor_msgs_generate_messages_nodejs"
 	@echo "... multi_port"
@@ -487,6 +530,9 @@ help:
 	@echo "... src/torque_control.o"
 	@echo "... src/torque_control.i"
 	@echo "... src/torque_control.s"
+	@echo "... src/torque_control_pre.o"
+	@echo "... src/torque_control_pre.i"
+	@echo "... src/torque_control_pre.s"
 	@echo "... src/velocity_control.o"
 	@echo "... src/velocity_control.i"
 	@echo "... src/velocity_control.s"

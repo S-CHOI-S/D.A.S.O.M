@@ -35,6 +35,8 @@ dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.di
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/dynamixel_workbench_toolbox/dynamixel_item.h
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/dynamixel_workbench_toolbox/dynamixel_tool.h
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/dynamixel_workbench_toolbox/dynamixel_workbench.h
+dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /opt/ros/melodic/include/geometry_msgs/Twist.h
+dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /opt/ros/melodic/include/geometry_msgs/Vector3.h
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /opt/ros/melodic/include/ros/advertise_options.h
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /opt/ros/melodic/include/ros/advertise_service_options.h
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.o: /opt/ros/melodic/include/ros/assert.h

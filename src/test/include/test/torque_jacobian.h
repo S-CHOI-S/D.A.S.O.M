@@ -47,6 +47,20 @@ class TorqJ
   double measured_x_velocity = 0;
   double measured_y_velocity = 0;
 
+//----------Link Lengths---------//
+	double Link1 = 0.12409;
+	double Link2 = 0.108;
+
+  //----------Link Lengths---------//
+	double CoM1 = 0.08092;
+	double CoM2 = 0.114;
+	double delta = 0.237;
+	double mass1 = 0.107;
+	double mass2 = 0.296;
+
+  double offset_1 = 0;
+  double offset_2 = 0; 
+
   Eigen::Vector2d X_cmd;
   Eigen::Vector2d X_dot;
   Eigen::Vector2d X_measured;
@@ -61,10 +75,13 @@ class TorqJ
 
   //Eigen::MatrixXd q_dot;
   Eigen::Vector2d tau_des;
+  Eigen::Vector2d Tau_gravity; //중력에 의해 조인트에 가해지는 토크
 
   //V_gain << 1,1;
 
-  void calc_qdot();
+  void calc_des();
+  void calc_taudes();
+  void PublishCmdNMeasured();
 
  private:
   /*****************************************************************************
@@ -87,11 +104,12 @@ class TorqJ
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
-  //ros::Publisher dasom_command_TORQUE_pub_;
-  ros::Publisher joint_command_pub;
-  ros::Subscriber joint_states_sub;
-  ros::Subscriber EE_command_sub;
-  //ros::ServiceClient client;
+  ros::Publisher joint_command_pub_;
+  ros::Publisher joint_measured_pub_;
+  ros::Subscriber EE_command_sub_;
+  ros::Subscriber forwardkinematics_sub_;
+  ros::Subscriber joint_states_sub_;
+
   
     static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
 {
@@ -141,8 +159,9 @@ class TorqJ
     return J;
 };
 
-  void poseCallback(const sensor_msgs::JointState::ConstPtr &msg);
+  void poseCallback(const geometry_msgs::Twist &msg);
   void commandCallback(const sensor_msgs::JointState::ConstPtr &msg);
+  void jointCallback(const sensor_msgs::JointState::ConstPtr &msg);
 
   //void EEpositionCallback(const dynamixel_workbench_msgs::EECommand::Request &req, dynamixel_workbench_msgs::EECommand::Response &res);
   //void goaljointCallback(const sensor_msgs::JointState::ConstPtr &msg);

@@ -1871,6 +1871,19 @@ sensor_msgs_generate_messages_eus/fast:
 .PHONY : sensor_msgs_generate_messages_eus/fast
 
 #=============================================================================
+# Target rules for targets named torque_control_pre
+
+# Build rule for target.
+torque_control_pre: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 torque_control_pre
+.PHONY : torque_control_pre
+
+# fast build rule for target.
+torque_control_pre/fast:
+	$(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build
+.PHONY : torque_control_pre/fast
+
+#=============================================================================
 # Target rules for targets named velocity_control
 
 # Build rule for target.
@@ -1934,6 +1947,188 @@ sensor_msgs_generate_messages_lisp: cmake_check_build_system
 sensor_msgs_generate_messages_lisp/fast:
 	$(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build
 .PHONY : sensor_msgs_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_gencpp
+
+# Build rule for target.
+omni_msgs_gencpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_gencpp
+.PHONY : omni_msgs_gencpp
+
+# fast build rule for target.
+omni_msgs_gencpp/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_gencpp.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_gencpp.dir/build
+.PHONY : omni_msgs_gencpp/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_generate_messages_cpp
+
+# Build rule for target.
+omni_msgs_generate_messages_cpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_generate_messages_cpp
+.PHONY : omni_msgs_generate_messages_cpp
+
+# fast build rule for target.
+omni_msgs_generate_messages_cpp/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_cpp.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_cpp.dir/build
+.PHONY : omni_msgs_generate_messages_cpp/fast
+
+#=============================================================================
+# Target rules for targets named _omni_msgs_generate_messages_check_deps_OmniButtonEvent
+
+# Build rule for target.
+_omni_msgs_generate_messages_check_deps_OmniButtonEvent: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _omni_msgs_generate_messages_check_deps_OmniButtonEvent
+.PHONY : _omni_msgs_generate_messages_check_deps_OmniButtonEvent
+
+# fast build rule for target.
+_omni_msgs_generate_messages_check_deps_OmniButtonEvent/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/_omni_msgs_generate_messages_check_deps_OmniButtonEvent.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/_omni_msgs_generate_messages_check_deps_OmniButtonEvent.dir/build
+.PHONY : _omni_msgs_generate_messages_check_deps_OmniButtonEvent/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_generate_messages_nodejs
+
+# Build rule for target.
+omni_msgs_generate_messages_nodejs: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_generate_messages_nodejs
+.PHONY : omni_msgs_generate_messages_nodejs
+
+# fast build rule for target.
+omni_msgs_generate_messages_nodejs/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_nodejs.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_nodejs.dir/build
+.PHONY : omni_msgs_generate_messages_nodejs/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_generate_messages
+
+# Build rule for target.
+omni_msgs_generate_messages: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_generate_messages
+.PHONY : omni_msgs_generate_messages
+
+# fast build rule for target.
+omni_msgs_generate_messages/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages.dir/build
+.PHONY : omni_msgs_generate_messages/fast
+
+#=============================================================================
+# Target rules for targets named _omni_msgs_generate_messages_check_deps_OmniState
+
+# Build rule for target.
+_omni_msgs_generate_messages_check_deps_OmniState: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _omni_msgs_generate_messages_check_deps_OmniState
+.PHONY : _omni_msgs_generate_messages_check_deps_OmniState
+
+# fast build rule for target.
+_omni_msgs_generate_messages_check_deps_OmniState/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/_omni_msgs_generate_messages_check_deps_OmniState.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/_omni_msgs_generate_messages_check_deps_OmniState.dir/build
+.PHONY : _omni_msgs_generate_messages_check_deps_OmniState/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_generate_messages_lisp
+
+# Build rule for target.
+omni_msgs_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_generate_messages_lisp
+.PHONY : omni_msgs_generate_messages_lisp
+
+# fast build rule for target.
+omni_msgs_generate_messages_lisp/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_lisp.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_lisp.dir/build
+.PHONY : omni_msgs_generate_messages_lisp/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_generate_messages_eus
+
+# Build rule for target.
+omni_msgs_generate_messages_eus: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_generate_messages_eus
+.PHONY : omni_msgs_generate_messages_eus
+
+# fast build rule for target.
+omni_msgs_generate_messages_eus/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_eus.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_eus.dir/build
+.PHONY : omni_msgs_generate_messages_eus/fast
+
+#=============================================================================
+# Target rules for targets named _omni_msgs_generate_messages_check_deps_OmniFeedback
+
+# Build rule for target.
+_omni_msgs_generate_messages_check_deps_OmniFeedback: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _omni_msgs_generate_messages_check_deps_OmniFeedback
+.PHONY : _omni_msgs_generate_messages_check_deps_OmniFeedback
+
+# fast build rule for target.
+_omni_msgs_generate_messages_check_deps_OmniFeedback/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/_omni_msgs_generate_messages_check_deps_OmniFeedback.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/_omni_msgs_generate_messages_check_deps_OmniFeedback.dir/build
+.PHONY : _omni_msgs_generate_messages_check_deps_OmniFeedback/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_geneus
+
+# Build rule for target.
+omni_msgs_geneus: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_geneus
+.PHONY : omni_msgs_geneus
+
+# fast build rule for target.
+omni_msgs_geneus/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_geneus.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_geneus.dir/build
+.PHONY : omni_msgs_geneus/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_genlisp
+
+# Build rule for target.
+omni_msgs_genlisp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_genlisp
+.PHONY : omni_msgs_genlisp
+
+# fast build rule for target.
+omni_msgs_genlisp/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_genlisp.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_genlisp.dir/build
+.PHONY : omni_msgs_genlisp/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_gennodejs
+
+# Build rule for target.
+omni_msgs_gennodejs: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_gennodejs
+.PHONY : omni_msgs_gennodejs
+
+# fast build rule for target.
+omni_msgs_gennodejs/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_gennodejs.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_gennodejs.dir/build
+.PHONY : omni_msgs_gennodejs/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_generate_messages_py
+
+# Build rule for target.
+omni_msgs_generate_messages_py: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_generate_messages_py
+.PHONY : omni_msgs_generate_messages_py
+
+# fast build rule for target.
+omni_msgs_generate_messages_py/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_py.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_generate_messages_py.dir/build
+.PHONY : omni_msgs_generate_messages_py/fast
+
+#=============================================================================
+# Target rules for targets named omni_msgs_genpy
+
+# Build rule for target.
+omni_msgs_genpy: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_msgs_genpy
+.PHONY : omni_msgs_genpy
+
+# fast build rule for target.
+omni_msgs_genpy/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_genpy.dir/build.make Geomagic_Touch_ROS_Drivers/omni_msgs/CMakeFiles/omni_msgs_genpy.dir/build
+.PHONY : omni_msgs_genpy/fast
 
 #=============================================================================
 # Target rules for targets named dynamixel_controller
@@ -2963,6 +3158,32 @@ _crazyflie_driver_generate_messages_check_deps_GenericLogData/fast:
 .PHONY : _crazyflie_driver_generate_messages_check_deps_GenericLogData/fast
 
 #=============================================================================
+# Target rules for targets named omni_state
+
+# Build rule for target.
+omni_state: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni_state
+.PHONY : omni_state
+
+# fast build rule for target.
+omni_state/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_common/CMakeFiles/omni_state.dir/build.make Geomagic_Touch_ROS_Drivers/omni_common/CMakeFiles/omni_state.dir/build
+.PHONY : omni_state/fast
+
+#=============================================================================
+# Target rules for targets named omni
+
+# Build rule for target.
+omni: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 omni
+.PHONY : omni
+
+# fast build rule for target.
+omni/fast:
+	$(MAKE) -f Geomagic_Touch_ROS_Drivers/omni_common/CMakeFiles/omni.dir/build.make Geomagic_Touch_ROS_Drivers/omni_common/CMakeFiles/omni.dir/build
+.PHONY : omni/fast
+
+#=============================================================================
 # Target rules for targets named gazebo_msgs_generate_messages_nodejs
 
 # Build rule for target.
@@ -3442,6 +3663,19 @@ _two_link_generate_messages_check_deps_param: cmake_check_build_system
 _two_link_generate_messages_check_deps_param/fast:
 	$(MAKE) -f two_link/CMakeFiles/_two_link_generate_messages_check_deps_param.dir/build.make two_link/CMakeFiles/_two_link_generate_messages_check_deps_param.dir/build
 .PHONY : _two_link_generate_messages_check_deps_param/fast
+
+#=============================================================================
+# Target rules for targets named admittance_Twolink.cpp
+
+# Build rule for target.
+admittance_Twolink.cpp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 admittance_Twolink.cpp
+.PHONY : admittance_Twolink.cpp
+
+# fast build rule for target.
+admittance_Twolink.cpp/fast:
+	$(MAKE) -f two_link/CMakeFiles/admittance_Twolink.cpp.dir/build.make two_link/CMakeFiles/admittance_Twolink.cpp.dir/build
+.PHONY : admittance_Twolink.cpp/fast
 
 #=============================================================================
 # Target rules for targets named _two_link_generate_messages_check_deps_DasomDynamixel
@@ -4471,11 +4705,26 @@ help:
 	@echo "... force"
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_eus"
+	@echo "... torque_control_pre"
 	@echo "... velocity_control"
 	@echo "... sensor_msgs_generate_messages_nodejs"
 	@echo "... multi_port"
 	@echo "... torque_control"
 	@echo "... sensor_msgs_generate_messages_lisp"
+	@echo "... omni_msgs_gencpp"
+	@echo "... omni_msgs_generate_messages_cpp"
+	@echo "... _omni_msgs_generate_messages_check_deps_OmniButtonEvent"
+	@echo "... omni_msgs_generate_messages_nodejs"
+	@echo "... omni_msgs_generate_messages"
+	@echo "... _omni_msgs_generate_messages_check_deps_OmniState"
+	@echo "... omni_msgs_generate_messages_lisp"
+	@echo "... omni_msgs_generate_messages_eus"
+	@echo "... _omni_msgs_generate_messages_check_deps_OmniFeedback"
+	@echo "... omni_msgs_geneus"
+	@echo "... omni_msgs_genlisp"
+	@echo "... omni_msgs_gennodejs"
+	@echo "... omni_msgs_generate_messages_py"
+	@echo "... omni_msgs_genpy"
 	@echo "... dynamixel_controller"
 	@echo "... velocity_admittance_test"
 	@echo "... admittance_control"
@@ -4555,6 +4804,8 @@ help:
 	@echo "... crazyflie_driver_genpy"
 	@echo "... crazyflie_server"
 	@echo "... _crazyflie_driver_generate_messages_check_deps_GenericLogData"
+	@echo "... omni_state"
+	@echo "... omni"
 	@echo "... gazebo_msgs_generate_messages_nodejs"
 	@echo "... gazebo_msgs_generate_messages_lisp"
 	@echo "... control_toolbox_gencfg"
@@ -4592,6 +4843,7 @@ help:
 	@echo "... control_msgs_generate_messages_nodejs"
 	@echo "... two_link_gennodejs"
 	@echo "... _two_link_generate_messages_check_deps_param"
+	@echo "... admittance_Twolink.cpp"
 	@echo "... _two_link_generate_messages_check_deps_DasomDynamixel"
 	@echo "... velocity_controller.cpp"
 	@echo "... two_link_generate_messages_eus"

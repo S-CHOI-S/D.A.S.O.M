@@ -608,6 +608,9 @@ OGRE_Volume_LIBRARY_FWK:STRING=NOTFOUND
 //x
 OGRE_Volume_LIBRARY_REL:FILEPATH=/usr/lib/x86_64-linux-gnu/libOgreVolume.so
 
+//Path to a file.
+OPENHAPTICS_INCLUDE_DIR:PATH=/usr/include
+
 //pkg-config executable
 PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 
@@ -1073,6 +1076,27 @@ object_recognition_msgs_DIR:PATH=/opt/ros/melodic/share/object_recognition_msgs/
 
 //The directory containing a CMake configuration file for octomap_msgs.
 octomap_msgs_DIR:PATH=/opt/ros/melodic/share/octomap_msgs/cmake
+
+//Value Computed by CMake
+omni_common_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/Geomagic_Touch_ROS_Drivers/omni_common
+
+//Value Computed by CMake
+omni_common_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/Geomagic_Touch_ROS_Drivers/omni_common
+
+//Value Computed by CMake
+omni_description_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/Geomagic_Touch_ROS_Drivers/omni_description
+
+//Value Computed by CMake
+omni_description_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/Geomagic_Touch_ROS_Drivers/omni_description
+
+//Value Computed by CMake
+omni_msgs_BINARY_DIR:STATIC=/home/choisol/catkin_ws/build/Geomagic_Touch_ROS_Drivers/omni_msgs
+
+//The directory containing a CMake configuration file for omni_msgs.
+omni_msgs_DIR:PATH=/home/choisol/catkin_ws/devel/share/omni_msgs/cmake
+
+//Value Computed by CMake
+omni_msgs_SOURCE_DIR:STATIC=/home/choisol/catkin_ws/src/Geomagic_Touch_ROS_Drivers/omni_msgs
 
 //Path to a library.
 onelib:FILEPATH=/usr/lib/x86_64-linux-gnu/libsdformat.so
@@ -1590,7 +1614,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=31
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=34
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

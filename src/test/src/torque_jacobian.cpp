@@ -36,7 +36,6 @@ TorqJ::TorqJ()
 
   X_gain << x_gain, y_gain;
   V_gain << X_vel_gain, Y_vel_gain;
-  // std::cout<<V_gain<<std::endl<<"---------------------------------------"<<std::endl;
 
   ROS_INFO("TorqJ node start");
 }
@@ -49,15 +48,15 @@ TorqJ::~TorqJ()
 
 void TorqJ::initPublisher()
 {
-  joint_command_pub = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10);
-  // joint_command_pub = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10);
+  joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10);
+  joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);
 }
 
 void TorqJ::initSubscriber()
 {
-  joint_states_sub  = node_handle_.subscribe("/joint_states", 10, &TorqJ::poseCallback, this);
-  EE_command_sub = node_handle_.subscribe("/goal_EE_position", 10, &TorqJ::commandCallback, this);
-  // dasom_joint_states_sub = node_handle_.subscribe(robot_name_ + "/joint_states", 10, &TorqJ::poseCallback, this);
+  EE_command_sub_ = node_handle_.subscribe("/goal_EE_position", 10, &TorqJ::commandCallback, this);
+  forwardkinematics_sub_ = node_handle_.subscribe("/EE_pose", 10, &TorqJ::poseCallback, this);
+  joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this);
 }
 
 void TorqJ::commandCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -66,7 +65,35 @@ void TorqJ::commandCallback(const sensor_msgs::JointState::ConstPtr &msg)
   // X_command, Y_command 값 받아오기(O)
   X_cmd[0] = msg->position.at(0);
   X_cmd[1] = msg->position.at(1);
+}
 
+void TorqJ::poseCallback(const geometry_msgs::Twist &msg)
+// 현재 EE_pose 값 받아오기
+{
+  // X_measured[FK] 값 받아오기()
+  X_measured[0] = msg.linear.x;
+  X_measured[1] = msg.linear.y;
+
+	// // 중력 매트릭스 (OCM 있을 때)--------------------------------
+	// Tau_gravity << (mass1 * CoM1 * cos(msg->position.at(0)) + mass2 * Link1 * cos(msg->position.at(0)) + mass2 * CoM2 * cos(msg->position.at(0) + msg->position.at(1))) * 9.81 - offset_1,
+	// 				mass2 * CoM2 * cos(msg->position.at(0) + msg->position.at(1)) * 9.81 - offset_2;
+}
+
+void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
+{
+  // Jacobian 계산하기()
+  J = Jacobian(msg->position.at(0),msg->position.at(1));
+  // Jacobian transpose()
+  JT = J.transpose();
+  ///////////////////////////////////////////////////////////////////////
+  theta_dot << msg->velocity.at(0), msg->velocity.at(1);
+
+  V_measured = J * theta_dot;
+  /////////////////////////////////////////////////////////////////////// 이 정도 계산은 어떤지?
+}
+
+void TorqJ::calc_des()
+{
   // X_dot 계산하기(O)
 	X_dot[0] = X_gain[0] * (X_cmd[0] - X_measured[0]);
   X_dot[1] = X_gain[1] * (X_cmd[1] - X_measured[1]);
@@ -74,54 +101,42 @@ void TorqJ::commandCallback(const sensor_msgs::JointState::ConstPtr &msg)
   // V_dot 계산하기(O)
   V_dot[0] = V_gain[0] * (X_dot[0] - V_measured[0]);
   V_dot[1] = V_gain[1] * (X_dot[1] - V_measured[1]);
-
-  // V_dot << velocity_x_dot, velocity_y_dot;
-
-  // std::cout<<V_dot<<std::endl<<"---------------------------------------"<<std::endl;
-  // std::cout<<V_dot<<std::endl<<"---------------------------------------"<<std::endl;
-  
-  // ROS_INFO("command_position_fromGUI = %lf, p_gain = %lf, position_dot = %lf", command_position_fromGUI, p_gain, position_dot);
-  // ROS_INFO("x'= %lf, y'= %lf, z'= %lf",position_x_dot, position_y_dot, position_z_dot);
-  // ROS_WARN("r'= %lf, p'= %lf, y'= %lf",angle_r_dot, angle_p_dot, angle_yaw_dot);
 }
 
-void TorqJ::poseCallback(const sensor_msgs::JointState::ConstPtr &msg)
-// 현재 joint angle 값 받아오기
+
+void TorqJ::calc_taudes()
 {
-  // EE_position 계산하기 = X_measured(O)
-  X_measured = EE_pos(msg->position.at(0), msg->position.at(1));
-
-  // Jacobian 계산하기(O)
-  J = Jacobian(msg->position.at(0),msg->position.at(1));
-  // Jacobian transpose(O)
-  JT = J.transpose();
-
-  theta_dot << msg->velocity.at(0), msg->velocity.at(1);
-
-  V_measured = J * theta_dot;
-
-  // std::cout<<theta_dot<<std::endl<<"---------------------------------------"<<std::endl;
-  // std::cout<<V_measured<<std::endl<<"---------------------------------------"<<std::endl;
-}
-
-void TorqJ::calc_qdot()
-{
-  sensor_msgs::JointState joint_cmd;
-
   JT.resize(2,2);
   V_dot.resize(2,1);
   
-  tau_des = JT * V_dot;
-
+  tau_des = JT * V_dot;// + Tau_gravity*0.01;
+  ROS_WARN("update!");
   std::cout<<JT<<std::endl<<"---------------------------------------"<<std::endl;
   std::cout<<V_dot<<std::endl<<"***************************************"<<std::endl;
   std::cout<<tau_des<<std::endl<<"#########################################"<<std::endl;
+}
+
+void TorqJ::PublishCmdNMeasured()
+{
+  sensor_msgs::JointState joint_cmd;
+  sensor_msgs::JointState joint_measured;
 
   // tau_des를 publish
-  joint_cmd.effort.push_back(tau_des[0]);
-  joint_cmd.effort.push_back(tau_des[1]);
-  joint_command_pub.publish(joint_cmd);
-  
+  joint_cmd.header.stamp = ros::Time::now();
+  joint_cmd.position.push_back(X_cmd[0]); // cartesian space
+  joint_cmd.position.push_back(X_cmd[1]); // cartesian space
+  joint_cmd.velocity.push_back(X_dot[0]); // cartesian space
+  joint_cmd.velocity.push_back(X_dot[1]); // cartesian space
+  joint_cmd.effort.push_back(tau_des[0]); // joint space
+  joint_cmd.effort.push_back(tau_des[1]); // joint space
+  joint_command_pub_.publish(joint_cmd);
+
+  joint_measured.header.stamp = ros::Time::now();
+  joint_measured.position.push_back(X_measured[0]);
+  joint_measured.position.push_back(X_measured[1]);
+  joint_measured.velocity.push_back(V_measured[0]);
+  joint_measured.velocity.push_back(V_measured[1]);
+  joint_measured_pub_.publish(joint_measured);
 }
 
 int main(int argc, char **argv)
@@ -130,10 +145,12 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "TorqJ");
   TorqJ torqJ;
 
-  ros::Rate loop_rate(250); //250
+  ros::Rate loop_rate(250);
   while (ros::ok())
   {
-    torqJ.calc_qdot();
+    torqJ.calc_des();
+    torqJ.calc_taudes();
+    torqJ.PublishCmdNMeasured();
     ros::spinOnce();
     loop_rate.sleep();
   }

@@ -69,3 +69,7 @@ target_link_libraries(velocity_tracking.cpp ${catkin_LIBRARIES})
 add_executable(service_call.cpp src/service_call.cpp)
 add_dependencies(service_call.cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(service_call.cpp ${catkin_LIBRARIES})
+
+add_executable(admittance_Twolink.cpp src/admittance_Twolink.cpp)
+add_dependencies(admittance_Twolink.cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(admittance_Twolink.cpp ${catkin_LIBRARIES})

@@ -36,6 +36,8 @@ dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.di
  /home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/dynamixel_workbench_toolbox/dynamixel_item.h
  /home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/dynamixel_workbench_toolbox/dynamixel_tool.h
  /home/choisol/catkin_ws/src/dynamixel-workbench/dynamixel_workbench_toolbox/include/dynamixel_workbench_toolbox/dynamixel_workbench.h
+ /opt/ros/melodic/include/geometry_msgs/Twist.h
+ /opt/ros/melodic/include/geometry_msgs/Vector3.h
  /opt/ros/melodic/include/ros/advertise_options.h
  /opt/ros/melodic/include/ros/advertise_service_options.h
  /opt/ros/melodic/include/ros/assert.h

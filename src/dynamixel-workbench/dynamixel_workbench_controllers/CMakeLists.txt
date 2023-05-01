@@ -68,6 +68,10 @@ add_executable(force src/force.cpp)
 add_dependencies(force ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(force ${catkin_LIBRARIES})
 
+add_executable(torque_control_pre src/torque_control_pre.cpp)
+add_dependencies(torque_control_pre ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(torque_control_pre ${catkin_LIBRARIES})
+
 #################################################################################
 ## Install
 #################################################################################
