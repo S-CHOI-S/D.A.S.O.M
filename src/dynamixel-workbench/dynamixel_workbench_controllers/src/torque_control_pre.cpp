@@ -171,7 +171,7 @@ void TorqueControl::safe_func()
 // stopFlag의 init 값은 flase
 {
   // EE_position에 대한 조건
-  if (EE_position[0] < -0.03)
+  if (EE_position[1] < -0.03)
     stopFlag = true; //조건문을 바꿀 여지가 있을지도?
 
   // goal(input) torque에 대한 조건
