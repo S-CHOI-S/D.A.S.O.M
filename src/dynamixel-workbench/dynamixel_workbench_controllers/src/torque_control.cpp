@@ -156,6 +156,7 @@ void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::Con
 }
 
 void TorqueControl::ForwardKinematics()
+// 여기는 사용할 때 6DOF에 맞게 바꿔야 함!
 {
   geometry_msgs::Twist EndEffector;
 
@@ -165,6 +166,30 @@ void TorqueControl::ForwardKinematics()
   EndEffector.linear.y = EE_position[1];
 
   forwardkinematics_pub_.publish(EndEffector);
+}
+
+void TorqueControl::safe_func()
+// stopFlag의 init 값은 flase
+{
+  // EE_position에 대한 조건
+  if (EE_position[0] < -0.03)
+    stopFlag = true; //조건문을 바꿀 여지가 있을지도?
+
+  // goal(input) torque에 대한 조건
+  for (int index = 0; index < dxl_cnt_; index++)
+  {
+    if (goal_torque[index] > 0.1)
+      stopFlag = true; // 전류값 스케일 조정이 필요할지도?
+  }
+
+  // stopFlag == true이면
+  if (stopFlag)
+  {
+    for (int index = 0; index < dxl_cnt_; index++)
+      dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
+    
+    ROS_INFO("EMERGENCY!!!");
+  }
 }
 
 int main(int argc, char **argv)
@@ -180,6 +205,8 @@ int main(int argc, char **argv)
     torque_ctrl.controlLoop(); // syncWrite
     torque_ctrl.jointStatePublish(); // [sensor_msgs::JointState] /joint_states
     torque_ctrl.ForwardKinematics(); // solve ForwardKinematics
+    torque_ctrl.safe_func(); // check FK, effort and KILL at emergency
+    
     ros::spinOnce();
     loop_rate.sleep();
   }

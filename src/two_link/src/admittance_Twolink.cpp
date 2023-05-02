@@ -12,8 +12,7 @@
 *
 *******************************************************************************/
 
-/* Authors: Sol Choi (Jennifer)
-			Seuk Seo (        ) */
+/* Authors: Sol Choi (Jennifer) */
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
@@ -21,6 +20,7 @@
 #include <iostream>
 #include <cmath>
 #include <geometry_msgs/Twist.h>
+#include <two_link/DasomDynamixel.h>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense> 
 
@@ -133,6 +133,7 @@ int main(int argc, char** argv)
 	ros::Publisher Commandpub = n.advertise<sensor_msgs::JointState>("/goal_EE_position", 100); // Final Angle Command
 	ros::Publisher testPub = n.advertise<geometry_msgs::Twist>("/ForceTest", 100);
 
+	two_link::DasomDynamixel cmd;
 //	ros::Subscriber hapticCallback_sub = n.subscribe("/now_haptic_endEffector_publisher", 10, hapticCallback);
  
 //-----MDK Model ------//
@@ -147,8 +148,8 @@ int main(int argc, char** argv)
 
 
 //----------Link Lengths---------//
-	double Link1 = 0.12409;
-	double Link2 = 0.108;
+	double Link1 = 0.10409;
+	double Link2 = 0.13377;
 
 //----------Link Lengths---------//
 	double CoM1 = 0.08092;
@@ -168,7 +169,7 @@ int main(int argc, char** argv)
 	D_x << 0, 0;
 
 //-----State Space Representation----//
-	A_y <<                 0, 									1,
+	A_y <<               0, 									1,
 		  - virtual_spring[1]/virtual_mass[1], - virtual_damper[1]/virtual_mass[1];
 
 	B_y << 0, 1/virtual_mass[1];
@@ -244,8 +245,8 @@ int main(int argc, char** argv)
 	ROS_INFO("Gravity matrix : [%lf], [%lf]", Tau_gravity[0], Tau_gravity[1]);
 	ROS_INFO("torque : [%lf], [%lf]", measured_torque[0], measured_torque[1]);
 	ROS_INFO("G - Tau : [%lf], [%lf]", Tau_gravity[0] - measured_torque[0], Tau_gravity[1] - measured_torque[1]);
-	ROS_INFO("X_admittance : [%lf], [%lf]", position_from_model[0], position_from_model[1]);
-	ROS_INFO("position_command : [%lf], [%lf]", position_reference[0], position_reference[1]);
+	ROS_INFO("x_admittance : [%lf], [%lf]", position_from_model[0], position_from_model[1]);
+	ROS_INFO("position_command : [%lf], [%lf]", position_command[0], position_command[1]);
 	ROS_INFO("==================\n");
 
 
@@ -281,8 +282,3 @@ int main(int argc, char** argv)
 
 
 }
-
-
-// torque jacobian command 값에 토크(중력)값 +
-// FK 비교
-// 

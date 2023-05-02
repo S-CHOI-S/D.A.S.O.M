@@ -62,6 +62,8 @@ class TorqueControl
   float p_gain_;
   float d_gain_;
 
+  bool stopFlag = false;
+
   Eigen::Vector2d EE_position;
 
   int32_t goal_position_[2];
@@ -74,6 +76,7 @@ class TorqueControl
   void controlLoop(void);
   void jointStatePublish();
   void ForwardKinematics();
+  void safe_func();
 
  private:
   void initMsg();
@@ -89,24 +92,24 @@ class TorqueControl
   
   static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
 {
-    double l1 = 0.12409;
-    double l2 = 0.108;
-    double cos1 = cos(theta_1);
-    double cos2 = cos(theta_2);
-    double sin1 = sin(theta_1);
-    double sin2 = sin(theta_2);
-    double cos12 = cos(theta_1 + theta_2);
-    double sin12 = sin(theta_1 + theta_2);
+  double l1 = 0.12409;
+  double l2 = 0.108;
+  double cos1 = cos(theta_1);
+  double cos2 = cos(theta_2);
+  double sin1 = sin(theta_1);
+  double sin2 = sin(theta_2);
+  double cos12 = cos(theta_1 + theta_2);
+  double sin12 = sin(theta_1 + theta_2);
 
-    Eigen::MatrixXd EE_pos(2,1);
+  Eigen::MatrixXd EE_pos(2,1);
 
-    EE_pos <<
-    // X
-    l1 * cos1 + l2 * cos12,
-    // Y
-    l1 * sin1 + l2 * sin12;
+  EE_pos <<
+  // X
+  l1 * cos1 + l2 * cos12,
+  // Y
+  l1 * sin1 + l2 * sin12;
 
-    return EE_pos;
+  return EE_pos;
 };
 
 };

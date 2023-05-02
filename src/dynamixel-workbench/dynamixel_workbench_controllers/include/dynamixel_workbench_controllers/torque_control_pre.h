@@ -155,6 +155,8 @@ class TorqueControl
   float p_gain_;
   float d_gain_;
 
+  bool stopFlag = false;
+
   Eigen::Vector2d EE_position;
 
   int32_t goal_position_[2];
@@ -167,6 +169,7 @@ class TorqueControl
   void controlLoop(void);
   void jointStatePublish();
   void ForwardKinematics();
+  void safe_func();
 
  private:
   void initMsg();
