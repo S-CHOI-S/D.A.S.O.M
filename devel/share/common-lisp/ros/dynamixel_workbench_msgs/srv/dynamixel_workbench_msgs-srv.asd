@@ -15,4 +15,6 @@
     (:file "_package_JointCommand" :depends-on ("_package"))
     (:file "WheelCommand" :depends-on ("_package_WheelCommand"))
     (:file "_package_WheelCommand" :depends-on ("_package"))
+    (:file "test" :depends-on ("_package_test"))
+    (:file "_package_test" :depends-on ("_package"))
   ))

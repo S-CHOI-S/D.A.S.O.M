@@ -20,10 +20,11 @@ file(REMOVE_RECURSE
   "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/msg/XM.js"
   "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/msg/PRO.js"
   "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/EECommand.js"
-  "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/WheelCommand.js"
-  "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/GetDynamixelInfo.js"
   "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/JointCommand.js"
   "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/DynamixelCommand.js"
+  "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/WheelCommand.js"
+  "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/test.js"
+  "/home/choisol/catkin_ws/devel/share/gennodejs/ros/dynamixel_workbench_msgs/srv/GetDynamixelInfo.js"
 )
 
 # Per-language clean rules from dependency scanning.

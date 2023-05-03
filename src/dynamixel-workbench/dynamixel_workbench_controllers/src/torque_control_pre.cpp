@@ -54,6 +54,7 @@ TorqueControl::TorqueControl()
 
   initPublisher();
   initSubscriber();
+  initServer();
 
   // for (int index = 0; index < 2; index++)
   //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
@@ -93,6 +94,11 @@ void TorqueControl::initPublisher()
 void TorqueControl::initSubscriber()
 {
   joint_command_sub_ = node_handle_.subscribe("/goal_dynamixel_position", 10, &TorqueControl::goalJointPositionCallback, this);
+}
+
+void TorqueControl::initServer()
+{
+  STOP_server_ = node_handle_.advertiseService("/STOP", &TorqueControl::StopCallback, this);
 }
 
 void TorqueControl::jointStatePublish()
@@ -145,7 +151,9 @@ void TorqueControl::controlLoop()
   {
     calc_torque[index] = dxl_wb_->convertTorque2Value(dxl_id_[index], goal_torque[index]);
   }
-
+  ROS_INFO("%lf",goal_torque[0]);
+  ROS_INFO("%lf",goal_torque[1]);
+  ROS_INFO("-------------------------------------------");
   dxl_wb_->syncWrite("Goal_Current", calc_torque);
 }
 
@@ -153,6 +161,10 @@ void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::Con
 {
   for (int index = 0; index < 2; index++)
     goal_torque[index] = msg->effort.at(index);
+
+  // ROS_INFO("%lf",goal_torque[0]);
+  // ROS_INFO("%lf",goal_torque[1]);
+  // ROS_INFO("-------------------------------------------");
 }
 
 void TorqueControl::ForwardKinematics()
@@ -170,16 +182,16 @@ void TorqueControl::ForwardKinematics()
 void TorqueControl::safe_func()
 // stopFlag의 init 값은 flase
 {
-  // EE_position에 대한 조건
-  if (EE_position[1] < -0.03)
-    stopFlag = true; //조건문을 바꿀 여지가 있을지도?
+  // // EE_position에 대한 조건
+  // if (EE_position[1] < -0.03)
+  //   stopFlag = true; //조건문을 바꿀 여지가 있을지도?
 
-  // goal(input) torque에 대한 조건
-  for (int index = 0; index < dxl_cnt_; index++)
-  {
-    if (goal_torque[index] > 0.1)
-      stopFlag = true; // 전류값 스케일 조정이 필요할지도?
-  }
+  // // goal(input) torque에 대한 조건
+  // for (int index = 0; index < dxl_cnt_; index++)
+  // {
+  //   if (goal_torque[index] > 0.1)
+  //     stopFlag = true; // 전류값 스케일 조정이 필요할지도?
+  // }
 
   // stopFlag == true이면
   if (stopFlag)
@@ -187,8 +199,25 @@ void TorqueControl::safe_func()
     for (int index = 0; index < dxl_cnt_; index++)
       dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
     
-    ROS_INFO("EMERGENCY!!!");
+    // ROS_INFO("EMERGENCY!!!");
+    ROS_INFO("Torque X!!!");
   }
+  else
+  {
+    for (int index = 0; index < dxl_cnt_; index++)
+      dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
+    
+    ROS_INFO("Torque O!!!");
+  }
+}
+
+bool TorqueControl::StopCallback(dynamixel_workbench_msgs::JointCommand::Request &req,
+                                 dynamixel_workbench_msgs::JointCommand::Response &res)
+{
+  if(stopFlag) stopFlag=false;
+  else stopFlag = true;
+
+  return stopFlag;
 }
 
 int main(int argc, char **argv)

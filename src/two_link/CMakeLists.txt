@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   dynamixel_workbench_msgs
   message_generation
 )
@@ -43,12 +44,12 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES turtles
-  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs dynamixel_workbench_msgs
 #  DEPENDS system_lib
 )
 
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 

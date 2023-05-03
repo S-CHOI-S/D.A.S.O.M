@@ -37,6 +37,12 @@ TorqJ::TorqJ()
   VY_P_gain = node_handle_.param<int>("VY_P_gain",1);
   VY_I_gain = node_handle_.param<int>("VY_I_gain",1);
   VY_D_gain = node_handle_.param<int>("VY_D_gain",1);  
+
+  torque_const_1 = node_handle_.param<double>("torque_const_1",1);  
+  torque_const_2 = node_handle_.param<double>("torque_const_2",1);
+
+  offset_1 = node_handle_.param<int>("offset_1",1);
+  offset_2 = node_handle_.param<int>("offset_2",1);
   
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -51,6 +57,9 @@ TorqJ::TorqJ()
   Velocity_P_gain << VX_P_gain, VY_P_gain;
   Velocity_I_gain << VX_I_gain, VY_I_gain;
   Velocity_D_gain << VX_D_gain, VY_D_gain;
+
+  torque_const << torque_const_1, torque_const_2;
+  offset << offset_1, offset_2;
 
   ROS_INFO("TorqJ node start");
 }
@@ -78,8 +87,10 @@ void TorqJ::commandCallback(const sensor_msgs::JointState::ConstPtr &msg)
 // cmd_position 값 받아서 X'구하기
 {
   // X_command, Y_command 값 받아오기(O)
-  X_cmd[0] = msg->position.at(0);
-  X_cmd[1] = msg->position.at(1);
+  // X_cmd[0] = msg->position.at(0);
+  // X_cmd[1] = msg->position.at(1);
+  X_PID[0] = msg->position.at(0);
+  X_PID[1] = msg->position.at(1);
 }
 
 void TorqJ::poseCallback(const geometry_msgs::Twist &msg)
@@ -109,18 +120,18 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
 void TorqJ::calc_des()
 {
   // PID Control(위치 오차로 인한 전류값)
-  for(int i = 0; i < 2; i++)
-  {
-    X_error_p[i] = X_cmd[i] - X_measured[i];
-    X_error_i[i] = X_error_i[i] + X_error_p[i] * time_loop;
+  // for(int i = 0; i < 2; i++)
+  // {
+  //   X_error_p[i] = X_cmd[i] - X_measured[i];
+  //   X_error_i[i] = X_error_i[i] + X_error_p[i] * time_loop;
 
-    if (X_error_p[i] - X_error_p_i[i] != 0) 
-      X_error_d[i] = (X_error_p[i] - X_error_p_i[i]) / time_loop;
+  //   if (X_error_p[i] - X_error_p_i[i] != 0) 
+  //     X_error_d[i] = (X_error_p[i] - X_error_p_i[i]) / time_loop;
 
-    X_error_p_i[i] = X_error_p[i];
+  //   X_error_p_i[i] = X_error_p[i];
 
-    X_PID[i] = Position_P_gain[i] * X_error_p[i] + Position_I_gain[i] * X_error_i[i] + Position_D_gain[i] * X_error_d[i];
-  }
+  //   X_PID[i] = Position_P_gain[i] * X_error_p[i] + Position_I_gain[i] * X_error_i[i] + Position_D_gain[i] * X_error_d[i];
+  // }
 
   for(int i = 0; i<2; i++)
   {
@@ -141,21 +152,25 @@ void TorqJ::calc_des()
   tau_des = JT * V_PID;
 
   // 중력 Matrix (OCM 있을 때)--------------------------------
-	 tau_gravity << (mass1 * CoM1 * cos(angle_measured[0]) + mass2 * Link1 * cos(angle_measured[0]) + mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1])) * 9.81 - offset_1,
-	 				mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1]) * 9.81 - offset_2;
+	tau_gravity << torque_const[0] * (mass1 * CoM1 * cos(angle_measured[0]) + mass2 * Link1 * cos(angle_measured[0]) + mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[0],
+	 				       torque_const[1] * (mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[1];
 
 
+
+  ROS_WARN("update!");
+  std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
 }
 
 
 void TorqJ::calc_taudes()
 {
-  tau_des = tau_loop + tau_gravity;
+  // tau_des = tau_loop + tau_gravity;
+  tau_des = tau_gravity;
 
-  ROS_WARN("update!");
-  std::cout<<JT<<std::endl<<"---------------------------------------"<<std::endl;
-  std::cout<<V_PID<<std::endl<<"***************************************"<<std::endl;
-  std::cout<<tau_des<<std::endl<<"#########################################"<<std::endl;
+  // ROS_WARN("update!");
+  // std::cout<<JT<<std::endl<<"---------------------------------------"<<std::endl;
+  // std::cout<<V_PID<<std::endl<<"***************************************"<<std::endl;
+  // std::cout<<tau_des<<std::endl<<"#########################################"<<std::endl;
 }
 
 void TorqJ::PublishCmdNMeasured()
@@ -178,6 +193,8 @@ void TorqJ::PublishCmdNMeasured()
   joint_measured.position.push_back(X_measured[1]);
   joint_measured.velocity.push_back(V_measured[0]);
   joint_measured.velocity.push_back(V_measured[1]);
+  joint_measured.effort.push_back(tau_gravity[0]);
+  joint_measured.effort.push_back(tau_gravity[1]);
   joint_measured_pub_.publish(joint_measured);
 }
 

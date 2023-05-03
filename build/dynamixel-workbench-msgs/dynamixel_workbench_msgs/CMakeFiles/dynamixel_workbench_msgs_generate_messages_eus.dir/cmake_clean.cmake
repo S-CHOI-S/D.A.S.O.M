@@ -20,10 +20,11 @@ file(REMOVE_RECURSE
   "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/msg/XM.l"
   "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/msg/PRO.l"
   "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/EECommand.l"
-  "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/WheelCommand.l"
-  "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/GetDynamixelInfo.l"
   "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/JointCommand.l"
   "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/DynamixelCommand.l"
+  "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/WheelCommand.l"
+  "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/test.l"
+  "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/srv/GetDynamixelInfo.l"
   "/home/choisol/catkin_ws/devel/share/roseus/ros/dynamixel_workbench_msgs/manifest.l"
 )
 

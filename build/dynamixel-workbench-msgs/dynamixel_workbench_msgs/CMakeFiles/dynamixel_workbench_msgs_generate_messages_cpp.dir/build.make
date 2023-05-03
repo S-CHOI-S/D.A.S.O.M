@@ -73,10 +73,11 @@ dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench
 dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/XM.h
 dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/PRO.h
 dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/EECommand.h
-dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h
-dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h
 dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h
 dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h
+dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h
+dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/test.h
+dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h
 
 
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/XMExt.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
@@ -206,12 +207,33 @@ dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Generating C++ code from dynamixel_workbench_msgs/EECommand.srv"
 	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/EECommand.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
 
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /opt/ros/melodic/share/gencpp/msg.h.template
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /opt/ros/melodic/share/gencpp/srv.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Generating C++ code from dynamixel_workbench_msgs/JointCommand.srv"
+	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
+
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /opt/ros/melodic/share/gencpp/msg.h.template
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /opt/ros/melodic/share/gencpp/srv.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Generating C++ code from dynamixel_workbench_msgs/DynamixelCommand.srv"
+	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
+
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h: /opt/ros/melodic/share/gencpp/msg.h.template
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h: /opt/ros/melodic/share/gencpp/srv.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Generating C++ code from dynamixel_workbench_msgs/WheelCommand.srv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Generating C++ code from dynamixel_workbench_msgs/WheelCommand.srv"
 	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
+
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/test.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/test.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/test.h: /opt/ros/melodic/share/gencpp/msg.h.template
+/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/test.h: /opt/ros/melodic/share/gencpp/srv.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Generating C++ code from dynamixel_workbench_msgs/test.srv"
+	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
 
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv
@@ -219,22 +241,8 @@ dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h: /opt/ros/melodic/share/gencpp/msg.h.template
 /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h: /opt/ros/melodic/share/gencpp/srv.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Generating C++ code from dynamixel_workbench_msgs/GetDynamixelInfo.srv"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Generating C++ code from dynamixel_workbench_msgs/GetDynamixelInfo.srv"
 	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
-
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /opt/ros/melodic/share/gencpp/msg.h.template
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h: /opt/ros/melodic/share/gencpp/srv.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Generating C++ code from dynamixel_workbench_msgs/JointCommand.srv"
-	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
-
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /opt/ros/melodic/lib/gencpp/gen_cpp.py
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /opt/ros/melodic/share/gencpp/msg.h.template
-/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h: /opt/ros/melodic/share/gencpp/srv.h.template
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/choisol/catkin_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Generating C++ code from dynamixel_workbench_msgs/DynamixelCommand.srv"
-	cd /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs && /home/choisol/catkin_ws/build/catkin_generated/env_cached.sh /usr/bin/python2 /opt/ros/melodic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv -Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg -p dynamixel_workbench_msgs -o /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs -e /opt/ros/melodic/share/gencpp/cmake/..
 
 dynamixel_workbench_msgs_generate_messages_cpp: dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp
 dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/XMExt.h
@@ -257,10 +265,11 @@ dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/in
 dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/XM.h
 dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/PRO.h
 dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/EECommand.h
-dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h
-dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h
 dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h
 dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h
+dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h
+dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/test.h
+dynamixel_workbench_msgs_generate_messages_cpp: /home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h
 dynamixel_workbench_msgs_generate_messages_cpp: dynamixel-workbench-msgs/dynamixel_workbench_msgs/CMakeFiles/dynamixel_workbench_msgs_generate_messages_cpp.dir/build.make
 
 .PHONY : dynamixel_workbench_msgs_generate_messages_cpp

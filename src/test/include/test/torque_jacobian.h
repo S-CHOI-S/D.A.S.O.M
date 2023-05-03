@@ -43,8 +43,10 @@ class TorqJ
   double VY_D_gain = 1;
 
 //----------Link Lengths---------//
-  double Link1 = 0.12409;
-  double Link2 = 0.108;
+  //double Link1 = 0.12409;
+  //double Link2 = 0.108;
+  double Link1 = 0.10375;
+  double Link2 = 0.153;
 
   double CoM1 = 0.08092;
   double CoM2 = 0.114;
@@ -54,6 +56,9 @@ class TorqJ
 
   double offset_1 = 0;
   double offset_2 = 0; 
+
+  double torque_const_1 = 0;
+  double torque_const_2 = 0;
 
   Eigen::Vector2d X_cmd;
   Eigen::Vector2d X_measured;
@@ -81,7 +86,8 @@ class TorqJ
 
   Eigen::Vector2d X_PID;
   Eigen::Vector2d V_PID;
-
+  Eigen::Vector2d torque_const;
+  Eigen::Vector2d offset;
 
   Eigen::Matrix2d J;
   Eigen::Matrix2d JT;

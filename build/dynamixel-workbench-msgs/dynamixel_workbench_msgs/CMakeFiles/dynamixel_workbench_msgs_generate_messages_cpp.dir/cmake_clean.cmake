@@ -20,10 +20,11 @@ file(REMOVE_RECURSE
   "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/XM.h"
   "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/PRO.h"
   "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/EECommand.h"
-  "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h"
-  "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h"
   "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/JointCommand.h"
   "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/DynamixelCommand.h"
+  "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/WheelCommand.h"
+  "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/test.h"
+  "/home/choisol/catkin_ws/devel/include/dynamixel_workbench_msgs/GetDynamixelInfo.h"
 )
 
 # Per-language clean rules from dependency scanning.

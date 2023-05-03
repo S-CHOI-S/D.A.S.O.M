@@ -144,6 +144,7 @@ class TorqueControl
   ros::Subscriber joint_command_sub_;
 
   // ROS Service Server
+  ros::ServiceServer STOP_server_;
 
   // ROS Service Client
 
@@ -171,6 +172,7 @@ class TorqueControl
   void ForwardKinematics();
   void safe_func();
 
+
  private:
   void initMsg();
 
@@ -182,11 +184,13 @@ class TorqueControl
   bool jointCommandMsgCallback(dynamixel_workbench_msgs::JointCommand::Request &req,
                                dynamixel_workbench_msgs::JointCommand::Response &res);
   void goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg);
+  bool StopCallback(dynamixel_workbench_msgs::JointCommand::Request &req,
+                               dynamixel_workbench_msgs::JointCommand::Response &res);
   
   static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
 {
-    double l1 = 0.12409;
-    double l2 = 0.108;
+    double l1 = 0.10375;
+    double l2 = 0.153;
     double cos1 = cos(theta_1);
     double cos2 = cos(theta_2);
     double sin1 = sin(theta_1);

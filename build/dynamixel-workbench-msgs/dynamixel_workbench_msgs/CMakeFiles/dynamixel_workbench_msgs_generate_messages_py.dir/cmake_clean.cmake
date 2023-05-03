@@ -20,10 +20,11 @@ file(REMOVE_RECURSE
   "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/msg/_XM.py"
   "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/msg/_PRO.py"
   "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_EECommand.py"
-  "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_WheelCommand.py"
-  "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_GetDynamixelInfo.py"
   "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_JointCommand.py"
   "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_DynamixelCommand.py"
+  "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_WheelCommand.py"
+  "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_test.py"
+  "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/_GetDynamixelInfo.py"
   "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/msg/__init__.py"
   "/home/choisol/catkin_ws/devel/lib/python2.7/dist-packages/dynamixel_workbench_msgs/srv/__init__.py"
 )

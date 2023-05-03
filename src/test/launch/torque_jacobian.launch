@@ -16,6 +16,12 @@
   <arg name="VY_I_gain"         default="3"/>
   <arg name="VY_D_gain"         default="3"/>
 
+  <arg name="torque_const_1"         default="1"/>
+  <arg name="torque_const_2"         default="1"/>
+
+  <arg name="offset_1"         default="0"/>
+  <arg name="offset_2"         default="0"/>
+
   <param name="robot_name"    value="$(arg robot_name)"/>
   <param name="X_P_gain"        value="$(arg X_P_gain)"/>
   <param name="X_I_gain"        value="$(arg X_I_gain)"/>
@@ -32,6 +38,12 @@
   <param name="VY_P_gain"       value="$(arg VY_P_gain)"/>
   <param name="VY_I_gain"       value="$(arg VY_I_gain)"/>
   <param name="VY_D_gain"       value="$(arg VY_D_gain)"/>
+
+  <param name="torque_const_1"        value="$(arg torque_const_1)"/>
+  <param name="torque_const_2"        value="$(arg torque_const_2)"/>
+
+  <param name="offset_1"        value="$(arg offset_1)"/>
+  <param name="offset_2"        value="$(arg offset_2)"/>
 
 
   <node name="torque_jacobian" pkg="test" type="torque_jacobian" required="true" output="screen"/>
