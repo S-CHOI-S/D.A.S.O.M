@@ -127,7 +127,6 @@ class TorqJ
   ros::Subscriber EE_command_sub_;
   ros::Subscriber forwardkinematics_sub_;
   ros::Subscriber joint_states_sub_;
-
   
   static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
 {

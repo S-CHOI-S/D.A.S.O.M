@@ -20,11 +20,10 @@ file(REMOVE_RECURSE
   "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/msg/XM.lisp"
   "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/msg/PRO.lisp"
   "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/EECommand.lisp"
+  "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/WheelCommand.lisp"
+  "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/GetDynamixelInfo.lisp"
   "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/JointCommand.lisp"
   "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/DynamixelCommand.lisp"
-  "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/WheelCommand.lisp"
-  "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/test.lisp"
-  "/home/choisol/catkin_ws/devel/share/common-lisp/ros/dynamixel_workbench_msgs/srv/GetDynamixelInfo.lisp"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.cmake.em
 
-message(STATUS "dynamixel_workbench_msgs: 19 messages, 6 services")
+message(STATUS "dynamixel_workbench_msgs: 19 messages, 5 services")
 
 set(MSG_I_FLAGS "-Idynamixel_workbench_msgs:/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg;-Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg;-Igeometry_msgs:/opt/ros/melodic/share/geometry_msgs/cmake/../msg")
 
@@ -45,11 +45,6 @@ add_custom_target(_dynamixel_workbench_msgs_generate_messages_check_deps_${_file
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/EX.msg" NAME_WE)
 add_custom_target(_dynamixel_workbench_msgs_generate_messages_check_deps_${_filename}
   COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "dynamixel_workbench_msgs" "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/EX.msg" ""
-)
-
-get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv" NAME_WE)
-add_custom_target(_dynamixel_workbench_msgs_generate_messages_check_deps_${_filename}
-  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "dynamixel_workbench_msgs" "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv" ""
 )
 
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/XM.msg" NAME_WE)
@@ -271,6 +266,18 @@ _generate_srv_cpp(dynamixel_workbench_msgs
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 _generate_srv_cpp(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_cpp(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
+  "${MSG_I_FLAGS}"
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_cpp(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv"
   "${MSG_I_FLAGS}"
   ""
@@ -280,24 +287,6 @@ _generate_srv_cpp(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv"
   "${MSG_I_FLAGS}"
   ""
-  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_cpp(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_cpp(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_cpp(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
-  "${MSG_I_FLAGS}"
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 
@@ -324,8 +313,6 @@ add_dependencies(dynamixel_workbench_msgs_generate_messages_cpp _dynamixel_workb
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/MXExt.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_cpp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/EX.msg" NAME_WE)
-add_dependencies(dynamixel_workbench_msgs_generate_messages_cpp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_cpp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/XM.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_cpp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
@@ -496,6 +483,18 @@ _generate_srv_eus(dynamixel_workbench_msgs
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 _generate_srv_eus(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_eus(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
+  "${MSG_I_FLAGS}"
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_eus(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv"
   "${MSG_I_FLAGS}"
   ""
@@ -505,24 +504,6 @@ _generate_srv_eus(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv"
   "${MSG_I_FLAGS}"
   ""
-  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_eus(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_eus(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_eus(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
-  "${MSG_I_FLAGS}"
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 
@@ -549,8 +530,6 @@ add_dependencies(dynamixel_workbench_msgs_generate_messages_eus _dynamixel_workb
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/MXExt.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_eus _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/EX.msg" NAME_WE)
-add_dependencies(dynamixel_workbench_msgs_generate_messages_eus _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_eus _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/XM.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_eus _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
@@ -721,6 +700,18 @@ _generate_srv_lisp(dynamixel_workbench_msgs
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 _generate_srv_lisp(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_lisp(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
+  "${MSG_I_FLAGS}"
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_lisp(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv"
   "${MSG_I_FLAGS}"
   ""
@@ -730,24 +721,6 @@ _generate_srv_lisp(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv"
   "${MSG_I_FLAGS}"
   ""
-  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_lisp(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_lisp(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_lisp(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
-  "${MSG_I_FLAGS}"
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 
@@ -774,8 +747,6 @@ add_dependencies(dynamixel_workbench_msgs_generate_messages_lisp _dynamixel_work
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/MXExt.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_lisp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/EX.msg" NAME_WE)
-add_dependencies(dynamixel_workbench_msgs_generate_messages_lisp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_lisp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/XM.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_lisp _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
@@ -946,6 +917,18 @@ _generate_srv_nodejs(dynamixel_workbench_msgs
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 _generate_srv_nodejs(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_nodejs(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
+  "${MSG_I_FLAGS}"
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_nodejs(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv"
   "${MSG_I_FLAGS}"
   ""
@@ -955,24 +938,6 @@ _generate_srv_nodejs(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv"
   "${MSG_I_FLAGS}"
   ""
-  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_nodejs(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_nodejs(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_nodejs(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
-  "${MSG_I_FLAGS}"
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 
@@ -999,8 +964,6 @@ add_dependencies(dynamixel_workbench_msgs_generate_messages_nodejs _dynamixel_wo
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/MXExt.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_nodejs _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/EX.msg" NAME_WE)
-add_dependencies(dynamixel_workbench_msgs_generate_messages_nodejs _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_nodejs _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/XM.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_nodejs _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
@@ -1171,6 +1134,18 @@ _generate_srv_py(dynamixel_workbench_msgs
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 _generate_srv_py(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_py(dynamixel_workbench_msgs
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
+  "${MSG_I_FLAGS}"
+  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_workbench_msgs
+)
+_generate_srv_py(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/JointCommand.srv"
   "${MSG_I_FLAGS}"
   ""
@@ -1180,24 +1155,6 @@ _generate_srv_py(dynamixel_workbench_msgs
   "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv"
   "${MSG_I_FLAGS}"
   ""
-  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_py(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/WheelCommand.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_py(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv"
-  "${MSG_I_FLAGS}"
-  ""
-  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_workbench_msgs
-)
-_generate_srv_py(dynamixel_workbench_msgs
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
-  "${MSG_I_FLAGS}"
-  "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelLoadInfo.msg;/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/DynamixelInfo.msg"
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_workbench_msgs
 )
 
@@ -1224,8 +1181,6 @@ add_dependencies(dynamixel_workbench_msgs_generate_messages_py _dynamixel_workbe
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/MXExt.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_py _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/EX.msg" NAME_WE)
-add_dependencies(dynamixel_workbench_msgs_generate_messages_py _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
-get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_py _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})
 get_filename_component(_filename "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/msg/XM.msg" NAME_WE)
 add_dependencies(dynamixel_workbench_msgs_generate_messages_py _dynamixel_workbench_msgs_generate_messages_check_deps_${_filename})

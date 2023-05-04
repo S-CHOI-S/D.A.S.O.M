@@ -68,7 +68,6 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
     "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/GetDynamixelInfo.srv"
     "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/DynamixelCommand.srv"
     "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/EECommand.srv"
-    "/home/choisol/catkin_ws/src/dynamixel-workbench-msgs/dynamixel_workbench_msgs/srv/test.srv"
     )
 endif()
 

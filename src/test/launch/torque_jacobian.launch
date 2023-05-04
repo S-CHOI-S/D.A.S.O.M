@@ -1,20 +1,20 @@
 <launch>
   <arg name="robot_name"      default="dasom"/>
   <arg name="X_P_gain"          default="50"/>
-  <arg name="X_I_gain"          default="50"/>
-  <arg name="X_D_gain"          default="50"/>
+  <arg name="X_I_gain"          default="0"/>
+  <arg name="X_D_gain"          default="0"/>
 
   <arg name="Y_P_gain"          default="50"/>
-  <arg name="Y_I_gain"          default="50"/>
-  <arg name="Y_D_gain"          default="50"/>
+  <arg name="Y_I_gain"          default="0"/>
+  <arg name="Y_D_gain"          default="0"/>
 
-  <arg name="VX_P_gain"         default="50"/>
-  <arg name="VX_I_gain"         default="3"/>
-  <arg name="VX_D_gain"         default="3"/>
+  <arg name="VX_P_gain"         default="5"/>
+  <arg name="VX_I_gain"         default="0"/>
+  <arg name="VX_D_gain"         default="0"/>
 
-  <arg name="VY_P_gain"         default="50"/>
-  <arg name="VY_I_gain"         default="3"/>
-  <arg name="VY_D_gain"         default="3"/>
+  <arg name="VY_P_gain"         default="5"/>
+  <arg name="VY_I_gain"         default="0"/>
+  <arg name="VY_D_gain"         default="0"/>
 
   <arg name="torque_const_1"         default="1"/>
   <arg name="torque_const_2"         default="1"/>
