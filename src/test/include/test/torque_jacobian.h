@@ -85,6 +85,7 @@ class TorqJ
   Eigen::Vector2d V_error_d;
 
   Eigen::Vector2d X_PID;
+  Eigen::Vector2d X_PID_i;
   Eigen::Vector2d V_PID;
   Eigen::Vector2d torque_const;
   Eigen::Vector2d offset;

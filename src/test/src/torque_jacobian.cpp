@@ -51,8 +51,8 @@ TorqJ::TorqJ()
   initSubscriber();
 
   Position_P_gain << X_P_gain, Y_P_gain;
-  Position_P_gain << X_I_gain, Y_I_gain;
-  Position_P_gain << X_D_gain, Y_D_gain;
+  Position_I_gain << X_I_gain, Y_I_gain;
+  Position_D_gain << X_D_gain, Y_D_gain;
 
   Velocity_P_gain << VX_P_gain, VY_P_gain;
   Velocity_I_gain << VX_I_gain, VY_I_gain;
@@ -134,30 +134,35 @@ void TorqJ::calc_des()
     X_error_p_i[i] = X_error_p[i];
 
     X_PID[i] = Position_P_gain[i] * X_error_p[i] + Position_I_gain[i] * X_error_i[i] + Position_D_gain[i] * X_error_d[i];
+  
+    if (X_PID[i] - X_PID_i[i] != 0) 
+      V_PID[i] = (X_PID[i] - X_PID_i[i]) / time_loop;
+
+    X_PID_i[i] = X_PID[i];
   }
   
-  ROS_WARN("update!");
-  std::cout<<X_cmd<<std::endl<<"-----------------------------------------"<<std::endl;
-  std::cout<<X_measured<<std::endl<<"#########################################"<<std::endl;
-  std::cout<<X_error_p<<std::endl<<"-----------------------------------------"<<std::endl;
-  // std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
+  // ROS_WARN("update!");
+  // std::cout<<X_cmd<<std::endl<<"-----------------------------------------"<<std::endl;
+  // std::cout<<X_measured<<std::endl<<"#########################################"<<std::endl;
+  // std::cout<<X_error_p<<std::endl<<"-----------------------------------------"<<std::endl;
+  // // std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
   
-  for(int i = 0; i < 2; i++)
-  {
-    V_error_p[i] = X_PID[i] - V_measured[i];
-    // std::cout<<V_error_i<<std::endl<<"#########################################"<<std::endl;
-    V_error_i[i] = V_error_i[i] + V_error_p[i] * time_loop;
-    // std::cout<<V_error_i<<std::endl<<"-----------------------------------------"<<std::endl;
+  // for(int i = 0; i < 2; i++)
+  // {
+  //   V_error_p[i] = X_PID[i] - V_measured[i];
+  //   // std::cout<<V_error_i<<std::endl<<"#########################################"<<std::endl;
+  //   V_error_i[i] = V_error_i[i] + V_error_p[i] * time_loop;
+  //   // std::cout<<V_error_i<<std::endl<<"-----------------------------------------"<<std::endl;
 
-    if (V_error_p[i] - V_error_p_i[i] != 0) 
-      V_error_d[i] = (V_error_p[i] - V_error_p_i[i]) / time_loop;
+  //   if (V_error_p[i] - V_error_p_i[i] != 0) 
+  //     V_error_d[i] = (V_error_p[i] - V_error_p_i[i]) / time_loop;
     
-    V_error_p_i[i] = V_error_p[i];
+  //   V_error_p_i[i] = V_error_p[i];
 
-    V_PID[i] = Velocity_P_gain[i] * V_error_p[i] + Velocity_I_gain[i] * V_error_i[i] + Velocity_D_gain[i] * V_error_d[i];
-  }
+  //   V_PID[i] = Velocity_P_gain[i] * V_error_p[i] + Velocity_I_gain[i] * V_error_i[i] + Velocity_D_gain[i] * V_error_d[i];
+  // }
 
-  std::cout<<V_error_p<<std::endl<<"#########################################"<<std::endl;
+  // std::cout<<V_error_p<<std::endl<<"#########################################"<<std::endl;
 
   // JT.resize(2,2);
   
@@ -180,10 +185,10 @@ void TorqJ::calc_taudes()
   tau_des = tau_loop + tau_gravity;
   // tau_des = tau_gravity;
 
-  // ROS_WARN("update!");
+  ROS_WARN("update!");
   // std::cout<<JT<<std::endl<<"---------------------------------------"<<std::endl;
   // std::cout<<V_PID<<std::endl<<"***************************************"<<std::endl;
-  // std::cout<<tau_des<<std::endl<<"#########################################"<<std::endl;
+  std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
 }
 
 void TorqJ::PublishCmdNMeasured()
