@@ -224,7 +224,7 @@ int main(int argc, char** argv)
 
 	position_from_model[0] = X_from_model_matrix[0];
 
-	//position_command[0] = position_reference[0] - position_from_model[0]; 아직 무서우니까~
+	// position_command[0] = position_reference[0] - position_from_model[0]; //아직 무서우니까~
 	position_command[0] = position_reference[0];
 
 	//----------------------------------------------------------------
@@ -235,7 +235,7 @@ int main(int argc, char** argv)
 
 	position_from_model[1] = Y_from_model_matrix[0];
 
-	//position_command[1] = position_reference[1] - position_from_model[1]; 아직 무서우니까~
+	// position_command[1] = position_reference[1] - position_from_model[1]; //아직 무서우니까~
 	position_command[1] = position_reference[1];
 
 

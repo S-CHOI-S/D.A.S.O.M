@@ -2118,6 +2118,19 @@ sensor_msgs_generate_messages_py/fast:
 .PHONY : sensor_msgs_generate_messages_py/fast
 
 #=============================================================================
+# Target rules for targets named position_control_pre
+
+# Build rule for target.
+position_control_pre: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 position_control_pre
+.PHONY : position_control_pre
+
+# fast build rule for target.
+position_control_pre/fast:
+	$(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/build
+.PHONY : position_control_pre/fast
+
+#=============================================================================
 # Target rules for targets named position_control
 
 # Build rule for target.
@@ -5023,6 +5036,7 @@ help:
 	@echo "... rqt_mypkg_generate_messages_cpp"
 	@echo "... rqt_mypkg_geneus"
 	@echo "... sensor_msgs_generate_messages_py"
+	@echo "... position_control_pre"
 	@echo "... position_control"
 	@echo "... force"
 	@echo "... sensor_msgs_generate_messages_cpp"

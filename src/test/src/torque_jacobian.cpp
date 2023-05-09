@@ -77,6 +77,7 @@ void TorqJ::initPublisher()
 {
   joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10);
   joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);
+  test_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/test", 10);
 }
 
 void TorqJ::initSubscriber()
@@ -92,8 +93,8 @@ void TorqJ::commandCallback(const sensor_msgs::JointState::ConstPtr &msg)
   // X_command, Y_command 값 받아오기(O)
   X_cmd[0] = msg->position.at(0);
   X_cmd[1] = msg->position.at(1);
-//   X_PID[0] = msg->position.at(0);
-//   X_PID[1] = msg->position.at(1);
+  // X_PID[0] = msg->position.at(0);
+  // X_PID[1] = msg->position.at(1);
 }
 
 void TorqJ::poseCallback(const geometry_msgs::Twist &msg)
@@ -109,15 +110,17 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   angle_measured[0] = msg->position.at(0);
   angle_measured[1] = msg->position.at(1);
 
+  effort_measured[0] = msg->effort.at(0);
+  effort_measured[1] = msg->effort.at(1);
+
   // Jacobian 계산하기()
   J = Jacobian(angle_measured[0], angle_measured[1]);
   // Jacobian transpose()
   JT = J.transpose();
-  ///////////////////////////////////////////////////////////////////////
+
   theta_dot << msg->velocity.at(0), msg->velocity.at(1);
 
   V_measured = J * theta_dot;
-  /////////////////////////////////////////////////////////////////////// 이 정도 계산은 어떤지?
 }
 
 void TorqJ::calc_des()
@@ -173,22 +176,21 @@ void TorqJ::calc_des()
 	tau_gravity << torque_const[0] * (mass1 * CoM1 * cos(angle_measured[0]) + mass2 * Link1 * cos(angle_measured[0]) + mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[0],
 	 				       torque_const[1] * (mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[1];
 
-  ROS_WARN("here!");
-  std::cout<<tau_loop<<std::endl<<"*******************************************"<<std::endl;
+  // ROS_WARN("here!");
+  // std::cout<<tau_loop<<std::endl<<"*******************************************"<<std::endl;
 
   
 }
-
 
 void TorqJ::calc_taudes()
 {
   tau_des = tau_loop + tau_gravity;
   // tau_des = tau_gravity;
 
-  ROS_WARN("update!");
+  // ROS_WARN("update!");
   // std::cout<<JT<<std::endl<<"---------------------------------------"<<std::endl;
   // std::cout<<V_PID<<std::endl<<"***************************************"<<std::endl;
-  std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
+  // std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
 }
 
 void TorqJ::PublishCmdNMeasured()
@@ -216,6 +218,31 @@ void TorqJ::PublishCmdNMeasured()
   joint_measured_pub_.publish(joint_measured);
 }
 
+void TorqJ::ForceEstimatePre()
+{
+  geometry_msgs::Twist test;
+
+  calc_tau[0] = effort_measured[0] - tau_gravity[0];
+  calc_tau[1] = effort_measured[1] - tau_gravity[1];
+
+  test.linear.x = calc_tau[0];
+  test.linear.y = effort_measured[0];
+  test.linear.z = tau_gravity[0];
+  test.angular.x = calc_tau[1];
+  test.angular.y = effort_measured[1];
+  test.angular.z = tau_gravity[1];
+
+  ROS_WARN("update!");
+  ROS_ERROR("calc_tau");
+  std::cout<<calc_tau<<std::endl<<"***************************************"<<std::endl;
+  ROS_ERROR("effort_measured");
+  std::cout<<effort_measured<<std::endl<<"---------------------------------------"<<std::endl;
+  ROS_ERROR("tau_gravity");
+  std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
+
+  test_pub_.publish(test);
+}
+
 int main(int argc, char **argv)
 {
   // Init ROS node
@@ -239,6 +266,7 @@ int main(int argc, char **argv)
     torqJ.calc_des();
     torqJ.calc_taudes();
     torqJ.PublishCmdNMeasured();
+    torqJ.ForceEstimatePre();
 
     ros::spinOnce();
     loop_rate.sleep();

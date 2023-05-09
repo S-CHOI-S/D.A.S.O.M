@@ -52,6 +52,10 @@ add_executable(position_control src/position_control.cpp)
 add_dependencies(position_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(position_control ${catkin_LIBRARIES})
 
+add_executable(position_control_pre src/position_control_pre.cpp)
+add_dependencies(position_control_pre ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(position_control_pre ${catkin_LIBRARIES})
+
 add_executable(velocity_control src/velocity_control.cpp)
 add_dependencies(velocity_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(velocity_control ${catkin_LIBRARIES})

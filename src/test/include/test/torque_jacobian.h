@@ -64,6 +64,7 @@ class TorqJ
   Eigen::Vector2d X_measured;
   Eigen::Vector2d V_measured;
   Eigen::Vector2d angle_measured;
+  Eigen::Vector2d effort_measured;
   Eigen::Vector2d theta_dot;
 
   Eigen::Vector2d Position_P_gain;
@@ -97,10 +98,12 @@ class TorqJ
   Eigen::Vector2d tau_des;
   Eigen::Vector2d tau_gravity; //중력에 의해 조인트에 가해지는 토크
   Eigen::Vector2d tau_loop;
+  Eigen::Vector2d calc_tau;
 
   void calc_des();
   void calc_taudes();
   void PublishCmdNMeasured();
+  void ForceEstimatePre();
 
  private:
   /*****************************************************************************
@@ -125,6 +128,7 @@ class TorqJ
   *****************************************************************************/
   ros::Publisher joint_command_pub_;
   ros::Publisher joint_measured_pub_;
+  ros::Publisher test_pub_;
   ros::Subscriber EE_command_sub_;
   ros::Subscriber forwardkinematics_sub_;
   ros::Subscriber joint_states_sub_;

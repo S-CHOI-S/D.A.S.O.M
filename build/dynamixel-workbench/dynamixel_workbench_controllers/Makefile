@@ -68,6 +68,18 @@ install/local/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
 
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
@@ -123,18 +135,6 @@ list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
 
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install
-
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
-
 # The main all target
 all: cmake_check_build_system
 	cd /home/choisol/catkin_ws/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/choisol/catkin_ws/build/CMakeFiles /home/choisol/catkin_ws/build/dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/progress.marks
@@ -181,6 +181,21 @@ sensor_msgs_generate_messages_py: dynamixel-workbench/dynamixel_workbench_contro
 sensor_msgs_generate_messages_py/fast:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_py.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_py.dir/build
 .PHONY : sensor_msgs_generate_messages_py/fast
+
+# Convenience name for target.
+dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/rule:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/rule
+.PHONY : dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/rule
+
+# Convenience name for target.
+position_control_pre: dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/rule
+
+.PHONY : position_control_pre
+
+# fast build rule for target.
+position_control_pre/fast:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/build
+.PHONY : position_control_pre/fast
 
 # Convenience name for target.
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control.dir/rule:
@@ -413,6 +428,33 @@ src/position_control.cpp.s:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control.dir/src/position_control.cpp.s
 .PHONY : src/position_control.cpp.s
 
+src/position_control_pre.o: src/position_control_pre.cpp.o
+
+.PHONY : src/position_control_pre.o
+
+# target to build an object file
+src/position_control_pre.cpp.o:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/src/position_control_pre.cpp.o
+.PHONY : src/position_control_pre.cpp.o
+
+src/position_control_pre.i: src/position_control_pre.cpp.i
+
+.PHONY : src/position_control_pre.i
+
+# target to preprocess a source file
+src/position_control_pre.cpp.i:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/src/position_control_pre.cpp.i
+.PHONY : src/position_control_pre.cpp.i
+
+src/position_control_pre.s: src/position_control_pre.cpp.s
+
+.PHONY : src/position_control_pre.s
+
+# target to generate assembly for a file
+src/position_control_pre.cpp.s:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control_pre.dir/src/position_control_pre.cpp.s
+.PHONY : src/position_control_pre.cpp.s
+
 src/torque_control.o: src/torque_control.cpp.o
 
 .PHONY : src/torque_control.o
@@ -501,7 +543,9 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/local"
+	@echo "... install"
 	@echo "... sensor_msgs_generate_messages_py"
+	@echo "... position_control_pre"
 	@echo "... position_control"
 	@echo "... install/strip"
 	@echo "... force"
@@ -517,7 +561,6 @@ help:
 	@echo "... sensor_msgs_generate_messages_lisp"
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
-	@echo "... install"
 	@echo "... src/force.o"
 	@echo "... src/force.i"
 	@echo "... src/force.s"
@@ -527,6 +570,9 @@ help:
 	@echo "... src/position_control.o"
 	@echo "... src/position_control.i"
 	@echo "... src/position_control.s"
+	@echo "... src/position_control_pre.o"
+	@echo "... src/position_control_pre.i"
+	@echo "... src/position_control_pre.s"
 	@echo "... src/torque_control.o"
 	@echo "... src/torque_control.i"
 	@echo "... src/torque_control.s"
