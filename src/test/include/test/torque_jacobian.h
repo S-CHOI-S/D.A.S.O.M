@@ -23,7 +23,7 @@ class TorqJ
   double time_i = 0;
   double time_f = 0;
 
-  double X = 0.23209;
+  double X = 0.25675;
   double Y = 0;
 
   double X_P_gain = 1;
@@ -88,6 +88,8 @@ class TorqJ
   Eigen::Vector2d X_PID;
   Eigen::Vector2d X_PID_i;
   Eigen::Vector2d V_PID;
+  Eigen::Vector2d V_PID_LPF;
+  Eigen::Vector2d V_PID_LPF_i;
   Eigen::Vector2d torque_const;
   Eigen::Vector2d offset;
 
@@ -96,6 +98,8 @@ class TorqJ
 
   //Eigen::MatrixXd q_dot;
   Eigen::Vector2d tau_des;
+  Eigen::Vector2d tau_des_LPF;
+  Eigen::Vector2d tau_des_LPF_i;
   Eigen::Vector2d tau_gravity; //중력에 의해 조인트에 가해지는 토크
   Eigen::Vector2d tau_loop;
   Eigen::Vector2d calc_tau;
@@ -132,11 +136,19 @@ class TorqJ
   ros::Subscriber EE_command_sub_;
   ros::Subscriber forwardkinematics_sub_;
   ros::Subscriber joint_states_sub_;
+
+  double LOW_PASS_FILTER_FUNC(double Value_LPF_i, double Value_measured, double WL)
+{
+  //double WL = Cut_Off_Frequency * (2 * PI);
+  double Value_LPF = Value_LPF_i * WL + (1 - WL) * Value_measured;
+
+  return Value_LPF;
+}
   
   static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
 {
-  double l1 = 0.12409;
-  double l2 = 0.108;
+  double l1 = 0.10375;
+  double l2 = 0.153;
   double cos1 = cos(theta_1);
   double cos2 = cos(theta_2);
   double sin1 = sin(theta_1);
@@ -157,8 +169,8 @@ class TorqJ
 
   static Eigen::MatrixXd Jacobian(double theta_1, double theta_2)
 {
-  double l1 = 0.12409;
-  double l2 = 0.108;
+  double l1 = 0.10375;
+  double l2 = 0.153;
   double cos1 = cos(theta_1);
   double cos2 = cos(theta_2);
   double sin1 = sin(theta_1);

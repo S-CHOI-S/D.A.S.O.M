@@ -18,7 +18,7 @@
 #include "sensor_msgs/JointState.h"
 #include "dynamixel_workbench_msgs/EECommand.h"
 
-double X_command = 0.23209;
+double X_command = 0.256;
 double Y_command = 0;
 
 bool EndEffectorCommand(dynamixel_workbench_msgs::EECommand::Request &req, dynamixel_workbench_msgs::EECommand::Response &res)
@@ -52,6 +52,8 @@ int main(int argc, char** argv)
 		goal_EE.position.push_back(Y_command);
 
 		publisher.publish(goal_EE);
+
+		ROS_INFO("%lf, %lf",X_command,Y_command);
 
 		ros::spinOnce();
 		rate.sleep();
