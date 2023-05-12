@@ -88,7 +88,9 @@ void TorqueControl::initMsg()
 void TorqueControl::initPublisher()
 {
   joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/joint_states", 10);
-  forwardkinematics_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/EE_pose",10);
+  forwardkinematics_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/EE_pose", 10);
+
+  test_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/test", 10);
 }
 
 void TorqueControl::initSubscriber()
@@ -137,6 +139,29 @@ void TorqueControl::jointStatePublish()
     present_position_[index] = dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]);
   }
   joint_states_pub_.publish(dynamixel_);
+
+  // ROS_INFO("------------------------------------------------");
+  // // ROS_INFO("%lf, %lf", present_position_[0], present_position_[1]); 
+  
+  // sensor_msgs::JointState test;
+
+  // test.header.stamp = ros::Time::now();
+
+  // for (int i = 0; i < 2; i++)
+  // {
+  //   if (present_position_[i] - present_position_i[i] != 0)
+  //     num_deriv[i] = (present_position_[i] - present_position_i[i]) / time_loop;
+    
+  //   else num_deriv[i] = 0;
+
+  //   present_position_i[i] = present_position_[i];
+
+  //   test.position.push_back(num_deriv[i]);
+  // }
+  // ROS_WARN("%lf", time_loop);
+  // ROS_WARN("%lf, %lf", num_deriv[0], num_deriv[1]);
+
+  // test_pub_.publish(test);
 }
 
 void TorqueControl::controlLoop()
@@ -200,14 +225,14 @@ void TorqueControl::safe_func()
       dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
     
     // ROS_INFO("EMERGENCY!!!");
-    ROS_INFO("Torque X!!!");
+    // ROS_INFO("Torque X!!!");
   }
   else
   {
     for (int index = 0; index < dxl_cnt_; index++)
       dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
     
-    ROS_INFO("Torque O!!!");
+    // ROS_INFO("Torque O!!!");
   }
 }
 
@@ -220,6 +245,12 @@ bool TorqueControl::StopCallback(dynamixel_workbench_msgs::JointCommand::Request
   return stopFlag;
 }
 
+void TorqueControl::Test()
+{
+  
+
+}
+
 int main(int argc, char **argv)
 {
   // Init ROS node
@@ -228,12 +259,20 @@ int main(int argc, char **argv)
 
   ros::Rate loop_rate(250);
 
+  torque_ctrl.time_i = ros::Time::now().toSec();
+
   while (ros::ok())
   {
+    // time_loop update
+    torque_ctrl.time_f = ros::Time::now().toSec();
+		torque_ctrl.time_loop = torque_ctrl.time_f - torque_ctrl.time_i;
+		torque_ctrl.time_i = ros::Time::now().toSec();
+
     torque_ctrl.controlLoop(); // syncWrite
     torque_ctrl.jointStatePublish(); // [sensor_msgs::JointState] /joint_states
     torque_ctrl.ForwardKinematics(); // solve ForwardKinematics
     torque_ctrl.safe_func(); // check FK, effort and KILL at emergency
+    torque_ctrl.Test();
 
     ros::spinOnce();
     loop_rate.sleep();

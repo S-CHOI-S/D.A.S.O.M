@@ -139,6 +139,7 @@ class TorqueControl
   // ROS Topic Publisher
   ros::Publisher joint_states_pub_;
   ros::Publisher forwardkinematics_pub_;
+  ros::Publisher test_pub_;
 
   // ROS Topic Subscriber
   ros::Subscriber joint_command_sub_;
@@ -162,16 +163,23 @@ class TorqueControl
 
   int32_t goal_position_[2];
   double goal_torque[2];
-  double present_position_[2];  
+  double present_position_[2];
+  double present_position_i[2] = {0, 0};
+  double num_deriv[2] = {0, 0};
 
  public:
   TorqueControl();
   ~TorqueControl();
+
   void controlLoop(void);
   void jointStatePublish();
   void ForwardKinematics();
   void safe_func();
+  void Test();
 
+  double time_loop = 0;
+  double time_i = 0;
+  double time_f = 0;
 
  private:
   void initMsg();

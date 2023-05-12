@@ -64,6 +64,7 @@ class TorqJ
   Eigen::Vector2d X_measured;
   Eigen::Vector2d V_measured;
   Eigen::Vector2d angle_measured;
+  Eigen::Vector2d velocity_measured;
   Eigen::Vector2d effort_measured;
   Eigen::Vector2d theta_dot;
 
@@ -79,6 +80,10 @@ class TorqJ
   Eigen::Vector2d X_error_p_i;
   Eigen::Vector2d X_error_i;
   Eigen::Vector2d X_error_d;
+
+  // ADD
+  Eigen::Vector2d X_error;
+  Eigen::Vector2d pre_X_error;
 
   Eigen::Vector2d V_error_p;
   Eigen::Vector2d V_error_p_i;

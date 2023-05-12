@@ -113,6 +113,9 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   angle_measured[0] = msg->position.at(0);
   angle_measured[1] = msg->position.at(1);
 
+  velocity_measured[0] = msg->velocity.at(0);
+  velocity_measured[1] = msg->velocity.at(1);
+
   effort_measured[0] = msg->effort.at(0);
   effort_measured[1] = msg->effort.at(1);
 
@@ -128,77 +131,61 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
 
 void TorqJ::calc_des()
 {
-  // std::cout<<V_PID_LPF_i<<std::endl<<"#########################################"<<std::endl;
-  
   // PID Control(위치 오차로 인한 전류값)
-  for(int i = 0; i < 2; i++)
-  {
-    X_error_p[i] = X_cmd[i] - X_measured[i];
-    X_error_i[i] = X_error_i[i] + X_error_p[i] * time_loop;
 
-    if (X_error_p[i] - X_error_p_i[i] != 0)
-      X_error_d[i] = (X_error_p[i] - X_error_p_i[i]) / time_loop;
-
-    X_error_p_i[i] = X_error_p[i];
-
-    X_PID[i] = Position_P_gain[i] * X_error_p[i] + Position_I_gain[i] * X_error_i[i] + Position_D_gain[i] * X_error_d[i];
-  
-    if (X_PID[i] - X_PID_i[i] != 0)
-      V_PID[i] = (X_PID[i] - X_PID_i[i]) / time_loop;
-
-    X_PID_i[i] = X_PID[i];
-  }
-
-  for(int i = 0; i<2; i++)
-  {
-    V_PID_LPF[i] = LOW_PASS_FILTER_FUNC(V_PID_LPF_i[i], V_PID[i], 0.9);
-    V_PID_LPF_i[i] = V_PID_LPF[i];
-  }
-  
-  // ROS_WARN("update!");
-  // // std::cout<<X_cmd<<std::endl<<"-----------------------------------------"<<std::endl;
-  // // std::cout<<X_measured<<std::endl<<"#########################################"<<std::endl;
-  // // std::cout<<X_error_p<<std::endl<<"-----------------------------------------"<<std::endl;
-  // std::cout<<V_PID<<std::endl<<"#########################################"<<std::endl;
-  // std::cout<<V_PID_LPF<<std::endl<<"-----------------------------------------"<<std::endl;
-  
   // for(int i = 0; i < 2; i++)
   // {
-  //   V_error_p[i] = X_PID[i] - V_measured[i];
-  //   // std::cout<<V_error_i<<std::endl<<"#########################################"<<std::endl;
-  //   V_error_i[i] = V_error_i[i] + V_error_p[i] * time_loop;
-  //   // std::cout<<V_error_i<<std::endl<<"-----------------------------------------"<<std::endl;
+  //   X_error_p[i] = X_cmd[i] - X_measured[i];
+  //   X_error_i[i] = X_error_i[i] + X_error_p[i] * time_loop;
 
-  //   if (V_error_p[i] - V_error_p_i[i] != 0) 
-  //     V_error_d[i] = (V_error_p[i] - V_error_p_i[i]) / time_loop;
-    
-  //   V_error_p_i[i] = V_error_p[i];
+  //   if (X_error_p[i] - X_error_p_i[i] != 0)
+  //     X_error_d[i] = (X_error_p[i] - X_error_p_i[i]) / time_loop;
 
-  //   V_PID[i] = Velocity_P_gain[i] * V_error_p[i] + Velocity_I_gain[i] * V_error_i[i] + Velocity_D_gain[i] * V_error_d[i];
+  //   X_error_p_i[i] = X_error_p[i];
+
+  //   X_PID[i] = Position_P_gain[i] * X_error_p[i] + Position_I_gain[i] * X_error_i[i] + Position_D_gain[i] * X_error_d[i];
+  
+  //   if (X_PID[i] - X_PID_i[i] != 0)
+  //     V_PID[i] = (X_PID[i] - X_PID_i[i]) / time_loop;
+
+  //   else V_PID[i] = 0; // 이거 혹시 몰라서 추가함
+
+  //   X_PID_i[i] = X_PID[i];
   // }
 
-  // std::cout<<V_error_p<<std::endl<<"#########################################"<<std::endl;
+  for(int i = 0; i < 2; i++)
+  {
+    X_error[i] = X_cmd[i] - X_measured[i];
 
-  // JT.resize(2,2);
+    X_PID[i] = Position_P_gain[i] * X_error[i] + 
+               Position_D_gain[i] * (X_error[i] - pre_X_error[i]) / time_loop;
+
+    pre_X_error[i] = X_error[i];
+  }
+
+  // for(int i = 0; i < 2; i++)
+  // {
+  //   V_PID_LPF[i] = LOW_PASS_FILTER_FUNC(V_PID_LPF_i[i], V_PID[i], 0.9);
+  //   V_PID_LPF_i[i] = V_PID_LPF[i];
+  // }
+
+  // tau_loop = JT * V_PID;
+  tau_loop = JT * X_PID;
+
+  ROS_WARN("tau_loop!");
+  std::cout<<tau_loop<<std::endl<<"---------------------------------------"<<std::endl;
   
-  // V_PID = F_des
-
-  tau_loop = JT * V_PID;
 
   // 중력 Matrix (OCM 있을 때)--------------------------------
 	tau_gravity << torque_const[0] * (mass1 * CoM1 * cos(angle_measured[0]) + mass2 * Link1 * cos(angle_measured[0]) + mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[0],
 	 				       torque_const[1] * (mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[1];
 
-  // ROS_WARN("here!");
-  // std::cout<<JT<<std::endl<<"*******************************************"<<std::endl;
-  // std::cout<<tau_loop<<std::endl<<"-----------------------------------------"<<std::endl;
-  
+  ROS_WARN("tau_gravity!");
+  std::cout<<tau_gravity<<std::endl<<"***************************************"<<std::endl;
 }
 
 void TorqJ::calc_taudes()
 {
-  
-  // tau_des = tau_gravity;
   tau_des = tau_loop + tau_gravity;
 
   // 이거 현재 안 쓰고 있는 상황
@@ -209,10 +196,10 @@ void TorqJ::calc_taudes()
   // }
 
 
-  // ROS_WARN("update!");
+  ROS_WARN("tau_des!");
   // std::cout<<JT<<std::endl<<"---------------------------------------"<<std::endl;
   // std::cout<<V_PID<<std::endl<<"***************************************"<<std::endl;
-  // std::cout<<tau_gravity<<std::endl<<"#########################################"<<std::endl;
+  std::cout<<tau_des<<std::endl<<"#########################################"<<std::endl;
 }
 
 void TorqJ::PublishCmdNMeasured()
@@ -222,10 +209,10 @@ void TorqJ::PublishCmdNMeasured()
 
   // tau_des를 publish
   joint_cmd.header.stamp = ros::Time::now();
-  joint_cmd.position.push_back(X_PID[0]); // cartesian space
-  joint_cmd.position.push_back(X_PID[1]); // cartesian space
-  joint_cmd.velocity.push_back(V_PID[0]); // cartesian space
-  joint_cmd.velocity.push_back(V_PID[1]); // cartesian space
+  joint_cmd.position.push_back(X_cmd[0]); // cartesian space
+  joint_cmd.position.push_back(X_cmd[1]); // cartesian space
+  joint_cmd.velocity.push_back(X_PID[0]); // cartesian space
+  joint_cmd.velocity.push_back(X_PID[1]); // cartesian space
   joint_cmd.effort.push_back(tau_des[0]); // joint space
   joint_cmd.effort.push_back(tau_des[1]); // joint space
   joint_command_pub_.publish(joint_cmd);
