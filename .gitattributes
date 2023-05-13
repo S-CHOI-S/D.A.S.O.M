@@ -1,4 +1,3 @@
-*.cmake linguist-detectable=false
 *.make linguist-detectable=false
 *.mak linguist-detectable=false
 *.d linguist-detectable=false
