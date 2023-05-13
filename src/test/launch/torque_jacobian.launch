@@ -1,12 +1,12 @@
 <launch>
   <arg name="robot_name"      default="dasom"/>
-  <arg name="X_P_gain"          default="30"/>
+  <arg name="X_P_gain"          default="20"/>
   <arg name="X_I_gain"          default="0"/>
-  <arg name="X_D_gain"          default="1"/> <!-- 0.5 ~ 1 사이로 넣어줌-->
+  <arg name="X_D_gain"          default="5"/>
 
-  <arg name="Y_P_gain"          default="30"/>
+  <arg name="Y_P_gain"          default="20"/>
   <arg name="Y_I_gain"          default="0"/>
-  <arg name="Y_D_gain"          default="1"/> <!-- 0.5 ~ 1 사이로 넣어줌-->
+  <arg name="Y_D_gain"          default="5"/>
 
   <arg name="VX_P_gain"         default="5"/>
   <arg name="VX_I_gain"         default="0"/>

@@ -220,8 +220,8 @@ void TorqJ::PublishCmdNMeasured()
   joint_measured.header.stamp = ros::Time::now();
   joint_measured.position.push_back(X_measured[0]);
   joint_measured.position.push_back(X_measured[1]);
-  joint_measured.velocity.push_back(V_measured[0]);
-  joint_measured.velocity.push_back(V_measured[1]);
+  joint_measured.velocity.push_back(tau_gravity[0]-effort_measured[0]);
+  joint_measured.velocity.push_back(tau_gravity[1]-effort_measured[1]);
   joint_measured.effort.push_back(tau_gravity[0]);
   joint_measured.effort.push_back(tau_gravity[1]);
   joint_measured_pub_.publish(joint_measured);
