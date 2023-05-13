@@ -1,1 +1,1 @@
-*.mk linguist-detectable=false
+*.makefile linguist-detectable=false
