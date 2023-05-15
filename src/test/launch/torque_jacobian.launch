@@ -1,49 +1,49 @@
 <launch>
-  <arg name="robot_name"      default="dasom"/>
-  <arg name="X_P_gain"          default="20"/>
-  <arg name="X_I_gain"          default="0"/>
-  <arg name="X_D_gain"          default="5"/>
+  <arg name="robot_name"                default="dasom"/>
+  <arg name="X_P_gain"                  default="30"/>
+  <arg name="X_I_gain"                  default="0"/>
+  <arg name="X_D_gain"                  default="5"/>
 
-  <arg name="Y_P_gain"          default="20"/>
-  <arg name="Y_I_gain"          default="0"/>
-  <arg name="Y_D_gain"          default="5"/>
+  <arg name="Y_P_gain"                  default="30"/>
+  <arg name="Y_I_gain"                  default="0"/>
+  <arg name="Y_D_gain"                  default="5"/>
 
-  <arg name="VX_P_gain"         default="5"/>
-  <arg name="VX_I_gain"         default="0"/>
-  <arg name="VX_D_gain"         default="0"/>
+  <arg name="VX_P_gain"                 default="0"/>
+  <arg name="VX_I_gain"                 default="0"/>
+  <arg name="VX_D_gain"                 default="1"/>
 
-  <arg name="VY_P_gain"         default="5"/>
-  <arg name="VY_I_gain"         default="0"/>
-  <arg name="VY_D_gain"         default="0"/>
+  <arg name="VY_P_gain"                 default="0"/>
+  <arg name="VY_I_gain"                 default="0"/>
+  <arg name="VY_D_gain"                 default="1"/>
 
-  <arg name="torque_const_1"         default="1"/>
-  <arg name="torque_const_2"         default="1"/>
+  <arg name="torque_const_1"            default="1"/>
+  <arg name="torque_const_2"            default="1"/>
 
-  <arg name="offset_1"         default="0"/>
-  <arg name="offset_2"         default="0"/>
+  <arg name="offset_1"                  default="0"/>
+  <arg name="offset_2"                  default="0"/>
 
-  <param name="robot_name"    value="$(arg robot_name)"/>
-  <param name="X_P_gain"        value="$(arg X_P_gain)"/>
-  <param name="X_I_gain"        value="$(arg X_I_gain)"/>
-  <param name="X_D_gain"        value="$(arg X_D_gain)"/>
+  <param name="robot_name"              value="$(arg robot_name)"/>
+  <param name="X_P_gain"                value="$(arg X_P_gain)"/>
+  <param name="X_I_gain"                value="$(arg X_I_gain)"/>
+  <param name="X_D_gain"                value="$(arg X_D_gain)"/>
 
-  <param name="Y_P_gain"        value="$(arg Y_P_gain)"/>
-  <param name="Y_I_gain"        value="$(arg Y_I_gain)"/>
-  <param name="Y_D_gain"        value="$(arg Y_D_gain)"/>
+  <param name="Y_P_gain"                value="$(arg Y_P_gain)"/>
+  <param name="Y_I_gain"                value="$(arg Y_I_gain)"/>
+  <param name="Y_D_gain"                value="$(arg Y_D_gain)"/>
 
-  <param name="VX_P_gain"       value="$(arg VX_P_gain)"/>
-  <param name="VX_I_gain"       value="$(arg VX_I_gain)"/>
-  <param name="VX_D_gain"       value="$(arg VX_D_gain)"/>
+  <param name="VX_P_gain"               value="$(arg VX_P_gain)"/>
+  <param name="VX_I_gain"               value="$(arg VX_I_gain)"/>
+  <param name="VX_D_gain"               value="$(arg VX_D_gain)"/>
 
-  <param name="VY_P_gain"       value="$(arg VY_P_gain)"/>
-  <param name="VY_I_gain"       value="$(arg VY_I_gain)"/>
-  <param name="VY_D_gain"       value="$(arg VY_D_gain)"/>
+  <param name="VY_P_gain"               value="$(arg VY_P_gain)"/>
+  <param name="VY_I_gain"               value="$(arg VY_I_gain)"/>
+  <param name="VY_D_gain"               value="$(arg VY_D_gain)"/>
 
-  <param name="torque_const_1"        value="$(arg torque_const_1)"/>
-  <param name="torque_const_2"        value="$(arg torque_const_2)"/>
+  <param name="torque_const_1"          value="$(arg torque_const_1)"/>
+  <param name="torque_const_2"          value="$(arg torque_const_2)"/>
 
-  <param name="offset_1"        value="$(arg offset_1)"/>
-  <param name="offset_2"        value="$(arg offset_2)"/>
+  <param name="offset_1"                value="$(arg offset_1)"/>
+  <param name="offset_2"                value="$(arg offset_2)"/>
 
 
   <node name="torque_jacobian" pkg="test" type="torque_jacobian" required="true" output="screen"/>

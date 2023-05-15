@@ -79,6 +79,7 @@ class TorqJ
   Eigen::Vector2d X_error_p;
   Eigen::Vector2d X_error_p_i;
   Eigen::Vector2d X_error_i;
+  Eigen::Vector2d X_error_I;
   Eigen::Vector2d X_error_d;
 
   // ADD
@@ -98,6 +99,8 @@ class TorqJ
   Eigen::Vector2d torque_const;
   Eigen::Vector2d offset;
 
+  Eigen::Vector2d V_test;
+
   Eigen::Matrix2d J;
   Eigen::Matrix2d JT;
 
@@ -113,6 +116,7 @@ class TorqJ
   void calc_taudes();
   void PublishCmdNMeasured();
   void ForceEstimatePre();
+  void Limiter();
 
  private:
   /*****************************************************************************

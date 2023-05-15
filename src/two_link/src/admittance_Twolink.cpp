@@ -31,11 +31,11 @@ double position_dot_from_model = 0;
 double position_ddot_from_model = 0;
 
 //------------보정치--------------//
-double torque_constant_1 = 0.174;
-double torque_constant_2 = 0.174;
+double torque_constant_1 = 1; //0.174;
+double torque_constant_2 = 1; //0.174;
 
-double offset_1 = 0.35;
-double offset_2 = 0.25;
+double offset_1 = 0; //0.35;
+double offset_2 = 0; //0.25;
 //-------------------------------
 
 
@@ -83,7 +83,7 @@ Eigen::Vector2d position_command;     //  최종 위치
 Eigen::Vector2d position_reference;   //  위치 입력값
 Eigen::Vector2d Tau_gravity; //중력에 의해 조인트에 가해지는 토크
 Eigen::Vector2d Tau_external_force; // 외력에 의해 조인트에 가해지는 토크 (중력성분을 빼서 구했음)
-
+Eigen::Vector2d measured_position;
 
 Eigen::Matrix2d Jacobian;
 Eigen::Matrix2d Jacobian_transpose;
@@ -122,6 +122,11 @@ static Eigen::Matrix2d solve_Jacobian(double alpha, double beta, double Link1, d
 	return J;
 }
 
+void EEposecallback(const geometry_msgs::Twist &msg)
+{
+	measured_position[0] = msg.linear.x;
+	measured_position[1] = msg.linear.y;
+}
 
 int main(int argc, char** argv)
 {
@@ -130,6 +135,7 @@ int main(int argc, char** argv)
 	ros::NodeHandle n;
 	ros::Subscriber CommandSub = n.subscribe("/reference_position", 10, commandcallback);  // Command From rqt
 	ros::Subscriber JointSub = n.subscribe("/joint_states", 10, jointcallback); // Effort, Position, Velocity
+	ros::Subscriber EEposeSub = n.subscribe("/EE_pose", 10, EEposecallback);
 	ros::Publisher Commandpub = n.advertise<sensor_msgs::JointState>("/goal_EE_position", 100); // Final Angle Command
 	ros::Publisher testPub = n.advertise<geometry_msgs::Twist>("/ForceTest", 100);
 
@@ -137,19 +143,19 @@ int main(int argc, char** argv)
 //	ros::Subscriber hapticCallback_sub = n.subscribe("/now_haptic_endEffector_publisher", 10, hapticCallback);
  
 //-----MDK Model ------//
-	virtual_mass[0] = 1.1;
+	virtual_mass[0] = 0.1;
 	virtual_damper[0] = 2.0;
-	virtual_spring[0] = 0.5;
+	virtual_spring[0] = 0.1;
 
 //-----MDK Model ------//
-	virtual_mass[1] = 1.1;
+	virtual_mass[1] = 0.1;
 	virtual_damper[1] = 2.0;
-	virtual_spring[1] = 0.5;
+	virtual_spring[1] = 10;
 
 
 //----------Link Lengths---------//
-	double Link1 = 0.10409;
-	double Link2 = 0.13377;
+	double Link1 = 0.10375;
+	double Link2 = 0.153;
 
 //----------Link Lengths---------//
 	double CoM1 = 0.08092;
@@ -205,8 +211,9 @@ int main(int argc, char** argv)
 
 	//----------------------------------------------------------------
 	// 중력 매트릭스 (OCM 있을 때)--------------------------------
-	Tau_gravity << (mass1 * CoM1 * cos(measured_angle[0]) + mass2 * Link1 * cos(measured_angle[0]) + mass2 * CoM2 * cos(measured_angle[0] + measured_angle[1] + delta)) * 9.81 - offset_1,
-					mass2 * CoM2 * cos(measured_angle[0] + measured_angle[1] + delta) * 9.81 - offset_2;
+	// 중력 Matrix (OCM 있을 때)--------------------------------
+	Tau_gravity << torque_constant_1 * (mass1 * CoM1 * cos(measured_angle[0]) + mass2 * Link1 * cos(measured_angle[0]) + mass2 * CoM2 * cos(measured_angle[0] + measured_angle[1] + delta)) * 9.81 - offset_1,
+	 			   torque_constant_2 * (mass2 * CoM2 * cos(measured_angle[0] + measured_angle[1] + delta)) * 9.81 - offset_2;
 
 	Tau_external_force = measured_torque - Tau_gravity;
 	//----------------------------------------------------------------
@@ -254,22 +261,26 @@ int main(int argc, char** argv)
 	//----------------------------------------------------------------
 	// 이것저것 테스트 plot 띄우기용 topic --------------------------------
 
-	ForceTest.linear.x = Tau_gravity[0];
-	ForceTest.linear.y = Tau_gravity[1];
-	ForceTest.angular.x = measured_torque[0];
-	ForceTest.angular.y = measured_torque[1];
+	ForceTest.linear.x = Tau_gravity[0] - measured_torque[0];
+	ForceTest.linear.y = Tau_gravity[1] - measured_torque[1];
+	ForceTest.angular.x = position_from_model[0];
+	ForceTest.angular.y = position_from_model[1];
 	ForceTest.linear.z = estimated_Force[0];
 	ForceTest.angular.z = estimated_Force[1];
-	
 
 	testPub.publish(ForceTest); 
 		
 	
 	//----------------------------------------------------------------
 	// 움직여라 명령! --------------------------------
+	
+	cmd.header.stamp = ros::Time::now();
 
 	cmd.position.push_back(position_command[0]);
 	cmd.position.push_back(position_command[1]);
+	cmd.velocity.push_back(position_reference[0] - measured_position[0]);
+	cmd.velocity.push_back(position_reference[1] - measured_position[1]);
+
 	Commandpub.publish(cmd);
 
 

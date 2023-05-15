@@ -54,17 +54,20 @@ TorqJ::TorqJ()
   Position_I_gain << X_I_gain, Y_I_gain;
   Position_D_gain << X_D_gain, Y_D_gain;
 
-  Velocity_P_gain << VX_P_gain, VY_P_gain;
-  Velocity_I_gain << VX_I_gain, VY_I_gain;
-  Velocity_D_gain << VX_D_gain, VY_D_gain;
+  // Velocity_P_gain << VX_P_gain, VY_P_gain;
+  // Velocity_I_gain << VX_I_gain, VY_I_gain;
+  // Velocity_D_gain << VX_D_gain, VY_D_gain;
 
   torque_const << torque_const_1, torque_const_2;
   offset << offset_1, offset_2;
 
   X_error_i << 0, 0;
   tau_des_LPF_i << 0, 0;
+  X_error_I << 0, 0;
   // V_PID_LPF_i << 0, 0;
   // V_error_i << 0, 0;
+
+  V_test << VX_D_gain, VY_D_gain;
 
   ROS_INFO("TorqJ node start");
 }
@@ -157,20 +160,35 @@ void TorqJ::calc_des()
   {
     X_error[i] = X_cmd[i] - X_measured[i];
 
+    X_error_I[i] = X_error_I[i] + X_error[i] * time_loop;
+
     X_PID[i] = Position_P_gain[i] * X_error[i] + 
+               Position_I_gain[i] * X_error_I[i] +
                Position_D_gain[i] * (X_error[i] - pre_X_error[i]) / time_loop;
+
+    // X_PID[i] = Position_P_gain[i] * X_error[i];
 
     pre_X_error[i] = X_error[i];
   }
+
+  ROS_WARN("X_error_I!");
+  std::cout<<X_error_I<<std::endl<<"---------------------------------------"<<std::endl;
+  // ROS_WARN("X_PID!");
+  // std::cout<<tau_loop<<std::endl<<"---------------------------------------"<<std::endl;
+  // ROS_WARN("tau_loop!");
+  // std::cout<<tau_loop<<std::endl<<"---------------------------------------"<<std::endl;
 
   // for(int i = 0; i < 2; i++)
   // {
   //   V_PID_LPF[i] = LOW_PASS_FILTER_FUNC(V_PID_LPF_i[i], V_PID[i], 0.9);
   //   V_PID_LPF_i[i] = V_PID_LPF[i];
   // }
+  // V_test.resize(1,2);
 
-  // tau_loop = JT * V_PID;
   tau_loop = JT * X_PID;
+
+  // tau_loop[0] = tau_loop[0] - VX_D_gain * velocity_measured[0];
+  // tau_loop[1] = tau_loop[1] - VY_D_gain * velocity_measured[1];
 
   ROS_WARN("tau_loop!");
   std::cout<<tau_loop<<std::endl<<"---------------------------------------"<<std::endl;
@@ -180,13 +198,14 @@ void TorqJ::calc_des()
 	tau_gravity << torque_const[0] * (mass1 * CoM1 * cos(angle_measured[0]) + mass2 * Link1 * cos(angle_measured[0]) + mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[0],
 	 				       torque_const[1] * (mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta)) * 9.81 - offset[1];
 
-  ROS_WARN("tau_gravity!");
-  std::cout<<tau_gravity<<std::endl<<"***************************************"<<std::endl;
+  // ROS_WARN("tau_gravity!");
+  // std::cout<<tau_gravity<<std::endl<<"***************************************"<<std::endl;
 }
 
 void TorqJ::calc_taudes()
 {
   tau_des = tau_loop + tau_gravity;
+  // tau_des = tau_gravity;
 
   // 이거 현재 안 쓰고 있는 상황
   // for(int i = 0; i<2; i++)
@@ -201,6 +220,19 @@ void TorqJ::calc_taudes()
   // std::cout<<V_PID<<std::endl<<"***************************************"<<std::endl;
   std::cout<<tau_des<<std::endl<<"#########################################"<<std::endl;
 }
+
+double effort_offset_1 = 0.01;
+double effort_offset_2 = 0.01;
+
+void TorqJ::Limiter()
+{
+  if(tau_des[0] >0) tau_des[0] += effort_offset_1;
+  else tau_des[0] -= effort_offset_1;
+
+  if(tau_des[1] >0) tau_des[1] += effort_offset_2;
+  else tau_des[1] -= effort_offset_2;
+}
+
 
 void TorqJ::PublishCmdNMeasured()
 {
