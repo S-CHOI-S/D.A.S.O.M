@@ -80,6 +80,27 @@ install/fast: preinstall/fast
 	/usr/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
@@ -113,27 +134,6 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -211,6 +211,21 @@ position_control: dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles
 position_control/fast:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/position_control.dir/build
 .PHONY : position_control/fast
+
+# Convenience name for target.
+dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule
+.PHONY : dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule
+
+# Convenience name for target.
+sensor_msgs_generate_messages_lisp: dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule
+
+.PHONY : sensor_msgs_generate_messages_lisp
+
+# fast build rule for target.
+sensor_msgs_generate_messages_lisp/fast:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build
+.PHONY : sensor_msgs_generate_messages_lisp/fast
 
 # Convenience name for target.
 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/force.dir/rule:
@@ -333,19 +348,34 @@ torque_control/fast:
 .PHONY : torque_control/fast
 
 # Convenience name for target.
-dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule:
-	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule
-.PHONY : dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule
+dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/rule:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/rule
+.PHONY : dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/rule
 
 # Convenience name for target.
-sensor_msgs_generate_messages_lisp: dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/rule
+torque_control_orientation: dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/rule
 
-.PHONY : sensor_msgs_generate_messages_lisp
+.PHONY : torque_control_orientation
 
 # fast build rule for target.
-sensor_msgs_generate_messages_lisp/fast:
-	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build
-.PHONY : sensor_msgs_generate_messages_lisp/fast
+torque_control_orientation/fast:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/build
+.PHONY : torque_control_orientation/fast
+
+# Convenience name for target.
+dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/rule:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/rule
+.PHONY : dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/rule
+
+# Convenience name for target.
+torque_control_pre_icros: dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/rule
+
+.PHONY : torque_control_pre_icros
+
+# fast build rule for target.
+torque_control_pre_icros/fast:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/build
+.PHONY : torque_control_pre_icros/fast
 
 src/force.o: src/force.cpp.o
 
@@ -482,6 +512,33 @@ src/torque_control.cpp.s:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control.dir/src/torque_control.cpp.s
 .PHONY : src/torque_control.cpp.s
 
+src/torque_control_orientation.o: src/torque_control_orientation.cpp.o
+
+.PHONY : src/torque_control_orientation.o
+
+# target to build an object file
+src/torque_control_orientation.cpp.o:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/src/torque_control_orientation.cpp.o
+.PHONY : src/torque_control_orientation.cpp.o
+
+src/torque_control_orientation.i: src/torque_control_orientation.cpp.i
+
+.PHONY : src/torque_control_orientation.i
+
+# target to preprocess a source file
+src/torque_control_orientation.cpp.i:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/src/torque_control_orientation.cpp.i
+.PHONY : src/torque_control_orientation.cpp.i
+
+src/torque_control_orientation.s: src/torque_control_orientation.cpp.s
+
+.PHONY : src/torque_control_orientation.s
+
+# target to generate assembly for a file
+src/torque_control_orientation.cpp.s:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/src/torque_control_orientation.cpp.s
+.PHONY : src/torque_control_orientation.cpp.s
+
 src/torque_control_pre.o: src/torque_control_pre.cpp.o
 
 .PHONY : src/torque_control_pre.o
@@ -508,6 +565,33 @@ src/torque_control_pre.s: src/torque_control_pre.cpp.s
 src/torque_control_pre.cpp.s:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre.dir/src/torque_control_pre.cpp.s
 .PHONY : src/torque_control_pre.cpp.s
+
+src/torque_control_pre_icros.o: src/torque_control_pre_icros.cpp.o
+
+.PHONY : src/torque_control_pre_icros.o
+
+# target to build an object file
+src/torque_control_pre_icros.cpp.o:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/src/torque_control_pre_icros.cpp.o
+.PHONY : src/torque_control_pre_icros.cpp.o
+
+src/torque_control_pre_icros.i: src/torque_control_pre_icros.cpp.i
+
+.PHONY : src/torque_control_pre_icros.i
+
+# target to preprocess a source file
+src/torque_control_pre_icros.cpp.i:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/src/torque_control_pre_icros.cpp.i
+.PHONY : src/torque_control_pre_icros.cpp.i
+
+src/torque_control_pre_icros.s: src/torque_control_pre_icros.cpp.s
+
+.PHONY : src/torque_control_pre_icros.s
+
+# target to generate assembly for a file
+src/torque_control_pre_icros.cpp.s:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/src/torque_control_pre_icros.cpp.s
+.PHONY : src/torque_control_pre_icros.cpp.s
 
 src/velocity_control.o: src/velocity_control.cpp.o
 
@@ -544,9 +628,12 @@ help:
 	@echo "... depend"
 	@echo "... install/local"
 	@echo "... install"
+	@echo "... list_install_components"
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... position_control_pre"
 	@echo "... position_control"
+	@echo "... rebuild_cache"
+	@echo "... sensor_msgs_generate_messages_lisp"
 	@echo "... install/strip"
 	@echo "... force"
 	@echo "... sensor_msgs_generate_messages_cpp"
@@ -557,10 +644,9 @@ help:
 	@echo "... multi_port"
 	@echo "... test"
 	@echo "... torque_control"
+	@echo "... torque_control_orientation"
+	@echo "... torque_control_pre_icros"
 	@echo "... edit_cache"
-	@echo "... sensor_msgs_generate_messages_lisp"
-	@echo "... rebuild_cache"
-	@echo "... list_install_components"
 	@echo "... src/force.o"
 	@echo "... src/force.i"
 	@echo "... src/force.s"
@@ -576,9 +662,15 @@ help:
 	@echo "... src/torque_control.o"
 	@echo "... src/torque_control.i"
 	@echo "... src/torque_control.s"
+	@echo "... src/torque_control_orientation.o"
+	@echo "... src/torque_control_orientation.i"
+	@echo "... src/torque_control_orientation.s"
 	@echo "... src/torque_control_pre.o"
 	@echo "... src/torque_control_pre.i"
 	@echo "... src/torque_control_pre.s"
+	@echo "... src/torque_control_pre_icros.o"
+	@echo "... src/torque_control_pre_icros.i"
+	@echo "... src/torque_control_pre_icros.s"
 	@echo "... src/velocity_control.o"
 	@echo "... src/velocity_control.i"
 	@echo "... src/velocity_control.s"

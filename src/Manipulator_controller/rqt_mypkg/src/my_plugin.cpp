@@ -78,7 +78,8 @@ void MyPlugin::initPlugin(qt_gui_cpp::PluginContext& context)
 //  TextBox_set = n.createTimer(ros::Duration(0.1), &MyPlugin::TextBox_callback, this);
 
   //HoverServer = n.advertiseService("/FAC_HoverService", &MyPlugin::FAC_Hover_Callback, this); // Get state from Drone to GUI
-  cmd_Publisher = n.advertise<sensor_msgs::JointState>("/reference_position", 100);  // Dynamixel에 direct로 cmd 값 주기
+  // cmd_Publisher = n.advertise<sensor_msgs::JointState>("/reference_position", 100);  // Dynamixel에 direct로 cmd 값 주기
+cmd_Publisher = n.advertise<sensor_msgs::JointState>("/goal_EE_position", 100);  // Dynamixel에 direct로 cmd 값 주기
 //  cmd_Publisher = n.advertise<geometry_msgs::Twist>("/goal_EE_position", 100);
   AngleSubscriber = n.subscribe("/joint_states", 100, &MyPlugin::AngleSubscriber_Callback, this);
  // limitsubscriber = n.subscribe("/dasom/goal_dynamixel_position", 100, &MyPlugin::LimitSubscriber_Callback, this);

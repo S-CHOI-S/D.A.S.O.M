@@ -53,8 +53,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-
-
 add_executable(Admittance_twoLink.cpp src/Admittance_twoLink.cpp)
 add_dependencies(Admittance_twoLink.cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(Admittance_twoLink.cpp ${catkin_LIBRARIES})

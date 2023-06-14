@@ -76,6 +76,14 @@ add_executable(torque_control_pre src/torque_control_pre.cpp)
 add_dependencies(torque_control_pre ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(torque_control_pre ${catkin_LIBRARIES})
 
+add_executable(torque_control_orientation src/torque_control_orientation.cpp)
+add_dependencies(torque_control_orientation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(torque_control_orientation ${catkin_LIBRARIES})
+
+add_executable(torque_control_pre_icros src/torque_control_pre_icros.cpp)
+add_dependencies(torque_control_pre_icros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(torque_control_pre_icros ${catkin_LIBRARIES})
+
 #################################################################################
 ## Install
 #################################################################################

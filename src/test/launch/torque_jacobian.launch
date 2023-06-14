@@ -1,49 +1,68 @@
 <launch>
-  <arg name="robot_name"                default="dasom"/>
-  <arg name="X_P_gain"                  default="30"/>
-  <arg name="X_I_gain"                  default="0"/>
-  <arg name="X_D_gain"                  default="5"/>
 
-  <arg name="Y_P_gain"                  default="30"/>
-  <arg name="Y_I_gain"                  default="0"/>
-  <arg name="Y_D_gain"                  default="5"/>
+<!--For DoB&Current based position control-->
+  <arg name="position_p_gain"          default="50"/>
+  <arg name="position_i_gain"          default="0"/>
+  <arg name="position_d_gain"          default="5"/>
+  <arg name="polar_moment"             default="0.027"/>
+  <arg name="Cut_Off_Freq"             default="5"/>
 
-  <arg name="VX_P_gain"                 default="0"/>
-  <arg name="VX_I_gain"                 default="0"/>
-  <arg name="VX_D_gain"                 default="1"/>
+<!--end-->
 
-  <arg name="VY_P_gain"                 default="0"/>
-  <arg name="VY_I_gain"                 default="0"/>
-  <arg name="VY_D_gain"                 default="1"/>
 
-  <arg name="torque_const_1"            default="1"/>
-  <arg name="torque_const_2"            default="1"/>
+  <arg name="robot_name"      default="dasom"/>
 
-  <arg name="offset_1"                  default="0"/>
-  <arg name="offset_2"                  default="0"/>
+  <arg name="Y_P_gain"          default="0"/>
+  <arg name="Y_I_gain"          default="0"/>
+  <arg name="Y_D_gain"          default="0"/>
 
-  <param name="robot_name"              value="$(arg robot_name)"/>
-  <param name="X_P_gain"                value="$(arg X_P_gain)"/>
-  <param name="X_I_gain"                value="$(arg X_I_gain)"/>
-  <param name="X_D_gain"                value="$(arg X_D_gain)"/>
+  <arg name="VX_P_gain"         default="0"/>
+  <arg name="VX_I_gain"         default="0"/>
+  <arg name="VX_D_gain"         default="0"/>
 
-  <param name="Y_P_gain"                value="$(arg Y_P_gain)"/>
-  <param name="Y_I_gain"                value="$(arg Y_I_gain)"/>
-  <param name="Y_D_gain"                value="$(arg Y_D_gain)"/>
+  <arg name="VY_P_gain"         default="0"/>
+  <arg name="VY_I_gain"         default="0"/>
+  <arg name="VY_D_gain"         default="0"/>
 
-  <param name="VX_P_gain"               value="$(arg VX_P_gain)"/>
-  <param name="VX_I_gain"               value="$(arg VX_I_gain)"/>
-  <param name="VX_D_gain"               value="$(arg VX_D_gain)"/>
+  <arg name="Error_Gain"           default="3"/>
+  <arg name="cut_off_freq_4th"     default="50"/>
+  <arg name="damping_const"        default="0.1"/>
 
-  <param name="VY_P_gain"               value="$(arg VY_P_gain)"/>
-  <param name="VY_I_gain"               value="$(arg VY_I_gain)"/>
-  <param name="VY_D_gain"               value="$(arg VY_D_gain)"/>
+  <arg name="stiction_alpha"       default="13.0"/>
+  <arg name="stiction_k"           default="1.3"/>
 
-  <param name="torque_const_1"          value="$(arg torque_const_1)"/>
-  <param name="torque_const_2"          value="$(arg torque_const_2)"/>
 
-  <param name="offset_1"                value="$(arg offset_1)"/>
-  <param name="offset_2"                value="$(arg offset_2)"/>
+
+
+  <param name="position_p_gain"        value="$(arg position_p_gain)"/>
+  <param name="position_i_gain"        value="$(arg position_i_gain)"/>
+  <param name="position_d_gain"        value="$(arg position_d_gain)"/>
+  <param name="Cut_Off_Freq"           value="$(arg Cut_Off_Freq)"/>
+  <param name="polar_moment"           value="$(arg polar_moment)"/>
+
+  <param name="robot_name"    value="$(arg robot_name)"/>
+
+  <param name="Y_P_gain"        value="$(arg Y_P_gain)"/>
+  <param name="Y_I_gain"        value="$(arg Y_I_gain)"/>
+  <param name="Y_D_gain"        value="$(arg Y_D_gain)"/>
+
+  <param name="VX_P_gain"        value="$(arg VX_P_gain)"/>
+  <param name="VX_I_gain"        value="$(arg VX_I_gain)"/>
+  <param name="VX_D_gain"        value="$(arg VX_D_gain)"/>
+
+  <param name="VY_P_gain"        value="$(arg VY_P_gain)"/>
+  <param name="VY_I_gain"        value="$(arg VY_I_gain)"/>
+  <param name="VY_D_gain"        value="$(arg VY_D_gain)"/>
+
+  <param name="Cut_Off_Freq"        value="$(arg Cut_Off_Freq)"/>
+  <param name="Error_Gain"        value="$(arg Error_Gain)"/>
+  <param name="cut_off_freq_4th"        value="$(arg cut_off_freq_4th)"/>
+  <param name="damping_const"        value="$(arg damping_const)"/>
+
+
+  <param name="stiction_alpha"        value="$(arg stiction_alpha)"/>
+  <param name="stiction_k"            value="$(arg stiction_k)"/>
+
 
 
   <node name="torque_jacobian" pkg="test" type="torque_jacobian" required="true" output="screen"/>

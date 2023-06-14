@@ -9,6 +9,7 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/String.h>
 #include <dynamixel_workbench_msgs/DasomDynamixel.h>
+//#include <two_link/Torqbian.h>
 #include <dynamixel_workbench_msgs/EECommand.h>
 
 #define PI 3.14159256359
@@ -19,11 +20,7 @@ class TorqJ
   TorqJ();
   ~TorqJ();
 
-  double time_loop = 0;
-  double time_i = 0;
-  double time_f = 0;
-
-  double X = 0.25675;
+  double X = 0.23209;
   double Y = 0;
 
   double X_P_gain = 1;
@@ -42,30 +39,26 @@ class TorqJ
   double VY_I_gain = 1;
   double VY_D_gain = 1;
 
-//----------Link Lengths---------//
-  //double Link1 = 0.12409;
-  //double Link2 = 0.108;
-  double Link1 = 0.10375;
-  double Link2 = 0.153;
 
-  double CoM1 = 0.08092;
-  double CoM2 = 0.114;
-  double delta = 0.237;
-  double mass1 = 0.107;
-  double mass2 = 0.296;
+
+//----------Link Lengths---------//
+	double Link1 = 0.12409;
+	double Link2 = 0.108;
+
+  //----------Link Lengths---------//
+	double CoM1 = 0.08092;
+	double CoM2 = 0.114;
+	double delta = 0.237;
+	double mass1 = 0.107;
+	double mass2 = 0.296;
 
   double offset_1 = 0;
   double offset_2 = 0; 
-
-  double torque_const_1 = 0;
-  double torque_const_2 = 0;
 
   Eigen::Vector2d X_cmd;
   Eigen::Vector2d X_measured;
   Eigen::Vector2d V_measured;
   Eigen::Vector2d angle_measured;
-  Eigen::Vector2d velocity_measured;
-  Eigen::Vector2d effort_measured;
   Eigen::Vector2d theta_dot;
 
   Eigen::Vector2d Position_P_gain;
@@ -79,12 +72,7 @@ class TorqJ
   Eigen::Vector2d X_error_p;
   Eigen::Vector2d X_error_p_i;
   Eigen::Vector2d X_error_i;
-  Eigen::Vector2d X_error_I;
   Eigen::Vector2d X_error_d;
-
-  // ADD
-  Eigen::Vector2d X_error;
-  Eigen::Vector2d pre_X_error;
 
   Eigen::Vector2d V_error_p;
   Eigen::Vector2d V_error_p_i;
@@ -92,31 +80,113 @@ class TorqJ
   Eigen::Vector2d V_error_d;
 
   Eigen::Vector2d X_PID;
-  Eigen::Vector2d X_PID_i;
   Eigen::Vector2d V_PID;
-  Eigen::Vector2d V_PID_LPF;
-  Eigen::Vector2d V_PID_LPF_i;
-  Eigen::Vector2d torque_const;
-  Eigen::Vector2d offset;
-
-  Eigen::Vector2d V_test;
+  Eigen::Vector2d error_gain;
 
   Eigen::Matrix2d J;
   Eigen::Matrix2d JT;
 
   //Eigen::MatrixXd q_dot;
   Eigen::Vector2d tau_des;
-  Eigen::Vector2d tau_des_LPF;
-  Eigen::Vector2d tau_des_LPF_i;
+  Eigen::Vector2d angle_ref;
   Eigen::Vector2d tau_gravity; //중력에 의해 조인트에 가해지는 토크
   Eigen::Vector2d tau_loop;
-  Eigen::Vector2d calc_tau;
+  Eigen::Vector2d velocity_measured;
+  Eigen::Vector2d stiction_gain;
+  Eigen::Vector2d FK_EE_pos;
+
+  //--DoB--//
+  Eigen::Vector2d angle_d;
+  Eigen::Vector2d angle_d_hat;
+  Eigen::Vector2d angle_d_lpf;
+  Eigen::Vector2d d_hat;
+
+  double position_p_gain;
+  double position_i_gain;
+  double position_d_gain;
+  double polar_moment_1;
+  double polar_moment_2;
+  double Cut_Off_Freq2;
+
+  Eigen::Vector4d Q_M;
+  Eigen::Vector4d Q_M_dot;
+  Eigen::Vector4d Q_M_2;
+  Eigen::Vector4d Q_M_dot_2;  
+  Eigen::Matrix4d Q_M_A;
+  Eigen::Vector4d Q_M_B;
+  Eigen::Vector4d Q_M_C;
+
+  Eigen::Vector2d Q_angle_d;
+  Eigen::Vector2d Q_angle_d_dot;
+  Eigen::Vector2d Q_angle_d_2;
+  Eigen::Vector2d Q_angle_d_dot_2;
+  Eigen::Matrix2d Q_angle_d_A;
+  Eigen::Vector2d Q_angle_d_B;
+  Eigen::Vector2d Q_angle_d_C;
+  
+//--end--//
+
+
+  
+
+
+//--for butterworth--//
+  Eigen::Vector3d bw_2nd_output;
+  Eigen::Vector3d bw_2nd_input;
+  Eigen::Vector3d bw_4th_output;
+  Eigen::Vector3d bw_4th_input;
+  Eigen::Vector2d velocity_filtered;
+
+
+
+  double wc;
+  double wc2;
+  double wc4;
+  double wc3;
+  double wc_4th;
+  double wc2_4th;
+
+  double cut_off_freq;
+  double cut_off_freq_4th;
+  double b0_4th;
+  double b1_4th;
+  double b2_4th;
+  double b3_4th;
+  double b4_4th;
+  double a0_4th;
+  double a1_4th;
+  double a2_4th;
+  double a3_4th;
+  double a4_4th;
+
+  double b0_2nd;
+  double b1_2nd;
+  double b2_2nd;
+  double a0_2nd;
+  double a1_2nd;
+  double a2_2nd;
+  double damping_const;
+
+  float Cut_Off_Freq;
+  float Error_Gain;
+  //V_gain << 1,1;
+
+//--for friction_compen_pulse--//
+  double k_fc;
+  double Delta;
+  double Pd;
+  double fc;
+  double w0;
+  Eigen::Vector2d u_fc;
+
+//--stiction_compensator--//
+  double stiction_alpha;
+  double stiction_k;
+
 
   void calc_des();
   void calc_taudes();
   void PublishCmdNMeasured();
-  void ForceEstimatePre();
-  void Limiter();
 
  private:
   /*****************************************************************************
@@ -129,7 +199,8 @@ class TorqJ
   ** ROS Parameters
   *****************************************************************************/
   std::string robot_name_;
-
+  sensor_msgs::JointState command_position;
+  geometry_msgs::Twist Measured_EE_Position;
   /*****************************************************************************
   ** Init Functions
   *****************************************************************************/
@@ -141,72 +212,73 @@ class TorqJ
   *****************************************************************************/
   ros::Publisher joint_command_pub_;
   ros::Publisher joint_measured_pub_;
-  ros::Publisher test_pub_;
   ros::Subscriber EE_command_sub_;
   ros::Subscriber forwardkinematics_sub_;
   ros::Subscriber joint_states_sub_;
 
-  double LOW_PASS_FILTER_FUNC(double Value_LPF_i, double Value_measured, double WL)
+
+
+    static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
 {
-  //double WL = Cut_Off_Frequency * (2 * PI);
-  double Value_LPF = Value_LPF_i * WL + (1 - WL) * Value_measured;
+    double l1 = 0.12409;
+    double l2 = 0.108;
+    double cos1 = cos(theta_1);
+    double cos2 = cos(theta_2);
+    double sin1 = sin(theta_1);
+    double sin2 = sin(theta_2);
+    double cos12 = cos(theta_1 + theta_2);
+    double sin12 = sin(theta_1 + theta_2);
 
-  return Value_LPF;
-}
-  
-  static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
-{
-  double l1 = 0.10375;
-  double l2 = 0.153;
-  double cos1 = cos(theta_1);
-  double cos2 = cos(theta_2);
-  double sin1 = sin(theta_1);
-  double sin2 = sin(theta_2);
-  double cos12 = cos(theta_1 + theta_2);
-  double sin12 = sin(theta_1 + theta_2);
+    Eigen::MatrixXd EE_pos(2,1);
 
-  Eigen::MatrixXd EE_pos(2,1);
+    EE_pos <<
+    // X
+    l1 * cos1 + l2 * cos12,
+    // Y
+    l1 * sin1 + l2 * sin12;
 
-  EE_pos <<
-  // X
-  l1 * cos1 + l2 * cos12,
-  // Y
-  l1 * sin1 + l2 * sin12;
-
-  return EE_pos;
+    return EE_pos;
 };
 
   static Eigen::MatrixXd Jacobian(double theta_1, double theta_2)
 {
-  double l1 = 0.10375;
-  double l2 = 0.153;
-  double cos1 = cos(theta_1);
-  double cos2 = cos(theta_2);
-  double sin1 = sin(theta_1);
-  double sin2 = sin(theta_2);
-  double cos12 = cos(theta_1 + theta_2);
-  double sin12 = sin(theta_1 + theta_2);
+    double l1 = 0.12409;
+    double l2 = 0.108;
+    double cos1 = cos(theta_1);
+    double cos2 = cos(theta_2);
+    double sin1 = sin(theta_1);
+    double sin2 = sin(theta_2);
+    double cos12 = cos(theta_1 + theta_2);
+    double sin12 = sin(theta_1 + theta_2);
 
-  Eigen::MatrixXd J(2,2);
+    Eigen::MatrixXd J(2,2);
 
-  J <<
-  // 1X1
-  -l1 * sin1 - l2 * sin12,
-  // 1X2
-  -l2 * sin12,
-  // 2X1
-  l1 * cos1 + l2 * cos12,
-  // 2X2
-  l2 * cos12;
+    J <<
+    // 1X1
+    -l1 * sin1 - l2 * sin12,
+    // 1X2
+    -l2 * sin12,
+    // 2X1
+    l1 * cos1 + l2 * cos12,
+    // 2X2
+    l2 * cos12;
 
-  return J;
+    return J;
 };
 
-  void poseCallback(const geometry_msgs::Twist &msg);
+  void poseCallback(const geometry_msgs::Twist::ConstPtr &msg);
   void commandCallback(const sensor_msgs::JointState::ConstPtr &msg);
   void jointCallback(const sensor_msgs::JointState::ConstPtr &msg);
-
+  void second_order_butterworth();
+  void fourth_order_butterworth();
+  void friction_compen_pulse();
+  void second_order_butterworth_();
+  void stiction_gravity_compensator();
+  void DoB();
+  //void EEpositionCallback(const dynamixel_workbench_msgs::EECommand::Request &req, dynamixel_workbench_msgs::EECommand::Response &res);
+  //void goaljointCallback(const sensor_msgs::JointState::ConstPtr &msg);
 
 };
 
 #endif //TorqJ_H_
+

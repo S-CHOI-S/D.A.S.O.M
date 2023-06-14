@@ -2144,6 +2144,19 @@ position_control/fast:
 .PHONY : position_control/fast
 
 #=============================================================================
+# Target rules for targets named sensor_msgs_generate_messages_lisp
+
+# Build rule for target.
+sensor_msgs_generate_messages_lisp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 sensor_msgs_generate_messages_lisp
+.PHONY : sensor_msgs_generate_messages_lisp
+
+# fast build rule for target.
+sensor_msgs_generate_messages_lisp/fast:
+	$(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build
+.PHONY : sensor_msgs_generate_messages_lisp/fast
+
+#=============================================================================
 # Target rules for targets named force
 
 # Build rule for target.
@@ -2248,17 +2261,30 @@ torque_control/fast:
 .PHONY : torque_control/fast
 
 #=============================================================================
-# Target rules for targets named sensor_msgs_generate_messages_lisp
+# Target rules for targets named torque_control_orientation
 
 # Build rule for target.
-sensor_msgs_generate_messages_lisp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 sensor_msgs_generate_messages_lisp
-.PHONY : sensor_msgs_generate_messages_lisp
+torque_control_orientation: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 torque_control_orientation
+.PHONY : torque_control_orientation
 
 # fast build rule for target.
-sensor_msgs_generate_messages_lisp/fast:
-	$(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/build
-.PHONY : sensor_msgs_generate_messages_lisp/fast
+torque_control_orientation/fast:
+	$(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_orientation.dir/build
+.PHONY : torque_control_orientation/fast
+
+#=============================================================================
+# Target rules for targets named torque_control_pre_icros
+
+# Build rule for target.
+torque_control_pre_icros: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 torque_control_pre_icros
+.PHONY : torque_control_pre_icros
+
+# fast build rule for target.
+torque_control_pre_icros/fast:
+	$(MAKE) -f dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/build.make dynamixel-workbench/dynamixel_workbench_controllers/CMakeFiles/torque_control_pre_icros.dir/build
+.PHONY : torque_control_pre_icros/fast
 
 #=============================================================================
 # Target rules for targets named omni_msgs_gencpp
@@ -5038,6 +5064,7 @@ help:
 	@echo "... sensor_msgs_generate_messages_py"
 	@echo "... position_control_pre"
 	@echo "... position_control"
+	@echo "... sensor_msgs_generate_messages_lisp"
 	@echo "... force"
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_eus"
@@ -5046,7 +5073,8 @@ help:
 	@echo "... sensor_msgs_generate_messages_nodejs"
 	@echo "... multi_port"
 	@echo "... torque_control"
-	@echo "... sensor_msgs_generate_messages_lisp"
+	@echo "... torque_control_orientation"
+	@echo "... torque_control_pre_icros"
 	@echo "... omni_msgs_gencpp"
 	@echo "... omni_msgs_generate_messages_cpp"
 	@echo "... _omni_msgs_generate_messages_check_deps_OmniButtonEvent"
