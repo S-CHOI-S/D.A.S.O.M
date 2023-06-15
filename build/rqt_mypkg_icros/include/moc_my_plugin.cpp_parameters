@@ -1,8 +1,0 @@
--I/home/choisol/catkin_ws/devel/include
--DROS_BUILD_SHARED_LIBS=1
--DROS_BUILD_SHARED_LIBS=1
--DROS_PACKAGE_NAME="rqt_mypkg"
--DROSCONSOLE_BACKEND_LOG4CXX
--o
-/home/choisol/catkin_ws/build/rqt_mypkg_icros/include/moc_my_plugin.cpp
-/home/choisol/catkin_ws/src/rqt_mypkg_icros/include/my_plugin.h

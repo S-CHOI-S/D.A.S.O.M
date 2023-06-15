@@ -2508,6 +2508,19 @@ admittance_control/fast:
 .PHONY : admittance_control/fast
 
 #=============================================================================
+# Target rules for targets named torque_jacobian_icros
+
+# Build rule for target.
+torque_jacobian_icros: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 torque_jacobian_icros
+.PHONY : torque_jacobian_icros
+
+# fast build rule for target.
+torque_jacobian_icros/fast:
+	$(MAKE) -f test/CMakeFiles/torque_jacobian_icros.dir/build.make test/CMakeFiles/torque_jacobian_icros.dir/build
+.PHONY : torque_jacobian_icros/fast
+
+#=============================================================================
 # Target rules for targets named try_IK
 
 # Build rule for target.
@@ -5092,6 +5105,7 @@ help:
 	@echo "... dynamixel_controller"
 	@echo "... velocity_admittance_test"
 	@echo "... admittance_control"
+	@echo "... torque_jacobian_icros"
 	@echo "... try_IK"
 	@echo "... limit"
 	@echo "... dh_FK"

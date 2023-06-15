@@ -199,7 +199,7 @@ class TorqueControl
   static Eigen::MatrixXd EE_pos(double theta_1, double theta_2)
 {
     double l1 = 0.10375;
-    double l2 = 0.153;
+    double l2 = 0.10792;
     double cos1 = cos(theta_1);
     double cos2 = cos(theta_2);
     double sin1 = sin(theta_1);

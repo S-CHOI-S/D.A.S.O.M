@@ -163,6 +163,10 @@ add_executable(torque_jacobian src/torque_jacobian.cpp)
 add_dependencies(torque_jacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(torque_jacobian ${catkin_LIBRARIES})
 
+add_executable(torque_jacobian_icros src/torque_jacobian_icros.cpp)
+add_dependencies(torque_jacobian_icros ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(torque_jacobian_icros ${catkin_LIBRARIES})
+
 add_executable(admittance_control src/admittance_control.cpp)
 add_dependencies(admittance_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(admittance_control ${catkin_LIBRARIES})

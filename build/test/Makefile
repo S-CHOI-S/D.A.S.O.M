@@ -56,18 +56,6 @@ CMAKE_BINARY_DIR = /home/choisol/catkin_ws/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
@@ -111,6 +99,18 @@ list_install_components:
 list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
 
 # Special rule for the target install/strip
 install/strip: preinstall
@@ -196,6 +196,21 @@ admittance_control: test/CMakeFiles/admittance_control.dir/rule
 admittance_control/fast:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f test/CMakeFiles/admittance_control.dir/build.make test/CMakeFiles/admittance_control.dir/build
 .PHONY : admittance_control/fast
+
+# Convenience name for target.
+test/CMakeFiles/torque_jacobian_icros.dir/rule:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/torque_jacobian_icros.dir/rule
+.PHONY : test/CMakeFiles/torque_jacobian_icros.dir/rule
+
+# Convenience name for target.
+torque_jacobian_icros: test/CMakeFiles/torque_jacobian_icros.dir/rule
+
+.PHONY : torque_jacobian_icros
+
+# fast build rule for target.
+torque_jacobian_icros/fast:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f test/CMakeFiles/torque_jacobian_icros.dir/build.make test/CMakeFiles/torque_jacobian_icros.dir/build
+.PHONY : torque_jacobian_icros/fast
 
 # Convenience name for target.
 test/CMakeFiles/try_IK.dir/rule:
@@ -743,6 +758,33 @@ src/torque_jacobian.cpp.s:
 	cd /home/choisol/catkin_ws/build && $(MAKE) -f test/CMakeFiles/torque_jacobian.dir/build.make test/CMakeFiles/torque_jacobian.dir/src/torque_jacobian.cpp.s
 .PHONY : src/torque_jacobian.cpp.s
 
+src/torque_jacobian_icros.o: src/torque_jacobian_icros.cpp.o
+
+.PHONY : src/torque_jacobian_icros.o
+
+# target to build an object file
+src/torque_jacobian_icros.cpp.o:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f test/CMakeFiles/torque_jacobian_icros.dir/build.make test/CMakeFiles/torque_jacobian_icros.dir/src/torque_jacobian_icros.cpp.o
+.PHONY : src/torque_jacobian_icros.cpp.o
+
+src/torque_jacobian_icros.i: src/torque_jacobian_icros.cpp.i
+
+.PHONY : src/torque_jacobian_icros.i
+
+# target to preprocess a source file
+src/torque_jacobian_icros.cpp.i:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f test/CMakeFiles/torque_jacobian_icros.dir/build.make test/CMakeFiles/torque_jacobian_icros.dir/src/torque_jacobian_icros.cpp.i
+.PHONY : src/torque_jacobian_icros.cpp.i
+
+src/torque_jacobian_icros.s: src/torque_jacobian_icros.cpp.s
+
+.PHONY : src/torque_jacobian_icros.s
+
+# target to generate assembly for a file
+src/torque_jacobian_icros.cpp.s:
+	cd /home/choisol/catkin_ws/build && $(MAKE) -f test/CMakeFiles/torque_jacobian_icros.dir/build.make test/CMakeFiles/torque_jacobian_icros.dir/src/torque_jacobian_icros.cpp.s
+.PHONY : src/torque_jacobian_icros.cpp.s
+
 src/try_IK.o: src/try_IK.cpp.o
 
 .PHONY : src/try_IK.o
@@ -857,13 +899,14 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/local"
 	@echo "... install"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... list_install_components"
 	@echo "... velocity_admittance_test"
 	@echo "... admittance_control"
+	@echo "... install/local"
+	@echo "... torque_jacobian_icros"
 	@echo "... try_IK"
 	@echo "... limit"
 	@echo "... dh_FK"
@@ -912,6 +955,9 @@ help:
 	@echo "... src/torque_jacobian.o"
 	@echo "... src/torque_jacobian.i"
 	@echo "... src/torque_jacobian.s"
+	@echo "... src/torque_jacobian_icros.o"
+	@echo "... src/torque_jacobian_icros.i"
+	@echo "... src/torque_jacobian_icros.s"
 	@echo "... src/try_IK.o"
 	@echo "... src/try_IK.i"
 	@echo "... src/try_IK.s"

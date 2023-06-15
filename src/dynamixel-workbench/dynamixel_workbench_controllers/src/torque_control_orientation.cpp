@@ -42,27 +42,27 @@ TorqueControl::TorqueControl()
 
   initMsg();
 
-  for (int index = 0; index < 2; index++)
+  for (int index = 0; index < dxl_cnt_; index++)
   {
     dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
-    dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_CONTROL_MODE);
+    dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
     dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
   }
 
-  dxl_wb_->addSyncWrite("Goal_Current");
+  dxl_wb_->addSyncWrite("Goal_Position");
   dxl_wb_->addSyncRead("Present_Position");
 
   initPublisher();
   initSubscriber();
   initServer();
 
-  // for (int index = 0; index < 2; index++)
+  // for (int index = 0; index < dxl_cnt_; index++)
   //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
 }
 
 TorqueControl::~TorqueControl()
 {
-  for (int index = 0; index < 2; index++)
+  for (int index = 0; index < dxl_cnt_; index++)
     dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
 
   ros::shutdown();
@@ -76,7 +76,7 @@ void TorqueControl::initMsg()
   printf("-----------------------------------------------------------------------\n");
   printf("\n");
 
-  for (int index = 0; index < 2; index++)
+  for (int index = 0; index < dxl_cnt_; index++)
   {
     printf("MODEL   : %s\n", dxl_wb_->getModelName(dxl_id_[index]));
     printf("ID      : %d\n", dxl_id_[index]);
@@ -172,20 +172,30 @@ void TorqueControl::controlLoop()
 
   int32_t calc_torque[2] = {0, };
 
-  for (int index = 0; index < 2; index++)
-  {
-    calc_torque[index] = dxl_wb_->convertTorque2Value(dxl_id_[index], goal_torque[index]);
-  }
-  ROS_INFO("%lf",goal_torque[0]);
-  ROS_INFO("%lf",goal_torque[1]);
-  ROS_INFO("-------------------------------------------");
-  dxl_wb_->syncWrite("Goal_Current", calc_torque);
+//   for (int index = 0; index < 2; index++)
+//   {
+//     calc_torque[index] = dxl_wb_->convertTorque2Value(dxl_id_[index], goal_torque[index]);
+//   }
+//   ROS_INFO("%lf",goal_torque[0]);
+//   ROS_INFO("%lf",goal_torque[1]);
+//   ROS_INFO("-------------------------------------------");
+//   dxl_wb_->syncWrite("Goal_Current", calc_torque);
 }
 
 void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg)
 {
-  for (int index = 0; index < 2; index++)
-    goal_torque[index] = msg->effort.at(index);
+  for (int index = 0; index < dxl_cnt_; index++)
+    goal_position[index] = msg->position.at(index);
+
+   ROS_INFO("%lf",goal_position[0]);
+   ROS_INFO("%lf",goal_position[1]);
+
+  for (int index = 0; index < dxl_cnt_; index++)
+  {
+    goal_dxl_position[index] = dxl_wb_->convertRadian2Value(dxl_id_[index], goal_position[index]);
+  }
+
+  dxl_wb_->syncWrite("Goal_Position", goal_dxl_position);
 
   // ROS_INFO("%lf",goal_torque[0]);
   // ROS_INFO("%lf",goal_torque[1]);
@@ -196,10 +206,12 @@ void TorqueControl::ForwardKinematics()
 {
   geometry_msgs::Twist EndEffector;
 
-  EE_position = EE_pos(present_position_[0], present_position_[1]);
+  EE_position = EE_pos(present_position_[0], present_position_[1], present_position_[2], 
+                       present_position_[3], present_position_[4], present_position_[5]);
 
   EndEffector.linear.x = EE_position[0];
   EndEffector.linear.y = EE_position[1];
+  EndEffector.linear.z = EE_position[2];
 
   forwardkinematics_pub_.publish(EndEffector);
 }
