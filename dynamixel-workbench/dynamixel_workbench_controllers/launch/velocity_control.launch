@@ -1,0 +1,30 @@
+<launch>
+  <arg name="device_name"             default="/dev/ttyUSB0"/>
+  <arg name="baud_rate"               default="1000000"/>
+
+  <arg name="scan_range"              default="10"/>
+
+  <arg name="wheel_separation"        default="0.160"/> <!--Refer to TurtleBot3 Burger-->
+  <arg name="wheel_radius"            default="0.033"/> <!--Refer to TurtleBot3 Burger-->
+
+  <arg name="velocity_p_gain"		 default="50"/>
+  <arg name="velocity_i_gain"		 default="900"/>
+  <arg name="velocity_d_gain"		 default="50"/>
+
+  <arg name="profile_velocity"        default="200"/>
+  <arg name="profile_acceleration"    default="50"/>
+
+  <param name="device_name"           value="$(arg device_name)"/>
+  <param name="baud_rate"             value="$(arg baud_rate)"/>
+
+  <param name="scan_range"               value="$(arg scan_range)"/>
+
+  <param name="profile_velocity"      value="$(arg profile_velocity)"/>
+  <param name="profile_acceleration"  value="$(arg profile_acceleration)"/>
+
+  <param name="velocity_p_gain"		 value="$(arg velocity_p_gain)"/>
+  <param name="velocity_i_gain"		 value="$(arg velocity_i_gain)"/>
+  <param name="velocity_d_gain"		 value="$(arg velocity_d_gain)"/>
+
+  <node name="velocity_control" pkg="dynamixel_workbench_controllers" type="velocity_control" required="true" output="screen"/>
+</launch>

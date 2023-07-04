@@ -1,0 +1,6 @@
+# It is Served by 'single_dynamixel_monitor' node
+# This message is used to send command to dynamixel
+
+float64 amplitude
+float64 period
+---

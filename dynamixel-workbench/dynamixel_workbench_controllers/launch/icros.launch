@@ -1,0 +1,59 @@
+<launch>
+  <arg name="device_name"      default="/dev/ttyUSB0"/>
+  <arg name="baud_rate"        default="1000000"/>
+
+  <arg name="scan_range"       default="10"/>
+
+  <arg name="pan_id"           default="1"/>
+  <arg name="tilt_id"          default="2"/>
+
+  <arg name="p_gain"           default="0.003"/>
+  <arg name="d_gain"           default="0.00002"/>
+
+<!--added-->
+  <arg name="position_p_gain"		        default="200"/>
+  <arg name="position_i_gain"		        default="0"/>
+  <arg name="position_d_gain"		        default="5"/>
+  <arg name="polar_moment"              default="0.027"/>
+  <arg name="Cut_Off_Freq"              default="5"/>
+
+  <arg name="Virtual_mass_x"              default="1.1"/>
+  <arg name="Virtual_damper_x"            default="2.0"/>
+  <arg name="Virtual_spring_x"            default="0.5"/>
+
+  <arg name="Virtual_mass_y"              default="1.1"/>
+  <arg name="Virtual_damper_y"            default="2.0"/>
+  <arg name="Virtual_spring_y"            default="0.5"/>
+
+
+
+<!--end-->
+  <param name="device_name"    value="$(arg device_name)"/>
+  <param name="baud_rate"      value="$(arg baud_rate)"/>
+
+  <param name="scan_range"     value="$(arg scan_range)"/>
+
+  <param name="pan_id"         value="$(arg pan_id)"/>
+  <param name="tilt_id"        value="$(arg tilt_id)"/>
+
+  <param name="p_gain"         value="$(arg p_gain)"/>
+  <param name="d_gain"         value="$(arg d_gain)"/>
+
+  <param name="position_p_gain"		 value="$(arg position_p_gain)"/>
+  <param name="position_i_gain"		 value="$(arg position_i_gain)"/>
+  <param name="position_d_gain"		 value="$(arg position_d_gain)"/>
+  <param name="Cut_Off_Freq"           value="$(arg Cut_Off_Freq)"/>
+  <param name="polar_moment"           value="$(arg polar_moment)"/>
+
+  <param name="virtual_mass_x"           value="$(arg virtual_mass_x)"/>
+  <param name="virtual_damper_x"           value="$(arg virtual_damper_x)"/>
+  <param name="virtual_spring_x"           value="$(arg virtual_spring_x)"/>
+
+  <param name="virtual_mass_y"           value="$(arg virtual_mass_y)"/>
+  <param name="virtual_damper_y"           value="$(arg virtual_damper_y)"/>
+  <param name="virtual_spring_y"           value="$(arg virtual_spring_y)"/>
+
+
+  <node name="torque_control_pre" pkg="dynamixel_workbench_controllers" type="torque_control_pre" required="true" output="screen"/>
+  <node name="torque_jacobian" pkg="two_link" type="torque_jacobian" required="true" output="screen"/>
+</launch>

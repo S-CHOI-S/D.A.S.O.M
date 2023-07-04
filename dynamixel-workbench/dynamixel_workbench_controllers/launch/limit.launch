@@ -1,0 +1,8 @@
+<launch>
+  <arg name="robot_name"         	 default="dasom"/>
+
+  <param name="robot_name"               value="$(arg robot_name)"/>
+
+  <node name="limit" pkg="dynamixel_workbench_controllers" type="limit" required="true" output="screen"/>
+
+</launch>
