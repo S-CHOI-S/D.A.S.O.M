@@ -6,6 +6,9 @@ Development of Aerial Manipulator System for Object Manipulation
 <br/>
 Project period: 2023.01. ~ 
 
-ICROS 2023: 2023.06.21 ~ 2023.06.23
+<br/><br/><br/><br/><br/><br/><br/><br/>
 
-<span style="color:red"> [Best Paper Award-Winner] </span>
+ICROS 2023: 2023.06.21 ~ 2023.06.23 
+-
+Manipulator System Based on Compliance Control For Object Manipulation
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&color=F72213&width=435&lines=%5BBest+Paper+Award-Winner%5D)](https://git.io/typing-svg)
