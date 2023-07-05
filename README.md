@@ -6,7 +6,7 @@ Development of Aerial Manipulator System for Object Manipulation
 <br/>
 Project period: 2023.01. ~ 
 
-<br/><br/><br/><br/><br/><br/><br/><br/>
+<br/><br/><br/><br/><br/>
 
 ICROS 2023: 2023.06.21 ~ 2023.06.23 
 -
