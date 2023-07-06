@@ -6,6 +6,7 @@
   <arg name="position_p_gain"          default="700"/>
   <arg name="position_i_gain"          default="0"/>
   <arg name="position_d_gain"          default="400"/>
+
   <arg name="polar_moment_1"             default="0.0027"/>
   <arg name="polar_moment_2"             default="0.0027"/>
   <arg name="Cut_Off_Freq"             default="5"/>
@@ -17,7 +18,10 @@
   <arg name="virtual_mass_y"              default="200.0"/>
   <arg name="virtual_damper_y"            default="10.0"/>
   <arg name="virtual_spring_y"            default="300.0"/>
-
+  
+  <arg name="virtual_mass_z"              default="200.0"/>
+  <arg name="virtual_damper_z"            default="10.0"/>
+  <arg name="virtual_spring_z"            default="300.0"/>
   <arg name="cut_off_freq_current"       default="5"/>
 
 <!--end-->
@@ -29,6 +33,7 @@
   <param name="position_p_gain"        value="$(arg position_p_gain)"/>
   <param name="position_i_gain"        value="$(arg position_i_gain)"/>
   <param name="position_d_gain"        value="$(arg position_d_gain)"/>
+
   <param name="Cut_Off_Freq"           value="$(arg Cut_Off_Freq)"/>
   <param name="polar_moment_1"        value="$(arg polar_moment_1)"/>
   <param name="polar_moment_2"        value="$(arg polar_moment_2)"/>
@@ -41,6 +46,10 @@
   <param name="virtual_mass_y"           value="$(arg virtual_mass_y)"/>
   <param name="virtual_damper_y"           value="$(arg virtual_damper_y)"/>
   <param name="virtual_spring_y"           value="$(arg virtual_spring_y)"/>
+
+  <param name="virtual_mass_z"           value="$(arg virtual_mass_z)"/>
+  <param name="virtual_damper_z"           value="$(arg virtual_damper_z)"/>
+  <param name="virtual_spring_z"           value="$(arg virtual_spring_z)"/>
 
   <param name="cut_off_freq_current"           value="$(arg cut_off_freq_current)"/>
 
