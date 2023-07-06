@@ -1,16 +1,16 @@
 /*******************************************************************************
- * D.A.S.O.M
- *
- * Department of Aerial Manipulator System for Object Manipulation
- *
- *     https://github.com/S-CHOI-S/D.A.S.O.M.git
- *
- * Mobile Robotics Lab. (MRL)
- * 	  @ Seoul National University of Science and Technology
- *
- *	  https://mrl.seoultech.ac.kr/index.do
- *
- *******************************************************************************/
+* D.A.S.O.M
+*
+* Department of Aerial Manipulator System for Object Manipulation
+*
+*     https://github.com/S-CHOI-S/D.A.S.O.M.git
+*
+* Mobile Robotics Lab. (MRL)
+* 	  @ Seoul National University of Science and Technology
+*
+*	  https://mrl.seoultech.ac.kr/index.do
+*
+*******************************************************************************/
 
 /* Authors: Sol Choi (Jennifer) */
 
@@ -35,6 +35,9 @@ TorqJ::TorqJ()
   position_p_gain = node_handle_.param<double>("position_p_gain", 1);
   position_i_gain = node_handle_.param<double>("position_i_gain", 1);
   position_d_gain = node_handle_.param<double>("position_d_gain", 1);
+
+  
+
 
   // Q-filter
   Cut_Off_Freq = node_handle_.param<double>("Cut_Off_Freq", 1);
@@ -185,15 +188,15 @@ TorqJ::TorqJ()
   // //------------------//
 
   // //--Dead Zone--//
-  // hysteresis_max << 0.35, 0.27, 0.2, 0, 0, 0; //�섎컮
+  // hysteresis_max << 0.35, 0.27, 0.2, 0, 0, 0; //나바
   // hysteresis_min << -0.24, -0.35, -0.2, 0, 0, 0;
 
   // //--Angle saturation--//
-  // angle_max << 1.6, 1.9, 0.75, 0, 0, 0; //�섎컮
+  // angle_max << 1.6, 1.9, 0.75, 0, 0, 0; //나바
   // angle_min << -0.7, -1.8, -2, 0, 0, 0;
 
   // //--F_ext saturation--//
-  // Force_max << 2.0, 1.0, 0; //�섎컮
+  // Force_max << 2.0, 1.0, 0; //나바
   // Force_min << -2.0, -1.0, 0;
 
 
@@ -203,7 +206,7 @@ TorqJ::TorqJ()
   // X_test << 0, 0, 0, 0, 0, 0;
   // FK_EE_pos << 0, 0, 0;
   // FK_EE_ori << 0, 0, 0;
-
+    ROS_INFO("Before you use admitService, put E.E to reference position");
   X_test.resize(6,1);
   angle_ref.resize(6,1);
   FK_EE_pos.resize(3,1);
@@ -220,6 +223,8 @@ TorqJ::TorqJ()
   angle_ref << 0, 0, 0, 0, 0, 0;
   FK_EE_pos << 0, 0, 0;
   FK_EE_ori << 0, 0, 0;
+      ROS_INFO("fffffff");
+
 }
 
 TorqJ::~TorqJ()
@@ -244,7 +249,7 @@ void TorqJ::initSubscriber()
 
 void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
 {
-  // Servo state subscriber
+  //Servo state subscriber
   angle_measured[0] = msg->position.at(0);
   angle_measured[1] = msg->position.at(1);
   angle_measured[2] = msg->position.at(2);
@@ -259,6 +264,8 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   tau_measured[3] = msg->effort.at(3) * Kt_1; 
   tau_measured[4] = msg->effort.at(4) * Kt_2; 
   tau_measured[5] = msg->effort.at(5) * Kt_2; 
+
+
 }
 
 
@@ -313,7 +320,7 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   bw2_filtered_current_3_input[1] = bw2_filtered_current_3_input[2];
 
 
-  filtered_current << bw2_filtered_current_1_output[2], bw2_filtered_current_2_output[2], bw2_filtered_current_3_output[2], 0, 0, 0; //�섎컮
+  filtered_current << bw2_filtered_current_1_output[2], bw2_filtered_current_2_output[2], bw2_filtered_current_3_output[2], 0, 0, 0; //나바
  // std::cout<<filtered_current<<std::endl<<"butterworthbutterworth"<<std::endl;
 }
 
@@ -324,7 +331,7 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
 void TorqJ::Calc_Ext_Force()
 {
 
-  J = Jacobian(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]); //�섎컮
+  J = Jacobian(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]); //나바
   JT = J.transpose();
   JTI = JT.completeOrthogonalDecomposition().pseudoInverse();
 
@@ -334,7 +341,7 @@ void TorqJ::Calc_Ext_Force()
   //---gravity model---//
   tau_gravity << (mass1 * CoM1 * cos(angle_measured[0]) + mass2 * Link1 * cos(angle_measured[0]) + mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1]) + delta) * 9.81 - offset_1,
       mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta) * 9.81 - offset_2,
-      -offset_3, 0, 0, 0; //�섎컮
+      -offset_3, 0, 0, 0; //나바
 
   //---Calc Force_ext---//
   tau_ext = tau_measured - tau_gravity;
@@ -354,7 +361,7 @@ void TorqJ::Calc_Ext_Force()
   else if (tau_ext[2] > hysteresis_max[2]) tau_ext[2] -= hysteresis_max[2];
   else if (tau_ext[2] < hysteresis_min[2]) tau_ext[2] -= hysteresis_min[2];
 
-  tau_ext << 0, 0, 0, 0, 0, 0; //�섎컮
+  tau_ext << 0, 0, 0, 0, 0, 0; //나바
 
   Force_ext_not_deadzone = JTI * tau_ext_not_deadzone;
 
@@ -368,7 +375,7 @@ void TorqJ::Calc_Ext_Force()
   if (Force_ext[1] > Force_max[1]) Force_ext[1] = Force_max[1];
   else if (Force_ext[1] < Force_min[1]) Force_ext[1] = Force_min[1];
 
-  Force_ext[2] = 0; //�섎컮
+  Force_ext[2] = 0; //나바
 
 
 }
@@ -397,7 +404,7 @@ void TorqJ::Admittance_control()
   //----------------------------------------------------------------
   // Z axis admittance model --------------------------------
 
-// �섎컮
+// 나바
   position_from_model[2] = 0;
 
   X_cmd[2] = 0;
@@ -500,7 +507,7 @@ void TorqJ::DoB()
   angle_d[1] = angle_ref[1] - d_hat[1];
 
 
-//�섎컮
+//나바
   angle_d[2] = angle_ref[2];
 
   angle_d[3] = angle_ref[3];
@@ -656,19 +663,19 @@ void TorqJ::CommandGenerator()
   t++;
   double Amp = 0.07;
   double period = 5;
-  X_test[0] = 0;//Amp * (sin(2* M_PI * 0.005 * t / period + M_PI/2)) + 0.114329 - Amp;
+  X_test[0] = 0; //Amp * (sin(2* M_PI * 0.005 * t / period + M_PI/2)) + 0.114329 - Amp;
 
   double Amp1 = 0.07;
   double period1 = 5;
-  X_test[1] = 0.0;//Amp1 * (sin(2* M_PI * 0.005 * t / period1 + M_PI/2)) + 0.114329 - Amp1;
+  X_test[1] = 0.3; //Amp1 * (sin(2* M_PI * 0.005 * t / period1 + M_PI/2)) + 0.114329 - Amp1;
 
-  double Amp2 = 0.07;
+  double Amp2 = 0.1;
   double period2 = 5;
-  X_test[2] = 0.6;// Amp2 * (sin(2* M_PI * 0.005 * t / period2 + M_PI/2)) + 0.114329 - Amp2;
+  X_test[2] = Amp2 * (sin(2* M_PI * 0.005 * t / period2 + M_PI/2)) + 0.114329 - Amp2 + 0.3;
 
   X_test[3] = 0 * (t / 0.005) / (180 * M_PI);
   X_test[4] = 0 * (t / 0.005) / (180 * M_PI);
-  X_test[5] = 0 * (t / 0.005) / (180 * M_PI); //1珥덉뿉 紐� ��(degree) �� �뚯쟾�쒗궗吏�
+  X_test[5] = 0 * (t / 0.005) / (180 * M_PI); //1초에 몇 도(degree) 씩 회전시킬지
 }
 
 
@@ -680,7 +687,7 @@ void TorqJ::PublishCmdNMeasured()
 
   geometry_msgs::Twist first_publisher;
   geometry_msgs::Twist second_publisher;
-  // publish tau_des
+  // tau_des를 publish
   joint_cmd.header.stamp = ros::Time::now();
   joint_cmd.position.push_back(angle_ref[0]); 
   joint_cmd.position.push_back(angle_ref[1]); 
@@ -708,14 +715,17 @@ void TorqJ::PublishCmdNMeasured()
 
   joint_command_pub_.publish(joint_cmd);
 
+
 }
 
 void TorqJ::solveInverseKinematics()
 {
-  // EE_position怨� orientation�� �ㅼ뼱�붿쓣 寃�: X_ref, Orientation_ref
+  // EE_position과 orientation이 들어왔을 것: X_ref, Orientation_ref
 
   angle_ref = InverseKinematics(X_test[0], X_test[1], X_test[2],
                                 X_test[3], X_test[4], X_test[5]);
+
+  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
 }
 
 int main(int argc, char **argv)
@@ -739,7 +749,7 @@ int main(int argc, char **argv)
 
     // torqJ.Admittance_control();
     // torqJ.calc_des();
-    
+
     torqJ.CommandGenerator();
     torqJ.solveInverseKinematics();   
     torqJ.PublishCmdNMeasured();
