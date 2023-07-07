@@ -1,16 +1,17 @@
 /*******************************************************************************
-* D.A.S.O.M
-*
-* Department of Aerial Manipulator System for Object Manipulation
-*
-*     https://github.com/S-CHOI-S/D.A.S.O.M.git
-*
-* Mobile Robotics Lab. (MRL)
-* 	  @ Seoul National University of Science and Technology
-*
-*	  https://mrl.seoultech.ac.kr/index.do
-*
-*******************************************************************************/
+ * D.A.S.O.M
+ *
+ * Department of Aerial Manipulator System for Object Manipulation
+ *
+ *     https://github.com/S-CHOI-S/D.A.S.O.M.git
+ *
+ * Mobile Robotics Lab. (MRL)
+ * 	  @ Seoul National University of Science and Technology
+ *
+ *	  https://mrl.seoultech.ac.kr/index.do
+ *
+ ***************************************************************************
+ ****/
 
 /* Authors: Sol Choi (Jennifer) */
 
@@ -667,11 +668,11 @@ void TorqJ::CommandGenerator()
 
   double Amp1 = 0.07;
   double period1 = 5;
-  X_test[1] = 0.3; //Amp1 * (sin(2* M_PI * 0.005 * t / period1 + M_PI/2)) + 0.114329 - Amp1;
+  X_test[1] = 0.15; //Amp1 * (sin(2* M_PI * 0.005 * t / period1 + M_PI/2)) + 0.114329 - Amp1;
 
-  double Amp2 = 0.1;
+  double Amp2 = 0.05;
   double period2 = 5;
-  X_test[2] = Amp2 * (sin(2* M_PI * 0.005 * t / period2 + M_PI/2)) + 0.114329 - Amp2 + 0.3;
+  X_test[2] = Amp2 * (sin(2* M_PI * 0.005 * t / period2 + M_PI/2)) + 0.114329 - Amp2 + 0.1;
 
   X_test[3] = 0 * (t / 0.005) / (180 * M_PI);
   X_test[4] = 0 * (t / 0.005) / (180 * M_PI);
@@ -696,15 +697,13 @@ void TorqJ::PublishCmdNMeasured()
   joint_cmd.position.push_back(angle_ref[4]); 
   joint_cmd.position.push_back(angle_ref[5]); 
 
-  joint_cmd.velocity.push_back(X_test[0]); 
-  joint_cmd.velocity.push_back(X_test[1]); 
-  joint_cmd.velocity.push_back(X_test[2]); 
-  joint_cmd.velocity.push_back(X_test[3]); 
-  joint_cmd.velocity.push_back(X_test[4]); 
-  joint_cmd.velocity.push_back(X_test[5]); 
+  joint_cmd.velocity.push_back(X_test[0] - FK_EE_pos[0]); 
+  joint_cmd.velocity.push_back(X_test[1] - FK_EE_pos[1]); 
+  joint_cmd.velocity.push_back(X_test[2] - FK_EE_pos[2]); 
+  joint_cmd.velocity.push_back(X_test[3] - FK_EE_ori[0]); 
+  joint_cmd.velocity.push_back(X_test[4] - FK_EE_ori[1]); 
+  joint_cmd.velocity.push_back(X_test[5] - FK_EE_ori[2]); 
 
-  FK_EE_pos = EE_pos(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
-  FK_EE_ori = EE_orientation(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
   joint_cmd.effort.push_back(FK_EE_pos[0]); 
   joint_cmd.effort.push_back(FK_EE_pos[1]); 
@@ -725,7 +724,14 @@ void TorqJ::solveInverseKinematics()
   angle_ref = InverseKinematics(X_test[0], X_test[1], X_test[2],
                                 X_test[3], X_test[4], X_test[5]);
 
+  ROS_INFO("=============angle command from inverse kinematics=========");
   ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+
+  FK_EE_pos = EE_pos(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  FK_EE_ori = EE_orientation(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+
+  ROS_INFO("============Command position - FK position ================");
+  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_test[0] - FK_EE_pos[0], X_test[1] - FK_EE_pos[1], X_test[2] - FK_EE_pos[2], X_test[3] - FK_EE_ori[0], X_test[4] - FK_EE_ori[1], X_test[5] - FK_EE_ori[2]);
 }
 
 int main(int argc, char **argv)
