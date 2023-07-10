@@ -12,6 +12,7 @@
 #include <dynamixel_workbench_msgs/EECommand.h>
 #include "two_link/movingFlag.h"
 #include "two_link/admittanceTest.h"
+#include <kdl/chain.hpp>
 
 #define PI 3.14159256359
 
@@ -100,11 +101,6 @@ class TorqJ
   Eigen::Vector2d Q_angle_d_B;
   Eigen::Vector2d Q_angle_d_C;
   //--end--//
-
-  // Inverse Kinematics
-  double theta_d;
-  double D;
-  double r2;  
 
 
 //--External_Force_Estimation--//
@@ -519,7 +515,7 @@ class TorqJ
     double theta4;
     double theta5;
     double theta6;
-    double rr22;
+    double r2;
     double R36_r11;
     double R36_r22;
     double R36_r23;
@@ -573,21 +569,24 @@ class TorqJ
     Eigen::Vector3d Wrist_Position;
     Wrist_Position <<
     // 1X1
-    X - l7 * Rot_Orientation_ref(0,2),
+    X - l7 * Rot_Orientation_ref(0,1),
     // 2X1
-    Y - l7 * Rot_Orientation_ref(1,2),
-    // 3X1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-    Z - l7 * Rot_Orientation_ref(2,2);
+    Y - l7 * Rot_Orientation_ref(1,1),
+    // 3X1
+    Z - l7 * Rot_Orientation_ref(2,1);
 
-    rr22 = sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2) + pow(Wrist_Position[2] - l1,2));
+    r2 = sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2) + pow(Wrist_Position[2] - l1,2));
 
-    theta1 = atan2(Wrist_Position[1], Wrist_Position[0]);
+    theta1 = atan2(Wrist_Position[1], Wrist_Position[0]) - M_PI / 2;
 
-    D_theta2 = (pow(l2,2) + pow(rr22,2) - pow((l3 + l5),2)) / (2 * l2 * rr22);
+    D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
+
     theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
           + atan2(sqrt(1-pow(D_theta2,2)),D_theta2); // sign
-    
-    D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(rr22,2)) / (2 * l2 * (l3 + l5));
+
+    ROS_INFO("%lf, %lf", D_theta2, theta2);
+
+    D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
     theta3 = -(PI - atan2(-sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
 
 
@@ -617,12 +616,12 @@ class TorqJ
 
 };
 
-double TorqJ::l1 = 0.04233;
-double TorqJ::l2 = 0.12409;
-double TorqJ::l3 = 0.04794;
-double TorqJ::l4 = 0.06133;
-double TorqJ::l5 = 0.04583;
-double TorqJ::l6 = 0.06733;
+double TorqJ::l1 = 0.01;
+double TorqJ::l2 = 0.1;
+double TorqJ::l3 = 0.1;
+double TorqJ::l4 = 0.001;
+double TorqJ::l5 = 0.1;
+double TorqJ::l6 = 0.001;
 double TorqJ::l7 = 0.1;
 
 #endif //TorqJ_H_
