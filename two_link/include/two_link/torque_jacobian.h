@@ -329,6 +329,19 @@ class TorqJ
     return L;
   };
 
+  static Eigen::Matrix3d R03(double theta_1, double theta_2, double theta_3)
+  {
+    Eigen::Matrix4d L;
+    L << L1(theta_1)*L2(theta_2)*L3(theta_3);
+
+    Eigen::Matrix3d R03;
+    R03 << L(0,0), L(0,1), L(0,2),
+           L(1,0), L(1,1), L(1,2),
+           L(2,0), L(2,1), L(2,2);
+
+    return R03;
+  }
+
   //////////////////////////////////////////////////////
   //////////////--- Forward Kinematics ---//////////////
   //////////////////////////////////////////////////////
@@ -375,18 +388,6 @@ class TorqJ
     double r31 = sin(theta_2 + theta_3)*sin(theta_5) - cos(theta_2 + theta_3)*cos(theta_5)*sin(theta_4);
     double r32 = cos(theta_6)*(sin(theta_2 + theta_3)*cos(theta_5) + cos(theta_2 + theta_3)*sin(theta_4)*sin(theta_5)) + cos(theta_2 + theta_3)*cos(theta_4)*sin(theta_6);
     double r33 = cos(theta_2 + theta_3)*cos(theta_4)*cos(theta_6) - sin(theta_6)*(sin(theta_2 + theta_3)*cos(theta_5) + cos(theta_2 + theta_3)*sin(theta_4)*sin(theta_5));
-
-    //    double beta = asin2(-r31);
-    //
-    //    Eigen::MatrixXd EE_Orientation(3,1);
-    //    
-    //    EE_Orientation << 
-    //  // roll
-    //    atan2(r32/cos(beta),r33/cos(beta)),
-    //    // pitch
-    //    beta,
-    //    // yaw
-    //    atan2(r21/cos(beta),r11/cos(beta));
 
     double alpha = atan2(r21,r11);
 
@@ -498,15 +499,34 @@ class TorqJ
     return J;
   }
 
+  static Eigen::Matrix3d CmdOrientation(double roll, double pitch, double yaw)
+  {
+    Eigen::Matrix3d R;
+    R <<
+    // 1X1
+    cos(pitch)*cos(yaw),
+    // 1X2
+    cos(yaw)*sin(pitch)*sin(roll) - cos(roll)*sin(yaw),
+    // 1X3
+    sin(roll)*sin(yaw) + cos(roll)*cos(yaw)*sin(pitch),
+    // 2X1
+    cos(pitch)*sin(yaw),
+    // 2X2
+    cos(roll)*cos(yaw) + sin(pitch)*sin(roll)*sin(yaw),
+    // 2X3
+    cos(roll)*sin(pitch)*sin(yaw) - cos(yaw)*sin(roll),
+    // 3X1
+    -sin(pitch),
+    // 3X2
+    cos(pitch)*sin(roll),
+    // 3X3
+    cos(pitch)*cos(roll);
+
+    return R;
+  }
+
   static Eigen::VectorXd InverseKinematics(double X, double Y, double Z, double r, double p, double y)
   {
-    // double l1 = 0.1;
-    // double l2 = 0.1;
-    // double l3 = 0.1;
-    // double l4 = 0.1;
-    // double l5 = 0.1;
-    // double l6 = 0.1;
-    // double l7 = 0.1;
     double theta1;
     double theta2;
     double D_theta2;
@@ -517,63 +537,19 @@ class TorqJ
     double theta6;
     double r2;
     double R36_r11;
+    double R36_r21;
     double R36_r22;
     double R36_r23;
     double R36_r31;
-    double R36_r32;
-    double R36_r33;
-
-    Eigen::Matrix3d R03;
-    R03 <<
-    // 1X1
-    cos(theta1) * cos(theta2) * cos(theta3) - cos(theta1) * sin(theta2) * sin(theta3),
-    // 1X2
-    -sin(theta1),
-    // 1X3
-    -cos(theta1) * cos(theta2) * sin(theta3) - cos(theta1) * cos(theta3) * sin(theta2),
-    // 2X1
-    cos(theta2) * cos(theta3) * sin(theta1) - sin(theta1) * sin(theta2) * sin(theta3),
-    // 2X2
-    cos(theta1),
-    // 2X3
-    -cos(theta2) * sin(theta1) * sin(theta3) - cos(theta3) * sin(theta1) * sin(theta2),
-    // 3X1
-    cos(theta2) * sin(theta3) + cos(theta3) * sin(theta2),
-    // 3X2
-    0,
-    // 3X3
-    cos(theta2) * cos(theta3) - sin(theta2) * sin(theta3);
-
-    Eigen::Matrix3d Rot_Orientation_ref;
-    Rot_Orientation_ref <<
-    // 1X1
-    cos(p) * cos(y),
-    // 1X2
-    -sin(p) * sin(r) - cos(p) * cos(r) * sin(y),
-    // 1X3
-    cos(p) * sin(r) * sin(y) - cos(r) * sin(p),
-    // 2X1
-    sin(y),
-    // 2X2
-    cos(r) * cos(y),
-    // 2X3
-    -cos(y) * sin(r),
-    // 3X1
-    cos(y) * sin(p),
-    // 3X2
-    cos(p) * sin(r) - cos(r) * sin(p) * sin(y),
-    // 3X3
-    cos(p) * cos(r) + sin(p) * sin(r) * sin(y);
-
 
     Eigen::Vector3d Wrist_Position;
     Wrist_Position <<
     // 1X1
-    X - l7 * Rot_Orientation_ref(0,1),
+    X - l7 * CmdOrientation(r,p,y)(0,1),
     // 2X1
-    Y - l7 * Rot_Orientation_ref(1,1),
+    Y - l7 * CmdOrientation(r,p,y)(1,1),
     // 3X1
-    Z - l7 * Rot_Orientation_ref(2,1);
+    Z - l7 * CmdOrientation(r,p,y)(2,1);
 
     r2 = sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2) + pow(Wrist_Position[2] - l1,2));
 
@@ -587,22 +563,20 @@ class TorqJ
     ROS_INFO("%lf, %lf", D_theta2, theta2);
 
     D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
-    theta3 = -(PI - atan2(-sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
-
+    theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
 
     Eigen::Matrix3d R36;
-    R36 = R03.transpose() * Rot_Orientation_ref;
+    R36 = R03(theta1, theta2, theta3).transpose() * CmdOrientation(r,p,y);
 
     R36_r11 = R36(0,0);
+    R36_r21 = R36(1,0);
     R36_r22 = R36(1,1);
     R36_r23 = R36(1,2);
     R36_r31 = R36(2,0);
-    R36_r32 = R36(2,1);
-    R36_r33 = R36(2,2);
 
-    theta6 = atan2(R36_r22, -R36_r23);
-    theta4 = atan2(R36_r31, R36_r33 * sin(theta6) - R36_r32 * cos(theta6));
-    theta5 = atan2(R36_r11, R36_r31);
+    theta4 = atan2(-R36_r31, R36_r11); // pitch
+    theta5 = atan2(R36_r21*cos(theta4), R36_r11); // yaw
+    theta6 = atan2(-R36_r23, R36_r22); // roll
 
     Eigen::VectorXd theta(6);
     theta << theta1, theta2, theta3, theta4, theta5, theta6;
