@@ -225,6 +225,12 @@ TorqJ::TorqJ()
   FK_EE_ori << 0, 0, 0;
       ROS_INFO("fffffff");
 
+
+
+  initPoseFlag = false;   //초기값 맞으면 true로 바뀜
+  checkFirstPoseFlag = true; // 한번훑고 false로 바뀜
+  initPose.resize(6);
+  initPose << 0, 0.10, 0.30, 0, M_PI, 0;
 }
 
 TorqJ::~TorqJ()
@@ -696,12 +702,12 @@ void TorqJ::PublishCmdNMeasured()
   joint_cmd.position.push_back(angle_ref[4]); 
   joint_cmd.position.push_back(angle_ref[5]); 
 
-  joint_cmd.velocity.push_back(X_test[0] - FK_EE_pos[0]); 
-  joint_cmd.velocity.push_back(X_test[1] - FK_EE_pos[1]); 
-  joint_cmd.velocity.push_back(X_test[2] - FK_EE_pos[2]); 
-  joint_cmd.velocity.push_back(X_test[3] - FK_EE_ori[0]); 
-  joint_cmd.velocity.push_back(X_test[4] - FK_EE_ori[1]); 
-  joint_cmd.velocity.push_back(X_test[5] - FK_EE_ori[2]); 
+  joint_cmd.velocity.push_back(initPose[0] - FK_EE_pos[0]); 
+  joint_cmd.velocity.push_back(initPose[1] - FK_EE_pos[1]); 
+  joint_cmd.velocity.push_back(initPose[2] - FK_EE_pos[2]); 
+  joint_cmd.velocity.push_back(initPose[3] - FK_EE_ori[0]); 
+  joint_cmd.velocity.push_back(initPose[4] - FK_EE_ori[1]); 
+  joint_cmd.velocity.push_back(initPose[5] - FK_EE_ori[2]); 
 
 
   joint_cmd.effort.push_back(FK_EE_pos[0]); 
@@ -723,14 +729,56 @@ void TorqJ::solveInverseKinematics()
   angle_ref = InverseKinematics(X_test[0], X_test[1], X_test[2],
                                 X_test[3], X_test[4], X_test[5]);
 
-  ROS_INFO("=============angle command from inverse kinematics=========");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  // ROS_INFO("=============angle command from inverse kinematics=========");
+  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+
+  // FK_EE_pos = EE_pos(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  // FK_EE_ori = EE_orientation(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+
+  // ROS_INFO("============Command position - FK position ================");
+  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_test[0] - FK_EE_pos[0], X_test[1] - FK_EE_pos[1], X_test[2] - FK_EE_pos[2], X_test[3] - FK_EE_ori[0], X_test[4] - FK_EE_ori[1], X_test[5] - FK_EE_ori[2]);
+}
+
+
+void TorqJ::setInitpose()
+{
 
   FK_EE_pos = EE_pos(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
   FK_EE_ori = EE_orientation(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
 
-  ROS_INFO("============Command position - FK position ================");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_test[0] - FK_EE_pos[0], X_test[1] - FK_EE_pos[1], X_test[2] - FK_EE_pos[2], X_test[3] - FK_EE_ori[0], X_test[4] - FK_EE_ori[1], X_test[5] - FK_EE_ori[2]);
+
+    if (checkFirstPoseFlag)
+    {
+    firstPose << FK_EE_pos[0], FK_EE_pos[1], FK_EE_pos[2], FK_EE_ori[0], FK_EE_ori[1], FK_EE_ori[2];
+    PoseDelta = (initPose - firstPose) / 1000;   //5초
+    checkFirstPoseFlag = false;
+    }
+
+
+  X_cmd[0] = FK_EE_pos[0] + PoseDelta[0];
+  X_cmd[1] = FK_EE_pos[1] + PoseDelta[1];
+  X_cmd[2] = FK_EE_pos[2] + PoseDelta[2];
+
+  X_cmd[3] = FK_EE_ori[0] + PoseDelta[0];
+  X_cmd[4] = FK_EE_ori[1] + PoseDelta[1];
+  X_cmd[5] = FK_EE_ori[2] + PoseDelta[2];
+
+  angle_ref = InverseKinematics(X_cmd[0], X_cmd[1], X_cmd[2],
+                                X_cmd[3], X_cmd[4], X_cmd[5]);
+
+  //init pose에 도달했나 확인
+  if(abs(initPose[0] - FK_EE_pos[0]) <0.02 && abs(initPose[1] - FK_EE_pos[1]) <0.02 &&
+     abs(initPose[2] - FK_EE_pos[2]) <0.02 && abs(initPose[3] - FK_EE_ori[0]) <0.02 && 
+     abs(initPose[4] - FK_EE_ori[1]) <0.02 && abs(initPose[5] - FK_EE_ori[2]) <0.02)
+  {
+    initPoseCnt ++;
+    if (initPoseCnt > 200) initPoseFlag = true;
+
+    ROS_INFO("Arrived at Init Pose!!");
+    ROS_INFO("Arrived at Init Pose!!");
+  }
+  else initPoseCnt = 0;
+
 }
 
 int main(int argc, char **argv)
@@ -755,9 +803,20 @@ int main(int argc, char **argv)
     // torqJ.Admittance_control();
     // torqJ.calc_des();
 
-    torqJ.CommandGenerator();
-    torqJ.solveInverseKinematics();   
+    // torqJ.CommandGenerator();
+    // torqJ.solveInverseKinematics();   
+    // torqJ.PublishCmdNMeasured();
+
+    if(torqJ.initPoseFlag = false)
+    {
+      torqJ.setInitpose();
+    }
+    else
+    {
+    torqJ.solveInverseKinematics();
     torqJ.PublishCmdNMeasured();
+    }
+
     ros::spinOnce();
     
     loop_rate.sleep();

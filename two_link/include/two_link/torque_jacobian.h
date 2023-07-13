@@ -185,6 +185,14 @@ class TorqJ
   double a1_2nd;
   double a2_2nd;
 
+  // Init position 맞추는 용도
+  bool initPoseFlag;
+  double initPoseCnt;
+  bool checkFirstPoseFlag;
+  Eigen::VectorXd initPose;
+  Eigen::VectorXd firstPose;
+  Eigen::VectorXd PoseDelta;
+
   // Current lpf result
   Eigen::VectorXd filtered_current;
   double cut_off_freq_current;
@@ -201,6 +209,7 @@ class TorqJ
   void second_order_butterworth();
   void CommandGenerator();
   void solveInverseKinematics();
+  void setInitpose();
   bool movingServiceCallback(two_link::movingFlag::Request  &req,
                              two_link::movingFlag::Response &res);
   bool AdmittanceCallback(two_link::admittanceTest::Request  &req,
@@ -560,7 +569,7 @@ class TorqJ
     theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
           + atan2(sqrt(1-pow(D_theta2,2)),D_theta2); // sign
 
-    ROS_INFO("%lf, %lf", D_theta2, theta2);
+    // ROS_INFO("%lf, %lf", D_theta2, theta2);
 
     D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
     theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
