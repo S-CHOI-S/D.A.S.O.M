@@ -1,7 +1,7 @@
 <launch>
   <arg name="reference_frame" default="/map"/>
   <arg name="units" default="mm"/>
-  <arg name="publish_rate" default="1000"/>
+  <arg name="publish_rate" default="250"/>
   <arg name="omni_name" default="phantom"/>
 
   <!--ADD-->

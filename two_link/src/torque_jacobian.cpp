@@ -223,9 +223,7 @@ TorqJ::TorqJ()
   angle_ref << 0, 0, 0, 0, 0, 0;
   FK_EE_pos << 0, 0, 0;
   FK_EE_ori << 0, 0, 0;
-      ROS_INFO("fffffff");
-
-
+  ROS_INFO("fffffff");
 
   initPoseFlag = false;   //초기값 맞으면 true로 바뀜
   checkFirstPoseFlag = true; // 한번훑고 false로 바뀜
@@ -594,10 +592,6 @@ void TorqJ::angle_safe_func()
   }
 }
 
-
-
-
-
  bool TorqJ::movingServiceCallback(two_link::movingFlag::Request  &req,
           two_link::movingFlag::Response &res)
  {
@@ -708,7 +702,6 @@ void TorqJ::PublishCmdNMeasured()
   joint_cmd.velocity.push_back(initPose[3] - FK_EE_ori[0]); 
   joint_cmd.velocity.push_back(initPose[4] - FK_EE_ori[1]); 
   joint_cmd.velocity.push_back(initPose[5] - FK_EE_ori[2]); 
-
 
   joint_cmd.effort.push_back(FK_EE_pos[0]); 
   joint_cmd.effort.push_back(FK_EE_pos[1]); 

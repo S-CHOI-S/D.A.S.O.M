@@ -59,6 +59,7 @@ public:
   ros::Publisher pose_publisher;
   ros::Publisher button_publisher;
   ros::Publisher joint_publisher;
+  ros::Publisher cmd_publisher; // ADD
   ros::Subscriber haptic_sub;
   std::string omni_name, ref_frame, units;
 
@@ -98,6 +99,12 @@ public:
     stream5 << omni_name << "/joint_states";
     std::string joint_topic_name = std::string(stream5.str());
     joint_publisher = n.advertise<sensor_msgs::JointState>(joint_topic_name.c_str(), 1);
+
+    //Publish on NAME/dasom_EE_commane // ADD
+    std::ostringstream stream6;
+    stream6 << omni_name << "/dasom_EE_command";
+    std::string dasom_topic_name = std::string(stream6.str());
+    cmd_publisher = n.advertise<geometry_msgs::PoseStamped>(dasom_topic_name.c_str(), 1);
 
     state = s;
     state->buttons[0] = 0;
@@ -158,7 +165,7 @@ public:
     state_msg.locked = state->lock;
     state_msg.close_gripper = state->close_gripper;
     // Position
-    state_msg.pose.position.x = state->position[0];
+    state_msg.pose.position.x = -state->position[0]; // state->position[0];
     state_msg.pose.position.y = state->position[1];
     state_msg.pose.position.z = state->position[2];
     // Orientation
@@ -202,6 +209,15 @@ public:
     pose_msg.pose.position.y /= 1000.0;
     pose_msg.pose.position.z /= 1000.0;
     pose_publisher.publish(pose_msg);
+
+    // Build the cmd msg // ADD
+    geometry_msgs::PoseStamped cmd_msg;
+    cmd_msg.header = state_msg.header;
+    cmd_msg.header.frame_id = ref_frame;
+    cmd_msg.pose.position.x = (pose_msg.pose.position.z + 0.0979452972412) * 10; // 길이 mapping 잘 해 줘야 함
+    cmd_msg.pose.position.y = -pose_msg.pose.position.x * 10;
+    cmd_msg.pose.position.z = -(pose_msg.pose.position.y - 0.0855954589844) * 10;
+    cmd_publisher.publish(cmd_msg);
 
     if ((state->buttons[0] != state->buttons_prev[0])
         or (state->buttons[1] != state->buttons_prev[1])) 
