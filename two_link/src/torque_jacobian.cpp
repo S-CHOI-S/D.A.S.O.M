@@ -722,14 +722,14 @@ void TorqJ::solveInverseKinematics()
   angle_ref = InverseKinematics(X_test[0], X_test[1], X_test[2],
                                 X_test[3], X_test[4], X_test[5]);
 
-  // ROS_INFO("=============angle command from inverse kinematics=========");
-  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  ROS_INFO("=============angle command from inverse kinematics=========");
+  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
 
-  // FK_EE_pos = EE_pos(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
-  // FK_EE_ori = EE_orientation(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  FK_EE_pos = EE_pos(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  FK_EE_ori = EE_orientation(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
 
-  // ROS_INFO("============Command position - FK position ================");
-  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_test[0] - FK_EE_pos[0], X_test[1] - FK_EE_pos[1], X_test[2] - FK_EE_pos[2], X_test[3] - FK_EE_ori[0], X_test[4] - FK_EE_ori[1], X_test[5] - FK_EE_ori[2]);
+  ROS_INFO("============Command position - FK position ================");
+  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_test[0] - FK_EE_pos[0], X_test[1] - FK_EE_pos[1], X_test[2] - FK_EE_pos[2], X_test[3] - FK_EE_ori[0], X_test[4] - FK_EE_ori[1], X_test[5] - FK_EE_ori[2]);
 }
 
 
