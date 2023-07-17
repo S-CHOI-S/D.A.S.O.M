@@ -40,31 +40,32 @@ int main(int argc, char** argv)
   std::vector<double> link_masses(num_links);         // 링크 질량
   std::vector<KDL::Vector> link_cogs(num_links);       // 링크 무게 중심
   std::vector<KDL::RotationalInertia> link_inertias(num_links);  // 링크 관성 모멘트
+  
   // 각 링크의 길이, 질량, 무게 중심, 관성 모멘트 정보를 초기화합니다.
   for (unsigned int i = 0; i < num_links; ++i)
   {
-      link_lengths[i] = 1.0;                   // 링크의 길이를 적절히 설정하세요.
-      link_masses[i] = 1.0;                    // 링크의 질량을 적절히 설정하세요.
-      link_cogs[i] = KDL::Vector(0.3, 0.2, 0.3); // 링크의 무게 중심을 적절히 설정하세요.
-      double ixx = 1.0;                        // 관성 모멘트 정보를 적절히 설정하세요.
-      double iyy = 0.10;
-      double izz = 0.20;
-      double ixy = 0.10;
-      double ixz = 0.40;
-      double iyz = 0.30;
-      link_inertias[i] = KDL::RotationalInertia(ixx, iyy, izz, ixy, ixz, iyz); // 초기화된 관성 모멘트를 설정합니다.
+    link_lengths[i] = 0.158;                   // 링크의 길이를 적절히 설정하세요.
+    link_masses[i] = 0.201;                    // 링크의 질량을 적절히 설정하세요.
+    link_cogs[i] = KDL::Vector(0.128, 0.072, 0.0); // 링크의 무게 중심을 적절히 설정하세요.
+    double ixx = 0.000067648;                        // 관성 모멘트 정보를 적절히 설정하세요.
+    double iyy = 0.000340463;
+    double izz = 0.000310225;
+    double ixy = 0.0;
+    double ixz = 0.000001570;
+    double iyz = 0.0;
+    link_inertias[i] = KDL::RotationalInertia(ixx, iyy, izz, ixy, ixz, iyz); // 초기화된 관성 모멘트를 설정합니다.
   }
 
   // 로봇팔의 체인을 생성합니다.
   KDL::Chain my_chain;
   for (unsigned int i = 0; i < num_joints; ++i)
   {
-      KDL::Vector joint_axis(0.0, 0.0, 1.0);  // 관절 축을 설정합니다.
-      KDL::Joint joint(KDL::Joint::RotZ);     // 관절 유형을 설정합니다. 여기서는 회전 관절(RotZ)을 사용합니다.
-      KDL::Frame frame(KDL::Vector(link_lengths[i], 0.0, 0.0));  // 관절 위치를 설정합니다.
-      frame.p = link_cogs[i];  // 링크의 무게 중심을 설정합니다.
-      KDL::RigidBodyInertia link_inertia(link_masses[i], link_cogs[i], link_inertias[i]); // 관성 모멘트를 설정합니다.
-      my_chain.addSegment(KDL::Segment(joint, frame, link_inertia));
+    KDL::Vector joint_axis(0.0, 0.0, 1.0);  // 관절 축을 설정합니다.
+    KDL::Joint joint(KDL::Joint::RotZ);     // 관절 유형을 설정합니다. 여기서는 회전 관절(RotZ)을 사용합니다.
+    KDL::Frame frame(KDL::Vector(link_lengths[i], 0.0, 0.0));  // 관절 위치를 설정합니다.
+    frame.p = link_cogs[i];  // 링크의 무게 중심을 설정합니다.
+    KDL::RigidBodyInertia link_inertia(link_masses[i], link_cogs[i], link_inertias[i]); // 관성 모멘트를 설정합니다.
+    my_chain.addSegment(KDL::Segment(joint, frame, link_inertia));
   }
 
   // 로봇 관절 상태를 설정합니다.
@@ -85,9 +86,9 @@ int main(int argc, char** argv)
   // 관절 상태를 초기화합니다.
   for (unsigned int i = 0; i < num_joints; ++i)
   {
-      q(i) = sin(cnt__ / 100);           // 관절 위치를 적절히 설정하세요.
-      q_dot(i) = sin(cnt__ / 100 + 1);       // 관절 속도를 적절히 설정하세요.
-      q_dotdot(i) = sin(cnt__ / 100 - 1);    // 관절 가속도를 적절히 설정하세요.
+    q(i) = sin(cnt__ / 100);           // 관절 위치를 적절히 설정하세요.
+    q_dot(i) = sin(cnt__ / 100 + 1);       // 관절 속도를 적절히 설정하세요.
+    q_dotdot(i) = sin(cnt__ / 100 - 1);    // 관절 가속도를 적절히 설정하세요.
   }
 
   // MCG 다이나믹스 행렬을 계산합니다.
@@ -103,24 +104,24 @@ int main(int argc, char** argv)
   std::cout << "Mass matrix (H):" << std::endl;
   for (unsigned int i = 0; i < num_joints; ++i)
   {
-      for (unsigned int j = 0; j < num_joints; ++j)
-      {
-          std::cout << H(i, j) << "\t";
-      }
-      std::cout << std::endl;
+    for (unsigned int j = 0; j < num_joints; ++j)
+    {
+        std::cout << H(i, j) << "\t";
+    }
+    std::cout << std::endl;
   }
 
   std::cout << "Coriolis matrix (C):" << std::endl;
   for (unsigned int i = 0; i < num_joints; ++i)
   {
-      std::cout << C(i) << "\t";
+    std::cout << C(i) << "\t";
   }
   std::cout << std::endl;
 
   std::cout << "Gravity vector (G):" << std::endl;
   for (unsigned int i = 0; i < num_joints; ++i)
   {
-      std::cout << G(i) << "\t";
+    std::cout << G(i) << "\t";
   }
   std::cout << std::endl;
 
