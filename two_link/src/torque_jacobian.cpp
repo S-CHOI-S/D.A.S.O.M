@@ -36,9 +36,6 @@ TorqJ::TorqJ()
   position_i_gain = node_handle_.param<double>("position_i_gain", 1);
   position_d_gain = node_handle_.param<double>("position_d_gain", 1);
 
-  
-
-
   // Q-filter
   Cut_Off_Freq = node_handle_.param<double>("Cut_Off_Freq", 1);
 
@@ -69,6 +66,9 @@ TorqJ::TorqJ()
   ************************************************************/
   initPublisher();
   initSubscriber();
+
+  // dasom_kdl = new DasomKDL;
+  // dasom_kdl->run();
 
 
   virtual_mass << virtual_mass_x, virtual_mass_y, virtual_mass_z;
@@ -721,16 +721,18 @@ void TorqJ::solveInverseKinematics()
   angle_ref = InverseKinematics(FK_EE_pos[0], FK_EE_pos[1], FK_EE_pos[2],
                                 FK_EE_ori[0], FK_EE_ori[1], FK_EE_ori[2]);
 
-  ROS_INFO("=============angle command from inverse kinematics=========");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  // ROS_INFO("=============angle command from inverse kinematics=========");
+  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
 
   FK_EE_pos = EE_pos(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
   FK_EE_ori = EE_orientation(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
-  ROS_INFO("============Command position - FK position ================");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0] - angle_ref[0], angle_measured[1] - angle_ref[1], angle_measured[2] - angle_ref[2], angle_measured[3] - angle_ref[3], angle_measured[4] - angle_ref[4], angle_measured[5] - angle_ref[5]);
+  // ROS_INFO("============Command position - FK position ================");
+  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0] - angle_ref[0], angle_measured[1] - angle_ref[1], angle_measured[2] - angle_ref[2], angle_measured[3] - angle_ref[3], angle_measured[4] - angle_ref[4], angle_measured[5] - angle_ref[5]);
 
   // ROS_ERROR("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+
+  // dasom_kdl->run();
 
 }
 
@@ -781,9 +783,9 @@ int main(int argc, char **argv)
   // Init ROS node
   ros::init(argc, argv, "TorqJ");
   TorqJ torqJ;
-  DasomKDL dasom_kdl;
+  // DasomKDL *dasom_kdl;
 
-  // dasom_kdl.run();
+  // dasom_kdl->run();
 
   ros::Rate loop_rate(200);
 

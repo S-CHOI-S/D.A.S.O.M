@@ -16,20 +16,22 @@
 
 #include "two_link/dasom_kdl.h"
 
+// namespace dasom_kdl { // namespace dasom_kdl
+
 DasomKDL::DasomKDL() 
 : nh_(""), loop_rate_(200)
 {
   // command_pub_ = nh_.advertise<sensor_msgs::JointState>("/goal_EE_position", 100);
 
   // Initialize other member variables or perform any necessary setup
-  initializeRobotLinks();
+  // initializeRobotLinks();
 }
 
 DasomKDL::~DasomKDL()
 {
   // Perform any necessary cleanup
-  ROS_INFO("Bye!");
-  ros::shutdown();
+  // ROS_INFO("Bye!");
+  // ros::shutdown();
 }
 
 void DasomKDL::run()
@@ -159,6 +161,7 @@ void DasomKDL::computeMCGDynamics()
   ROS_INFO("\n");
 }
 
+// } // namespace dasom_kdl
 
 // #include <kdl/chain.hpp>
 // #include <kdl/chaindynparam.hpp>

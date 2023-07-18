@@ -45,25 +45,43 @@ generate_messages(
 )
 
 catkin_package(
-#  INCLUDE_DIRS include
-  LIBRARIES turtles
+  INCLUDE_DIRS include
+  LIBRARIES turtles two_link
   CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs
 #  DEPENDS system_lib
 )
 
 include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
   include
+  ${catkin_INCLUDE_DIRS}
+  #include
 )
+
+################################################################################
+# Install
+################################################################################
+#install(TARGETS two_link
+#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+#)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
+
+add_library(dasom_kdl src/dasom_kdl.cpp)
+target_include_directories(dasom_kdl PUBLIC include)
+add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dasom_kdl ${catkin_LIBRARIES})
 
 add_executable(Admittance_TwoLink src/Admittance_TwoLink.cpp)  # 수정
 add_dependencies(Admittance_TwoLink ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(Admittance_TwoLink ${catkin_LIBRARIES})
 
-add_executable(dasom_kdl src/dasom_kdl.cpp)
-add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(dasom_kdl ${catkin_LIBRARIES})
+#add_executable(dasom_kdl src/dasom_kdl.cpp)
+#add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(dasom_kdl ${catkin_LIBRARIES})
 
 add_executable(torque_jacobian src/torque_jacobian.cpp)
 add_dependencies(torque_jacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

@@ -1,5 +1,3 @@
-#ifndef DASOM_KDL_H_
-#define DASOM_KDL_H_
 /*******************************************************************************
 * D.A.S.O.M
 *
@@ -16,12 +14,17 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
+#ifndef DASOM_KDL_H_
+#define DASOM_KDL_H_
+
 #include <ros/ros.h>
 #include <kdl/chain.hpp>
 #include <kdl/chaindynparam.hpp>
 #include <kdl/jntarray.hpp>
 #include <kdl/frames_io.hpp>
 #include <sensor_msgs/JointState.h>
+
+// namespace dasom_kdl { // namespace dasom_kdl
 
 class DasomKDL
 {
@@ -44,5 +47,7 @@ private:
   KDL::JntArray q_dot_;  // 관절 속도
   KDL::JntArray q_dotdot_; // 관절 가속도
 };
+
+// } // namespace dasom_kdl
 
 #endif //DASOM_KDL_H_
