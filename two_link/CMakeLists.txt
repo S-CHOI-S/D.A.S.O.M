@@ -30,7 +30,6 @@ add_message_files(
   DasomDynamixel.msg
 )
 
-
 add_service_files(
   FILES
   param.srv
@@ -58,14 +57,18 @@ include_directories(
   include
 )
 
-add_executable(Admittance_TwoLink.cpp src/Admittance_TwoLink.cpp)
-add_dependencies(Admittance_TwoLink.cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(Admittance_TwoLink.cpp ${catkin_LIBRARIES})
+add_executable(Admittance_TwoLink src/Admittance_TwoLink.cpp)  # 수정
+add_dependencies(Admittance_TwoLink ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(Admittance_TwoLink ${catkin_LIBRARIES})
+
+add_executable(dasom_kdl src/dasom_kdl.cpp)
+add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dasom_kdl ${catkin_LIBRARIES})
 
 add_executable(torque_jacobian src/torque_jacobian.cpp)
 add_dependencies(torque_jacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(torque_jacobian ${catkin_LIBRARIES})
 
-add_executable(dasom_kdl src/dasom_kdl.cpp)
-add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(dasom_kdl ${catkin_LIBRARIES})
+#add_executable(dasom_kdl src/dasom_kdl.cpp)
+#add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(dasom_kdl ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})

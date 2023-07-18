@@ -16,72 +16,33 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
+#include <ros/ros.h>
 #include <kdl/chain.hpp>
 #include <kdl/chaindynparam.hpp>
 #include <kdl/jntarray.hpp>
 #include <kdl/frames_io.hpp>
-#include <ros/ros.h>
-#include <cmath>
 #include <sensor_msgs/JointState.h>
 
-#define PI 3.14159256359
-
-class DSKDL
+class DasomKDL
 {
- public:
-  DSKDL();
-  ~DSKDL();
+public:
+  DasomKDL();
+  ~DasomKDL();
 
-  // KDL
-  KDL::Tree kdl_tree_;
-  KDL::Chain kdl_chain_;
-  KDL::JntArray q_;
-  KDL::JntArray tau_;
-  KDL::Vector grav_;
-  KDL::JntArray G_;
-  
+  void run();
+  void initializeRobotLinks();
+  void computeMCGDynamics();
 
- private:
-  /*****************************************************************************
-  ** ROS NodeHandle
-  *****************************************************************************/
-  ros::NodeHandle node_handle_;
-  ros::NodeHandle priv_node_handle_;
+private:
+  ros::NodeHandle nh_;
+  // ros::Publisher command_pub_;
+  ros::Rate loop_rate_;
+  // sensor_msgs::JointState msg_;
 
-  /*****************************************************************************
-  ** ROS Parameters
-  *****************************************************************************/
-
-  /*****************************************************************************
-  ** Init Functions
-  *****************************************************************************/
-  void initPublisher();
-
-  /*****************************************************************************
-  ** ROS Subscribers, Callback Functions and Relevant Functions
-  *****************************************************************************/
-  ros::Publisher Commandpub;
-
-  //----------Link Lengths---------//
-  static double l1;
-  static double l2;
-  static double l3;
-  static double l4;
-  static double l5;
-  static double l6;
-  static double l7;
-  
-  static unsigned int num_joints = 6; //
-  static unsigned int num_links = 6; //
-
+  KDL::Chain kdl_chain_; // 로봇팔 체인
+  KDL::JntArray q_;      // 관절 위치
+  KDL::JntArray q_dot_;  // 관절 속도
+  KDL::JntArray q_dotdot_; // 관절 가속도
 };
-
-double DSKDL::l1 = 0.01;
-double DSKDL::l2 = 0.1;
-double DSKDL::l3 = 0.1;
-double DSKDL::l4 = 0.001;
-double DSKDL::l5 = 0.1;
-double DSKDL::l6 = 0.001;
-double DSKDL::l7 = 0.1;
 
 #endif //DASOM_KDL_H_

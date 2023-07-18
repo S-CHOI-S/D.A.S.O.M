@@ -8,11 +8,13 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/String.h>
+#include <kdl/chain.hpp>
 #include <dynamixel_workbench_msgs/DasomDynamixel.h>
 #include <dynamixel_workbench_msgs/EECommand.h>
 #include "two_link/movingFlag.h"
 #include "two_link/admittanceTest.h"
-#include <kdl/chain.hpp>
+#include "two_link/dasom_kdl.h"
+
 
 #define PI 3.14159256359
 
@@ -261,10 +263,10 @@ class TorqJ
     double cosT = cos(theta_1), sinT = sin(theta_1);
 
     Eigen::Matrix4d L;
-    L <<      cosT,     -sinT,     0,       0,
-              sinT,      cosT,     0,       0,
-                 0,         0,     1,      l1,
-                 0,         0,     0,       1;
+    L <<      cosT,     -sinT,     0,        0,
+              sinT,      cosT,     0,        0,
+                 0,         0,     1,       l1,
+                 0,         0,     0,        1;
     return L;
   };
 
@@ -273,10 +275,10 @@ class TorqJ
     double cosT = cos(theta_2), sinT = sin(theta_2);
 
     Eigen::Matrix4d L;
-    L <<         1,         0,     0,       0,
-                 0,      cosT, -sinT, l2*cosT,
-                 0,      sinT,  cosT, l2*sinT,
-                 0,         0,     0,       1;
+    L <<         1,         0,     0,        0,
+                 0,      cosT, -sinT,  l2*cosT,
+                 0,      sinT,  cosT,  l2*sinT,
+                 0,         0,     0,        1;
     return L;
   };
 
@@ -285,10 +287,10 @@ class TorqJ
     double cosT = cos(theta_3), sinT = sin(theta_3);
 
     Eigen::Matrix4d L;
-    L <<         1,         0,     0,       0,
-                 0,      cosT, -sinT, l3*cosT,
-                 0,      sinT,  cosT, l3*sinT,
-                 0,         0,     0,       1;
+    L <<         1,         0,     0,        0,
+                 0,      cosT, -sinT,  l3*cosT,
+                 0,      sinT,  cosT,  l3*sinT,
+                 0,         0,     0,        1;
     return L;
   };
 
@@ -297,20 +299,20 @@ class TorqJ
     double cosT = cos(theta_4), sinT = sin(theta_4);
 
     Eigen::Matrix4d L;
-    L <<      cosT,         0,  sinT, l4*sinT,
-                 0,         1,     0,       0,
-             -sinT,         0,  cosT, l4*cosT,
-                 0,         0,     0,       1;
+    L <<      cosT,         0,  sinT, -l4*sinT,
+                 0,         1,     0,        0,
+             -sinT,         0,  cosT, -l4*cosT,
+                 0,         0,     0,        1;
     return L;
   };
 
   static Eigen::Matrix4d L5()
   {
     Eigen::Matrix4d L;
-    L <<         1,         0,     0,       0,
-                 0,         1,     0,      l5,
-                 0,         0,     1,       0,
-                 0,         0,     0,       1;
+    L <<         1,         0,     0,        0,
+                 0,         1,     0,       l5,
+                 0,         0,     1,        0,
+                 0,         0,     0,        1;
     return L;
   };
 
@@ -319,10 +321,10 @@ class TorqJ
     double cosT = cos(theta_5), sinT = sin(theta_5);
 
     Eigen::Matrix4d L;
-    L <<      cosT,     -sinT,     0,       0,
-              sinT,      cosT,     0,       0,
-                 0,         0,     1,     -l6,
-                 0,         0,     0,       1;
+    L <<      cosT,     -sinT,     0,        0,
+              sinT,      cosT,     0,        0,
+                 0,         0,     1,       l6,
+                 0,         0,     0,        1;
     return L;
   };
 
@@ -364,22 +366,16 @@ class TorqJ
     double cos4 = cos(theta_4), sin4 = sin(theta_4);
     double cos5 = cos(theta_5), sin5 = sin(theta_5);
     double cos6 = cos(theta_6), sin6 = sin(theta_6);
-    double sin23 = sin(theta_2 + theta_3);
-    double cos23 = cos(theta_2 + theta_3);
-    double cos45 = cos(theta_4 + theta_5);
-    double sin46 = sin(theta_4 + theta_6);
-    double cos4m5 = cos(theta_4 - theta_5);
-    double sin4m6 = sin(theta_4 - theta_6);
 
     Eigen::MatrixXd EE_pos(3,1);
 
     EE_pos << 
     // X
-    l5*(sin1*sin2*sin3 - cos2*cos3*sin1) - l6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) + l4*cos4*(cos2*sin1*sin3 + cos3*sin1*sin2) - l7*cos6*(sin5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - cos5*(sin1*sin2*sin3 - cos2*cos3*sin1)) - l2*cos2*sin1 + l4*cos1*sin4 + l7*sin6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l3*cos2*cos3*sin1 + l3*sin1*sin2*sin3,
+    l5*(sin1*sin2*sin3 - cos2*cos3*sin1) + l6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l4*cos4*(cos2*sin1*sin3 + cos3*sin1*sin2) - l7*cos6*(sin5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - cos5*(sin1*sin2*sin3 - cos2*cos3*sin1)) - l2*cos2*sin1 - l4*cos1*sin4 + l7*sin6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l3*cos2*cos3*sin1 + l3*sin1*sin2*sin3,
     // Y
-    l2*cos1*cos2 - l6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l5*(cos1*sin2*sin3 - cos1*cos2*cos3) + l4*sin1*sin4 + l7*sin6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l7*cos6*(sin5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + cos5*(cos1*sin2*sin3 - cos1*cos2*cos3)) - l4*cos4*(cos1*cos2*sin3 + cos1*cos3*sin2) + l3*cos1*cos2*cos3 - l3*cos1*sin2*sin3,
+    l6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l5*(cos1*sin2*sin3 - cos1*cos2*cos3) + l2*cos1*cos2 - l4*sin1*sin4 + l7*sin6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l7*cos6*(sin5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + cos5*(cos1*sin2*sin3 - cos1*cos2*cos3)) + l4*cos4*(cos1*cos2*sin3 + cos1*cos3*sin2) + l3*cos1*cos2*cos3 - l3*cos1*sin2*sin3,
     // Z
-    l1 + l3*sin23 + l5*sin23 + l2*sin2 + (l7*cos23*sin46)/2 + l4*cos23*cos4 - l6*cos23*cos4 - (l7*sin4m6*cos23)/2 + l7*cos6*((cos4m5*cos23)/2 - (cos23*cos45)/2 + sin23*cos5);
+    l1 + l5*(cos2*sin3 + cos3*sin2) + l2*sin2 - l4*cos4*(cos2*cos3 - sin2*sin3) + l6*cos4*(cos2*cos3 - sin2*sin3) + l3*cos2*sin3 + l3*cos3*sin2 + l7*cos6*(cos5*(cos2*sin3 + cos3*sin2) + sin4*sin5*(cos2*cos3 - sin2*sin3)) + l7*cos4*sin6*(cos2*cos3 - sin2*sin3);
 
     return EE_pos;
   }
@@ -394,9 +390,9 @@ class TorqJ
     double r21 = cos(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - sin(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3));
     double r22 = sin(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - cos(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)));
     double r23 = cos(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + sin(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)));
-    double r31 = sin(theta_2 + theta_3)*sin(theta_5) - cos(theta_2 + theta_3)*cos(theta_5)*sin(theta_4);
-    double r32 = cos(theta_6)*(sin(theta_2 + theta_3)*cos(theta_5) + cos(theta_2 + theta_3)*sin(theta_4)*sin(theta_5)) + cos(theta_2 + theta_3)*cos(theta_4)*sin(theta_6);
-    double r33 = cos(theta_2 + theta_3)*cos(theta_4)*cos(theta_6) - sin(theta_6)*(sin(theta_2 + theta_3)*cos(theta_5) + cos(theta_2 + theta_3)*sin(theta_4)*sin(theta_5));
+    double r31 = sin(theta_5)*(cos(theta_2)*sin(theta_3) + cos(theta_3)*sin(theta_2)) - cos(theta_5)*sin(theta_4)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3));
+    // double r32 = cos(theta_6)*(cos(theta_5)*(cos(theta_2)*sin(theta_3) + cos(theta_3)*sin(theta_2)) + sin(theta_4)*sin(theta_5)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3))) + cos(theta_4)*sin(theta_6)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3));
+    // double r33 = cos(theta_4)*cos(theta_6)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3)) - sin(theta_6)*(cos(theta_5)*(cos(theta_2)*sin(theta_3) + cos(theta_3)*sin(theta_2)) + sin(theta_4)*sin(theta_5)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3)));
 
     double alpha = atan2(r21,r11);
 
@@ -413,6 +409,7 @@ class TorqJ
     return EE_Orientation;
   }
 
+  // 나바
   static Eigen::MatrixXd Jacobian(double theta_1,double theta_2,double theta_3,
                                   double theta_4,double theta_5,double theta_6)
   {

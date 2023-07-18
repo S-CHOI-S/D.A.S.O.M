@@ -257,7 +257,7 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   angle_measured[0] = msg->position.at(0);
   angle_measured[1] = msg->position.at(1);
   angle_measured[2] = msg->position.at(2);
-  angle_measured[3] = msg->position.at(3);
+  angle_measured[3] = msg->position.at(3)+M_PI;
   angle_measured[4] = msg->position.at(4);
   angle_measured[5] = msg->position.at(5);
 
@@ -663,7 +663,7 @@ void TorqJ::CommandGenerator()
   t++;
   double Amp = 0.07;
   double period = 5;
-  X_test[0] = 0; //Amp * (sin(2* M_PI * 0.005 * t / period + M_PI/2)) + 0.114329 - Amp;
+  X_test[0] = Amp * (sin(2* M_PI * 0.005 * t / period + M_PI/2)) + 0.114329 - Amp;
 
   double Amp1 = 0.07;
   double period1 = 5;
@@ -712,24 +712,26 @@ void TorqJ::PublishCmdNMeasured()
 
   joint_command_pub_.publish(joint_cmd);
 
-
 }
 
 void TorqJ::solveInverseKinematics()
 {
   // EE_position과 orientation이 들어왔을 것: X_ref, Orientation_ref
 
-  angle_ref = InverseKinematics(X_test[0], X_test[1], X_test[2],
-                                X_test[3], X_test[4], X_test[5]);
+  angle_ref = InverseKinematics(FK_EE_pos[0], FK_EE_pos[1], FK_EE_pos[2],
+                                FK_EE_ori[0], FK_EE_ori[1], FK_EE_ori[2]);
 
   ROS_INFO("=============angle command from inverse kinematics=========");
   ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
 
-  FK_EE_pos = EE_pos(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
-  FK_EE_ori = EE_orientation(angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  FK_EE_pos = EE_pos(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+  FK_EE_ori = EE_orientation(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
   ROS_INFO("============Command position - FK position ================");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_test[0] - FK_EE_pos[0], X_test[1] - FK_EE_pos[1], X_test[2] - FK_EE_pos[2], X_test[3] - FK_EE_ori[0], X_test[4] - FK_EE_ori[1], X_test[5] - FK_EE_ori[2]);
+  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0] - angle_ref[0], angle_measured[1] - angle_ref[1], angle_measured[2] - angle_ref[2], angle_measured[3] - angle_ref[3], angle_measured[4] - angle_ref[4], angle_measured[5] - angle_ref[5]);
+
+  // ROS_ERROR("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+
 }
 
 
@@ -779,6 +781,9 @@ int main(int argc, char **argv)
   // Init ROS node
   ros::init(argc, argv, "TorqJ");
   TorqJ torqJ;
+  DasomKDL dasom_kdl;
+
+  // dasom_kdl.run();
 
   ros::Rate loop_rate(200);
 
@@ -796,19 +801,19 @@ int main(int argc, char **argv)
     // torqJ.Admittance_control();
     // torqJ.calc_des();
 
-    // torqJ.CommandGenerator();
-    // torqJ.solveInverseKinematics();   
+    torqJ.CommandGenerator();
+    torqJ.solveInverseKinematics();   
     // torqJ.PublishCmdNMeasured();
 
-    if(torqJ.initPoseFlag = false)
-    {
-      torqJ.setInitpose();
-    }
-    else
-    {
-    torqJ.solveInverseKinematics();
-    torqJ.PublishCmdNMeasured();
-    }
+    // if(torqJ.initPoseFlag = false)
+    // {
+    //   torqJ.setInitpose();
+    // }
+    // else
+    // {
+    // torqJ.solveInverseKinematics();
+    // torqJ.PublishCmdNMeasured();
+    // }
 
     ros::spinOnce();
     
