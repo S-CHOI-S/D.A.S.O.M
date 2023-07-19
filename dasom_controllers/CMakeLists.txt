@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(two_link)
+project(dasom_controllers)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamixel_workbench_msgs
   message_generation
   orocos_kdl
+  dasom_toolbox
 )
 
 ## System dependencies are found with CMake's conventions
@@ -46,8 +47,8 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES turtles two_link
-  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs
+  LIBRARIES turtles
+  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs dasom_toolbox
 #  DEPENDS system_lib
 )
 
@@ -60,7 +61,7 @@ include_directories(
 ################################################################################
 # Install
 ################################################################################
-#install(TARGETS two_link
+#install(TARGETS dasom_controllers
 #  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -70,23 +71,11 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
-add_library(dasom_kdl src/dasom_kdl.cpp)
-target_include_directories(dasom_kdl PUBLIC include)
-add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(dasom_kdl ${catkin_LIBRARIES})
-
 add_executable(Admittance_TwoLink src/Admittance_TwoLink.cpp)  # 수정
 add_dependencies(Admittance_TwoLink ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(Admittance_TwoLink ${catkin_LIBRARIES})
 
-#add_executable(dasom_kdl src/dasom_kdl.cpp)
-#add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_link_libraries(dasom_kdl ${catkin_LIBRARIES})
-
 add_executable(torque_jacobian src/torque_jacobian.cpp)
 add_dependencies(torque_jacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(torque_jacobian ${catkin_LIBRARIES})
+target_link_libraries(torque_jacobian dasom_toolbox ${catkin_LIBRARIES})
 
-#add_executable(dasom_kdl src/dasom_kdl.cpp)
-#add_dependencies(dasom_kdl ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_link_libraries(dasom_kdl ${catkin_LIBRARIES} ${orocos_kdl_LIBRARIES})

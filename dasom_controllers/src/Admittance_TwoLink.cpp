@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <geometry_msgs/Twist.h>
-#include <two_link/DasomDynamixel.h>
+#include <dasom_controllers/DasomDynamixel.h>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense> 
 
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 	ros::Publisher Commandpub = n.advertise<sensor_msgs::JointState>("/goal_EE_position", 100); // Final Angle Command
 	ros::Publisher testPub = n.advertise<geometry_msgs::Twist>("/ForceTest", 100);
 
-	two_link::DasomDynamixel cmd;
+	dasom_controllers::DasomDynamixel cmd;
 //	ros::Subscriber hapticCallback_sub = n.subscribe("/now_haptic_endEffector_publisher", 10, hapticCallback);
  
 //-----MDK Model ------//

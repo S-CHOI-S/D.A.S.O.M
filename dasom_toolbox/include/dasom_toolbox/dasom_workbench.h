@@ -14,8 +14,8 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
-#ifndef DASOM_KDL_H_
-#define DASOM_KDL_H_
+#ifndef DASOM_WORKBENCH_H_
+#define DASOM_WORKBENCH_H_
 
 #include <ros/ros.h>
 #include <kdl/chain.hpp>
@@ -24,30 +24,26 @@
 #include <kdl/frames_io.hpp>
 #include <sensor_msgs/JointState.h>
 
-// namespace dasom_kdl { // namespace dasom_kdl
-
-class DasomKDL
+class DasomWorkbench
 {
-public:
-  DasomKDL();
-  ~DasomKDL();
+ public:
+  DasomWorkbench();
+  ~DasomWorkbench();
 
+  void test();  
   void run();
   void initializeRobotLinks();
   void computeMCGDynamics();
 
-private:
+ private:
   ros::NodeHandle nh_;
-  // ros::Publisher command_pub_;
   ros::Rate loop_rate_;
-  // sensor_msgs::JointState msg_;
 
   KDL::Chain kdl_chain_; // 로봇팔 체인
   KDL::JntArray q_;      // 관절 위치
   KDL::JntArray q_dot_;  // 관절 속도
   KDL::JntArray q_dotdot_; // 관절 가속도
+
 };
 
-// } // namespace dasom_kdl
-
-#endif //DASOM_KDL_H_
+#endif /*DASOM_WORKBENCH_H_*/

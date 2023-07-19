@@ -54,6 +54,6 @@
   <param name="cut_off_freq_current"           value="$(arg cut_off_freq_current)"/>
 
 
-  <node name="torque_jacobian" pkg="two_link" type="torque_jacobian" required="true" output="screen"/>
+  <node name="torque_jacobian" pkg="dasom_controllers" type="torque_jacobian" required="true" output="screen"/>
 
 </launch>

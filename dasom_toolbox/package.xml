@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dasom_toolbox</name>
+  <version>1.0.0</version>
+  <description>
+    The 'dasom_toolbox' class make simple to use Dasom Aerial Manipulator
+  </description>
+  <license>Apache 2.0</license>
+  <maintainer email="choisol@todo.todo">seuk</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <exec_depend>orocos_kdl</exec_depend>
+</package>

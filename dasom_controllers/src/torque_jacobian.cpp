@@ -14,7 +14,7 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
-#include "two_link/torque_jacobian.h"
+#include "dasom_controllers/torque_jacobian.h"
 
 
 double time_loop = 0;
@@ -60,16 +60,15 @@ TorqJ::TorqJ()
   //---Current low pass filter--//
   cut_off_freq_current = node_handle_.param<double>("cut_off_freq_current", 1);
 
+  ds_wb_ = new DasomWorkbench;
+
+  ds_wb_->run();
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
   ************************************************************/
   initPublisher();
   initSubscriber();
-
-  // dasom_kdl = new DasomKDL;
-  // dasom_kdl->run();
-
 
   virtual_mass << virtual_mass_x, virtual_mass_y, virtual_mass_z;
   virtual_damper << virtual_damper_x, virtual_damper_y, virtual_damper_z;
@@ -592,8 +591,8 @@ void TorqJ::angle_safe_func()
   }
 }
 
- bool TorqJ::movingServiceCallback(two_link::movingFlag::Request  &req,
-          two_link::movingFlag::Response &res)
+ bool TorqJ::movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
+          dasom_controllers::movingFlag::Response &res)
  {
   if(movingFlag)
   {
@@ -609,8 +608,8 @@ void TorqJ::angle_safe_func()
  }
 
 
- bool TorqJ::AdmittanceCallback(two_link::admittanceTest::Request  &req,
-          two_link::admittanceTest::Response &res)
+ bool TorqJ::AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
+          dasom_controllers::admittanceTest::Response &res)
  {
 
   virtual_mass[0] = req.x_m;
@@ -783,9 +782,6 @@ int main(int argc, char **argv)
   // Init ROS node
   ros::init(argc, argv, "TorqJ");
   TorqJ torqJ;
-  // DasomKDL *dasom_kdl;
-
-  // dasom_kdl->run();
 
   ros::Rate loop_rate(200);
 

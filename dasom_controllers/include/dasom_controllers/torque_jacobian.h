@@ -11,10 +11,9 @@
 #include <kdl/chain.hpp>
 #include <dynamixel_workbench_msgs/DasomDynamixel.h>
 #include <dynamixel_workbench_msgs/EECommand.h>
-#include "two_link/movingFlag.h"
-#include "two_link/admittanceTest.h"
-#include "two_link/dasom_kdl.h"
-
+#include "dasom_controllers/movingFlag.h"
+#include "dasom_controllers/admittanceTest.h"
+#include <dasom_toolbox/dasom_workbench.h>
 
 #define PI 3.14159256359
 
@@ -212,10 +211,10 @@ class TorqJ
   void CommandGenerator();
   void solveInverseKinematics();
   void setInitpose();
-  bool movingServiceCallback(two_link::movingFlag::Request  &req,
-                             two_link::movingFlag::Response &res);
-  bool AdmittanceCallback(two_link::admittanceTest::Request  &req,
-                          two_link::admittanceTest::Response &res);
+  bool movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
+                             dasom_controllers::movingFlag::Response &res);
+  bool AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
+                          dasom_controllers::admittanceTest::Response &res);
 
  private:
   /*****************************************************************************
@@ -230,7 +229,7 @@ class TorqJ
   std::string robot_name_;
   sensor_msgs::JointState command_position;
 
-  DasomKDL *dasom_kdl;
+  DasomWorkbench *ds_wb_;
 
   /*****************************************************************************
   ** Init Functions
