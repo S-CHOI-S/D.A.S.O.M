@@ -25,6 +25,10 @@
 #include "omni_msgs/OmniState.h"
 #include <pthread.h>
 
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_msgs/TFMessage.h>
+#include "tf/transform_datatypes.h"
+
 float prev_time;
 int calibrationStyle;
 
@@ -181,6 +185,18 @@ public:
     state_msg.header.stamp = ros::Time::now();
     state_publisher.publish(state_msg);
     
+    // Check
+    double roll;
+    double pitch;
+    double yaw;
+  
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(state_msg.pose.orientation, quat);
+
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+    pitch = -pitch;
+    ROS_INFO("Roll:%lf, Pitch:%lf, Yaw:%lf",roll, pitch, yaw);
+
     // Publish the JointState msg
     sensor_msgs::JointState joint_state;
     joint_state.header.stamp = ros::Time::now();
@@ -210,14 +226,26 @@ public:
     pose_msg.pose.position.z /= 1000.0;
     pose_publisher.publish(pose_msg);
 
-    // Build the cmd msg // ADD
-    geometry_msgs::PoseStamped cmd_msg;
-    cmd_msg.header = state_msg.header;
-    cmd_msg.header.frame_id = ref_frame;
-    cmd_msg.pose.position.x = (pose_msg.pose.position.z + 0.0979452972412) * 10; // 길이 mapping 잘 해 줘야 함
-    cmd_msg.pose.position.y = -pose_msg.pose.position.x * 10;
-    cmd_msg.pose.position.z = -(pose_msg.pose.position.y - 0.0855954589844) * 10;
-    cmd_publisher.publish(cmd_msg);
+    // // Check
+    // double roll2;
+    // double pitch2;
+    // double yaw2;
+  
+    // tf::Quaternion quat2;
+    // tf::quaternionMsgToTF(pose_msg.pose.orientation, quat2);
+
+    // tf::Matrix3x3(quat2).getRPY(roll2, pitch2, yaw2);
+    // pitch2 = -pitch2;
+    // ROS_INFO("Roll:%lf, Pitch:%lf, Yaw:%lf",roll2, pitch2, yaw2);
+
+    // // Build the cmd msg // ADD
+    // geometry_msgs::PoseStamped cmd_msg;
+    // cmd_msg.header = state_msg.header;
+    // cmd_msg.header.frame_id = ref_frame;
+    // cmd_msg.pose.position.x = (pose_msg.pose.position.z + 0.0979452972412) * 10; // 길이 mapping 잘 해 줘야 함
+    // cmd_msg.pose.position.y = -pose_msg.pose.position.x * 10;
+    // cmd_msg.pose.position.z = -(pose_msg.pose.position.y - 0.0855954589844) * 10;
+    // cmd_publisher.publish(cmd_msg);
 
     if ((state->buttons[0] != state->buttons_prev[0])
         or (state->buttons[1] != state->buttons_prev[1])) 

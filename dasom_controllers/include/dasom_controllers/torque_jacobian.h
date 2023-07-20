@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/String.h>
 #include <kdl/chain.hpp>
 #include <dynamixel_workbench_msgs/DasomDynamixel.h>
@@ -14,6 +15,9 @@
 #include "dasom_controllers/movingFlag.h"
 #include "dasom_controllers/admittanceTest.h"
 #include <dasom_toolbox/dasom_workbench.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_msgs/TFMessage.h>
+#include "tf/transform_datatypes.h"
 
 #define PI 3.14159256359
 
@@ -55,6 +59,8 @@ class TorqJ
   Eigen::Vector3d V_measured;
   Eigen::VectorXd angle_measured;
 
+  Eigen::VectorXd haptic_command;
+  Eigen::VectorXd haptic_initPose;
 
   Eigen::MatrixXd J;
   Eigen::MatrixXd JT;
@@ -243,6 +249,7 @@ class TorqJ
   ros::Publisher joint_command_pub_;
   ros::Publisher joint_measured_pub_;
   ros::Subscriber joint_states_sub_;
+  ros::Subscriber joystick_sub_;
   ros::ServiceServer movingService;
   ros::ServiceServer admitService;
 
@@ -595,15 +602,16 @@ class TorqJ
   void poseCallback(const geometry_msgs::Twist::ConstPtr &msg);
   void commandCallback(const sensor_msgs::JointState::ConstPtr &msg);
   void jointCallback(const sensor_msgs::JointState::ConstPtr &msg);
+  void joystickCallback(const geometry_msgs::PoseStamped &msg);
 
 };
 
-double TorqJ::l1 = 0.01;
-double TorqJ::l2 = 0.1;
-double TorqJ::l3 = 0.1;
-double TorqJ::l4 = 0.001;
-double TorqJ::l5 = 0.1;
-double TorqJ::l6 = 0.001;
-double TorqJ::l7 = 0.1;
+double TorqJ::l1 = 0.05465;
+double TorqJ::l2 = 0.1585;
+double TorqJ::l3 = 0.099;
+double TorqJ::l4 = 0.04;
+double TorqJ::l5 = 0.06483;
+double TorqJ::l6 = 0.04;
+double TorqJ::l7 = 0.01;
 
 #endif //TorqJ_H_
