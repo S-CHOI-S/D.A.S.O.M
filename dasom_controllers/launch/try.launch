@@ -1,0 +1,6 @@
+<launch>
+  <include file="$(find dasom_description)/launch/try.launch"/>
+
+  <node name="try" pkg="dasom_controllers" type="try" required="true" output="screen"/>
+
+</launch>

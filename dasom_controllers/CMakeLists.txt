@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   orocos_kdl
   dasom_toolbox
+  dasom_description
 )
 
 ## System dependencies are found with CMake's conventions
@@ -48,7 +49,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES turtles
-  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs dasom_toolbox
+  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs dasom_toolbox dasom_description
 #  DEPENDS system_lib
 )
 
@@ -78,4 +79,8 @@ target_link_libraries(Admittance_TwoLink ${catkin_LIBRARIES})
 add_executable(torque_jacobian src/torque_jacobian.cpp)
 add_dependencies(torque_jacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(torque_jacobian dasom_toolbox ${catkin_LIBRARIES})
+
+add_executable(try src/try.cpp)
+add_dependencies(try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(try ${catkin_LIBRARIES})
 
