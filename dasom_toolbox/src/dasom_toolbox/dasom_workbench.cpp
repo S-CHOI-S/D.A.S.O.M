@@ -40,35 +40,24 @@ void DasomWorkbench::test()
 
 void DasomWorkbench::run()
 {
-  float cnt__ = 0;
-  float sec = 0;
-  
-  initializeRobotLinks();
+  // 관절 상태 초기화 및 MCG 다이나믹스 행렬 계산 등의 작업 수행
 
-  while (ros::ok())
+  // 여기서 관절 위치(q_), 관절 속도(q_dot_), 관절 가속도(q_dotdot_)를 초기화할 수 있습니다.
+  for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
   {
-    // 관절 상태 초기화 및 MCG 다이나믹스 행렬 계산 등의 작업 수행
-
-    // 여기서 관절 위치(q_), 관절 속도(q_dot_), 관절 가속도(q_dotdot_)를 초기화할 수 있습니다.
-    for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
-    {
-      q_(i) = sin(cnt__ / 100);         // 관절 위치를 적절히 설정하세요.
-      q_dot_(i) = sin(cnt__ / 100 + 1); // 관절 속도를 적절히 설정하세요.
-      q_dotdot_(i) = sin(cnt__ / 100 - 1); // 관절 가속도를 적절히 설정하세요.
-    }
-    
-    computeMCGDynamics();
-
-    ros::spinOnce();
-    loop_rate_.sleep();
-
-    cnt__++;
-    sec = cnt__ / 100;
-    ROS_INFO("SEC:%lf", sec);
-    
-    // Publish the command message
-    // command_pub_.publish(msg_);
+    q_(i) = sin(cnt__ / 100);         // 관절 위치를 적절히 설정하세요.
+    q_dot_(i) = sin(cnt__ / 100 + 1); // 관절 속도를 적절히 설정하세요.
+    q_dotdot_(i) = sin(cnt__ / 100 - 1); // 관절 가속도를 적절히 설정하세요.
   }
+  
+  computeMCGDynamics();
+
+  ros::spinOnce();
+  loop_rate_.sleep();
+
+  cnt__++;
+  sec = cnt__ / 100;
+  ROS_INFO("SEC:%lf", sec);
 }
 
 void DasomWorkbench::initializeRobotLinks()

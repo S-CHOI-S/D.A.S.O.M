@@ -133,9 +133,6 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(setting_joystickCMD_tf src/setting_joystickCMD_tf.cpp)
-add_executable(setting_joystickBase_tf src/setting_joystickBase_tf.cpp)
-add_executable(tf_listener src/tf_listener.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -148,15 +145,6 @@ add_executable(tf_listener src/tf_listener.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(setting_joystickCMD_tf
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(setting_joystickBase_tf
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(tf_listener
-  ${catkin_LIBRARIES}
-)
 
 #############
 ## Install ##
@@ -212,3 +200,19 @@ target_link_libraries(tf_listener
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(setting_joystickCMD_tf src/setting_joystickCMD_tf.cpp)
+add_dependencies(setting_joystickCMD_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(setting_joystickCMD_tf ${catkin_LIBRARIES})
+
+add_executable(setting_joystickBase_tf src/setting_joystickBase_tf.cpp)
+add_dependencies(setting_joystickBase_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(setting_joystickBase_tf ${catkin_LIBRARIES})
+
+add_executable(setting_endEffector_tf src/setting_endEffector_tf.cpp)
+add_dependencies(setting_endEffector_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(setting_endEffector_tf ${catkin_LIBRARIES})
+
+add_executable(tf_listener src/tf_listener.cpp)
+add_dependencies(tf_listener ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(tf_listener ${catkin_LIBRARIES})

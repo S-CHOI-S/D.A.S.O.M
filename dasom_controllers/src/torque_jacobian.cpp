@@ -240,6 +240,7 @@ void TorqJ::initPublisher()
 {
   joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10);
   joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);  
+  dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_pose", 10);  
 }
 
 void TorqJ::initSubscriber()
@@ -288,7 +289,7 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
  ROS_INFO("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
 }
 
-  void TorqJ::second_order_butterworth()
+void TorqJ::second_order_butterworth()
 {
   //////////////////////////////////////////
   ////////////////ButterWorth////////////////
@@ -685,6 +686,8 @@ void TorqJ::PublishCmdNMeasured()
 
 void TorqJ::solveInverseKinematics()
 {
+  geometry_msgs::Twist msg;
+
   // EE_position과 orientation이 들어왔을 것: X_ref, Orientation_ref
 
   angle_ref = InverseKinematics(haptic_command[0], haptic_command[1], haptic_command[2],
@@ -702,6 +705,15 @@ void TorqJ::solveInverseKinematics()
   ROS_WARN("======================================================================================");
   // ROS_ERROR("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
+  msg.linear.x = FK_pose[0];
+  msg.linear.y = FK_pose[1];
+  msg.linear.z = FK_pose[2];
+  msg.angular.x = FK_pose[3];
+  msg.angular.y = FK_pose[4];
+  msg.angular.z = FK_pose[5];
+
+  dasom_EE_pos_pub_.publish(msg);
+  
 }
 
 void TorqJ::setInitpose()
@@ -781,9 +793,11 @@ int main(int argc, char **argv)
     // safety++;
     //  torqJ.solveInverseKinematics();
     //  }
-     torqJ.solveInverseKinematics();
-     torqJ.angle_safe_func();
-     torqJ.PublishCmdNMeasured();
+    torqJ.solveInverseKinematics();
+    torqJ.angle_safe_func();
+    torqJ.PublishCmdNMeasured();
+
+    torqJ.ds_wb_->run();
 
 
     ros::spinOnce();

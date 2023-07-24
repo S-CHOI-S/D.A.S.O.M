@@ -27,6 +27,8 @@ class TorqJ
   TorqJ(); // 직접 객체를 생성하여 초기화;
   ~TorqJ();
 
+  DasomWorkbench *ds_wb_;
+
   // Eigen::Vector3d Wrist_Position;
   Eigen::Vector3d Orientation_ref;
   Eigen::VectorXd X_test;
@@ -197,7 +199,7 @@ class TorqJ
                              dasom_controllers::movingFlag::Response &res);
   bool AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
                           dasom_controllers::admittanceTest::Response &res);
-
+  
  private:
   /*****************************************************************************
   ** ROS NodeHandle
@@ -211,8 +213,6 @@ class TorqJ
   std::string robot_name_;
   sensor_msgs::JointState command_position;
 
-  DasomWorkbench *ds_wb_;
-
   /*****************************************************************************
   ** Init Functions
   *****************************************************************************/
@@ -224,6 +224,7 @@ class TorqJ
   *****************************************************************************/
   ros::Publisher joint_command_pub_;
   ros::Publisher joint_measured_pub_;
+  ros::Publisher dasom_EE_pos_pub_;
   ros::Subscriber joint_states_sub_;
   ros::Subscriber joystick_sub_;
   ros::ServiceServer movingService;

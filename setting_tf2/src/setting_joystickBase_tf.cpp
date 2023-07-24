@@ -30,7 +30,7 @@ int main(int argc, char **argv){
     Eigen::VectorXd joystick_initPose;
     joystick_initPose.resize(6,1);
     //joystick_initPose << 0, 0.085595, -0.097945, 0, 1.206859, -1.674547;
-    joystick_initPose << -0.060348, -0.004343, 0, 0, 0, 0;
+    joystick_initPose << 0, 0.085595, -0.097945 , 0, 0, 0;
 //-0.060348, -0.004343, 0.115148, -1.202008, 0.001187, 1.644898
 
 

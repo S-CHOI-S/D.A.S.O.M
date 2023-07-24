@@ -44,6 +44,9 @@ class DasomWorkbench
   KDL::JntArray q_dot_;  // 관절 속도
   KDL::JntArray q_dotdot_; // 관절 가속도
 
+  float cnt__ = 0;
+  float sec = 0;
+
 };
 
 #endif /*DASOM_WORKBENCH_H_*/
