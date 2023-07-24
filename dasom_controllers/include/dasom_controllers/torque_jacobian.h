@@ -45,8 +45,7 @@ class TorqJ
 
   Eigen::VectorXd angle_ref;
   Eigen::VectorXd tau_gravity;
-  Eigen::Vector3d FK_EE_pos;
-  Eigen::Vector3d FK_EE_ori;
+  Eigen::VectorXd FK_pose;
   Eigen::Vector2d POSITION_2;
 
 
@@ -343,8 +342,8 @@ class TorqJ
   //////////////--- Forward Kinematics ---//////////////
   //////////////////////////////////////////////////////
 
-  static Eigen::MatrixXd EE_pos(double theta_1,double theta_2,double theta_3,
-			                          double theta_4,double theta_5,double theta_6)
+  static Eigen::MatrixXd EE_pose(double theta_1,double theta_2,double theta_3,
+			                           double theta_4,double theta_5,double theta_6)
   {
     double cos1 = cos(theta_1), sin1 = sin(theta_1);
     double cos2 = cos(theta_2), sin2 = sin(theta_2);
@@ -353,23 +352,6 @@ class TorqJ
     double cos5 = cos(theta_5), sin5 = sin(theta_5);
     double cos6 = cos(theta_6), sin6 = sin(theta_6);
 
-    Eigen::MatrixXd EE_pos(3,1);
-
-    EE_pos << 
-    // X
-    l5*(sin1*sin2*sin3 - cos2*cos3*sin1) + l6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l4*cos4*(cos2*sin1*sin3 + cos3*sin1*sin2) - l7*cos6*(sin5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - cos5*(sin1*sin2*sin3 - cos2*cos3*sin1)) - l2*cos2*sin1 - l4*cos1*sin4 + l7*sin6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l3*cos2*cos3*sin1 + l3*sin1*sin2*sin3,
-    // Y
-    l6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l5*(cos1*sin2*sin3 - cos1*cos2*cos3) + l2*cos1*cos2 - l4*sin1*sin4 + l7*sin6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l7*cos6*(sin5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + cos5*(cos1*sin2*sin3 - cos1*cos2*cos3)) + l4*cos4*(cos1*cos2*sin3 + cos1*cos3*sin2) + l3*cos1*cos2*cos3 - l3*cos1*sin2*sin3,
-    // Z
-    l1 + l5*(cos2*sin3 + cos3*sin2) + l2*sin2 - l4*cos4*(cos2*cos3 - sin2*sin3) + l6*cos4*(cos2*cos3 - sin2*sin3) + l3*cos2*sin3 + l3*cos3*sin2 + l7*cos6*(cos5*(cos2*sin3 + cos3*sin2) + sin4*sin5*(cos2*cos3 - sin2*sin3)) + l7*cos4*sin6*(cos2*cos3 - sin2*sin3);
-
-    return EE_pos;
-  }
-
-
-  static Eigen::MatrixXd EE_orientation(double theta_1,double theta_2,double theta_3,
-			                                  double theta_4,double theta_5,double theta_6)
-  {
     double r11 = cos(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + sin(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1));
     double r12 = sin(theta_6)*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_6)*(sin(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1)));
     double r13 = cos(theta_6)*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + sin(theta_6)*(sin(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1)));
@@ -377,10 +359,18 @@ class TorqJ
     double r22 = sin(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - cos(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)));
     double r23 = cos(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + sin(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)));
     double r31 = sin(theta_5)*(cos(theta_2)*sin(theta_3) + cos(theta_3)*sin(theta_2)) - cos(theta_5)*sin(theta_4)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3));
-    // double r32 = cos(theta_6)*(cos(theta_5)*(cos(theta_2)*sin(theta_3) + cos(theta_3)*sin(theta_2)) + sin(theta_4)*sin(theta_5)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3))) + cos(theta_4)*sin(theta_6)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3));
-    // double r33 = cos(theta_4)*cos(theta_6)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3)) - sin(theta_6)*(cos(theta_5)*(cos(theta_2)*sin(theta_3) + cos(theta_3)*sin(theta_2)) + sin(theta_4)*sin(theta_5)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3)));
 
     double alpha = atan2(r21,r11);
+
+    Eigen::MatrixXd EE_position(3,1);
+
+    EE_position << 
+    // X
+    l5*(sin1*sin2*sin3 - cos2*cos3*sin1) + l6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l4*cos4*(cos2*sin1*sin3 + cos3*sin1*sin2) - l7*cos6*(sin5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - cos5*(sin1*sin2*sin3 - cos2*cos3*sin1)) - l2*cos2*sin1 - l4*cos1*sin4 + l7*sin6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l3*cos2*cos3*sin1 + l3*sin1*sin2*sin3,
+    // Y
+    l6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l5*(cos1*sin2*sin3 - cos1*cos2*cos3) + l2*cos1*cos2 - l4*sin1*sin4 + l7*sin6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l7*cos6*(sin5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + cos5*(cos1*sin2*sin3 - cos1*cos2*cos3)) + l4*cos4*(cos1*cos2*sin3 + cos1*cos3*sin2) + l3*cos1*cos2*cos3 - l3*cos1*sin2*sin3,
+    // Z
+    l1 + l5*(cos2*sin3 + cos3*sin2) + l2*sin2 - l4*cos4*(cos2*cos3 - sin2*sin3) + l6*cos4*(cos2*cos3 - sin2*sin3) + l3*cos2*sin3 + l3*cos3*sin2 + l7*cos6*(cos5*(cos2*sin3 + cos3*sin2) + sin4*sin5*(cos2*cos3 - sin2*sin3)) + l7*cos4*sin6*(cos2*cos3 - sin2*sin3);
 
     Eigen::MatrixXd EE_Orientation(3,1);
     
@@ -392,7 +382,17 @@ class TorqJ
     // yaw
     alpha;
 
-    return EE_Orientation;
+    Eigen::MatrixXd EE_pose(6,1);
+
+    EE_pose <<
+    EE_position(0,0),
+    EE_position(1,0),
+    EE_position(2,0),
+    EE_Orientation(0,0),
+    EE_Orientation(1,0),
+    EE_Orientation(2,0);
+
+    return EE_pose;
   }
 
   // 나바

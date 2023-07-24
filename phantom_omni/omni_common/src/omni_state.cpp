@@ -30,7 +30,7 @@
 #include <tf2_msgs/TFMessage.h>
 #include "tf/transform_datatypes.h"
 
-float prev_time;
+double prev_time;
 int calibrationStyle;
 
 struct OmniState {
@@ -47,7 +47,7 @@ struct OmniState {
   hduQuaternion rot;
   hduVector3Dd joints;
   hduVector3Dd force;   //3 element double vector force[0], force[1], force[2]
-  float thetas[7];
+  double thetas[7];
   int buttons[2];
   int buttons_prev[2];
   bool lock;
@@ -312,7 +312,7 @@ HDCallbackCode HDCALLBACK omni_state_callback(void *pUserData)
       return HD_CALLBACK_DONE;
   }
 
-  float t[7] = { 0., omni_state->joints[0], omni_state->joints[1],
+  double t[7] = { 0., omni_state->joints[0], omni_state->joints[1],
       omni_state->joints[2] - omni_state->joints[1], gimbal_angles[0],
       gimbal_angles[1], gimbal_angles[2] };
   for (int i = 0; i < 7; i++)

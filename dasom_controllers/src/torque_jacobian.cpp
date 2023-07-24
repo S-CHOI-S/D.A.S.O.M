@@ -62,7 +62,7 @@ TorqJ::TorqJ()
 
   ds_wb_ = new DasomWorkbench;
 
-  ds_wb_->run();
+  // ds_wb_->run();
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -97,8 +97,7 @@ TorqJ::TorqJ()
   X_ref.resize(6,1);
   angle_ref.resize(6,1);
   angle_d.resize(6,1);
-  FK_EE_pos.resize(3,1);
-  FK_EE_ori.resize(3,1);
+  FK_pose.resize(6,1);
   haptic_command.resize(6,1);
   haptic_initPose.resize(6,1);
   initPose.resize(6, 1);
@@ -225,8 +224,7 @@ TorqJ::TorqJ()
 
 
   X_test << 0, 0, 0, 0, 0, 0;
-  FK_EE_pos << 0, 0, 0;
-  FK_EE_ori << 0, 0, 0;
+  FK_pose << 0, 0, 0, 0, 0, 0;
 
   initPose << 0, 0.15, 0.3, 0, 0, 0;
   haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
@@ -247,7 +245,7 @@ void TorqJ::initPublisher()
 void TorqJ::initSubscriber()
 {
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
-  joystick_sub_ = node_handle_.subscribe("/phantom/pose", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
+  joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
   admitService = node_handle_.advertiseService("/admitService", &TorqJ::AdmittanceCallback, this);
@@ -287,7 +285,7 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
   
   haptic_command = haptic_command - haptic_initPose + initPose;
 
-//  ROS_INFO("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
+ ROS_INFO("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
 }
 
   void TorqJ::second_order_butterworth()
@@ -660,12 +658,12 @@ void TorqJ::PublishCmdNMeasured()
   geometry_msgs::Twist second_publisher;
   // tau_des를 publish
   joint_cmd.header.stamp = ros::Time::now();
-  joint_cmd.position.push_back(angle_ref[0]); 
-  joint_cmd.position.push_back(angle_ref[1]); 
-  joint_cmd.position.push_back(angle_ref[2]); 
-  joint_cmd.position.push_back(angle_ref[3]); 
-  joint_cmd.position.push_back(angle_ref[4]); 
-  joint_cmd.position.push_back(angle_ref[5]); 
+  joint_cmd.position.push_back(angle_safe[0]); 
+  joint_cmd.position.push_back(angle_safe[1]); 
+  joint_cmd.position.push_back(angle_safe[2]); 
+  joint_cmd.position.push_back(angle_safe[3]); 
+  joint_cmd.position.push_back(angle_safe[4]); 
+  joint_cmd.position.push_back(angle_safe[5]); 
 
   joint_cmd.velocity.push_back(angle_measured[0] - angle_ref[0]); 
   joint_cmd.velocity.push_back(angle_measured[1] - angle_ref[1]); 
@@ -697,9 +695,8 @@ void TorqJ::solveInverseKinematics()
   ROS_INFO("=============angle measured from inverse kinematics=========");
   ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
-  FK_EE_pos = EE_pos(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
-  FK_EE_ori = EE_orientation(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
-
+  FK_pose = EE_pose(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+  
   ROS_INFO("============error angle================");
   ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0] - angle_ref[0], angle_measured[1] - angle_ref[1], angle_measured[2] - angle_ref[2], angle_measured[3] - angle_ref[3], angle_measured[4] - angle_ref[4], angle_measured[5] - angle_ref[5]);
   ROS_WARN("======================================================================================");
@@ -711,26 +708,25 @@ void TorqJ::setInitpose()
 {
 
   initPosemovingCnt ++;
-  FK_EE_pos = EE_pos(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
-  FK_EE_ori = EE_orientation(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+  FK_pose = EE_pose(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+  
 
-
-    if (checkFirstPoseFlag = 0)
-    {
-    firstPose << FK_EE_pos[0], FK_EE_pos[1], FK_EE_pos[2], FK_EE_ori[0], FK_EE_ori[1], FK_EE_ori[2];
-    PoseDelta = (initPose - firstPose) / 10 ;
-    checkFirstPoseFlag = 1;
-    }
+  if (checkFirstPoseFlag = 0)
+  {
+  firstPose << FK_pose[0], FK_pose[1], FK_pose[2], FK_pose[3], FK_pose[4], FK_pose[5];
+  PoseDelta = (initPose - firstPose) / 10 ;
+  checkFirstPoseFlag = 1;
+  }
 
   if((initPosemovingCnt % 40) == 0 && (initPosemovingCnt < 400));
   {
-  X_cmd[0] = FK_EE_pos[0] + PoseDelta[0];
-  X_cmd[1] = FK_EE_pos[1] + PoseDelta[1];
-  X_cmd[2] = FK_EE_pos[2] + PoseDelta[2];
+    X_cmd[0] = FK_pose[0] + PoseDelta[0];
+    X_cmd[1] = FK_pose[1] + PoseDelta[1];
+    X_cmd[2] = FK_pose[2] + PoseDelta[2];
 
-  X_cmd[3] = FK_EE_ori[0] + PoseDelta[3];
-  X_cmd[4] = FK_EE_ori[1] + PoseDelta[4];
-  X_cmd[5] = FK_EE_ori[2] + PoseDelta[5];
+    X_cmd[3] = FK_pose[3] + PoseDelta[3];
+    X_cmd[4] = FK_pose[4] + PoseDelta[4];
+    X_cmd[5] = FK_pose[5] + PoseDelta[5];
   }
 
   ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_cmd[0], X_cmd[1], X_cmd[2], X_cmd[3], X_cmd[4], X_cmd[5]);
@@ -740,9 +736,9 @@ void TorqJ::setInitpose()
 
 
   //init pose에 도달했나 확인
-  if(abs(initPose[0] - FK_EE_pos[0]) <0.05 && abs(initPose[1] - FK_EE_pos[1]) <0.05 &&
-     abs(initPose[2] - FK_EE_pos[2]) <0.05 && abs(initPose[3] - FK_EE_ori[0]) <0.05 && 
-     abs(initPose[4] - FK_EE_ori[1]) <0.05 && abs(initPose[5] - FK_EE_ori[2]) <0.05)
+  if(abs(initPose[0] - FK_pose[0]) <0.05 && abs(initPose[1] - FK_pose[1]) <0.05 &&
+     abs(initPose[2] - FK_pose[2]) <0.05 && abs(initPose[3] - FK_pose[3]) <0.05 && 
+     abs(initPose[4] - FK_pose[4]) <0.05 && abs(initPose[5] - FK_pose[5]) <0.05)
   {
     initPoseCnt ++;
 
