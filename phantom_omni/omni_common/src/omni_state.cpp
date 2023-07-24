@@ -2,6 +2,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/WrenchStamped.h>
+#include <geometry_msgs/Twist.h>
 #include <urdf/model.h>
 #include <sensor_msgs/JointState.h>
 
@@ -63,52 +64,49 @@ public:
   ros::Publisher pose_publisher;
   ros::Publisher button_publisher;
   ros::Publisher joint_publisher;
-  ros::Publisher cmd_publisher; // ADD
+  ros::Publisher xyzrpy_publisher;
   ros::Subscriber haptic_sub;
   std::string omni_name, ref_frame, units;
 
   OmniState *state;
 
   void init(OmniState *s) {
-    ros::param::param(std::string("~omni_name"), omni_name, std::string("phantom"));
+    ros::param::param(std::string("~omni_name"), omni_name, std::string("/phantom"));
     ros::param::param(std::string("~reference_frame"), ref_frame, std::string("/map"));
     ros::param::param(std::string("~units"), units, std::string("mm"));
-    
+
     //Publish button state on NAME/button
     std::ostringstream stream1;
     stream1 << omni_name << "/button";
     std::string button_topic = std::string(stream1.str());
     button_publisher = n.advertise<omni_msgs::OmniButtonEvent>(button_topic.c_str(), 100);
-    
+
     //Publish on NAME/state
     std::ostringstream stream2;
     stream2 << omni_name << "/state";
     std::string state_topic_name = std::string(stream2.str());
     state_publisher = n.advertise<omni_msgs::OmniState>(state_topic_name.c_str(), 1);
-    
+
     //Subscribe to NAME/force_feedback
     std::ostringstream stream3;
     stream3 << omni_name << "/force_feedback";
     std::string force_feedback_topic = std::string(stream3.str());
-    haptic_sub = n.subscribe(force_feedback_topic.c_str(), 1, &PhantomROS::force_callback, this);
-    
-    //Publish on NAME/pose
+    haptic_sub = n.subscribe(force_feedback_topic.c_str(), 1, &PhantomROS::force_callback, this, ros::TransportHints().tcpNoDelay());
+
+    //Publish on NAME/pose  //이거쓰자
     std::ostringstream stream4;
     stream4 << omni_name << "/pose";
     std::string pose_topic_name = std::string(stream4.str());
     pose_publisher = n.advertise<geometry_msgs::PoseStamped>(pose_topic_name.c_str(), 1);
-    
+
     //Publish on NAME/joint_states
     std::ostringstream stream5;
     stream5 << omni_name << "/joint_states";
     std::string joint_topic_name = std::string(stream5.str());
     joint_publisher = n.advertise<sensor_msgs::JointState>(joint_topic_name.c_str(), 1);
 
-    //Publish on NAME/dasom_EE_commane // ADD
-    std::ostringstream stream6;
-    stream6 << omni_name << "/dasom_EE_command";
-    std::string dasom_topic_name = std::string(stream6.str());
-    cmd_publisher = n.advertise<geometry_msgs::PoseStamped>(dasom_topic_name.c_str(), 1);
+    xyzrpy_publisher = n.advertise<geometry_msgs::Twist>("/phantom/xyzrpy", 10);
+
 
     state = s;
     state->buttons[0] = 0;
@@ -169,7 +167,7 @@ public:
     state_msg.locked = state->lock;
     state_msg.close_gripper = state->close_gripper;
     // Position
-    state_msg.pose.position.x = -state->position[0]; // state->position[0];
+    state_msg.pose.position.x = state->position[0];
     state_msg.pose.position.y = state->position[1];
     state_msg.pose.position.z = state->position[2];
     // Orientation
@@ -184,18 +182,6 @@ public:
     // TODO: Append Current to the state msg
     state_msg.header.stamp = ros::Time::now();
     state_publisher.publish(state_msg);
-    
-    // Check
-    double roll;
-    double pitch;
-    double yaw;
-  
-    tf::Quaternion quat;
-    tf::quaternionMsgToTF(state_msg.pose.orientation, quat);
-
-    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
-    pitch = -pitch;
-    ROS_INFO("Roll:%lf, Pitch:%lf, Yaw:%lf",roll, pitch, yaw);
 
     // Publish the JointState msg
     sensor_msgs::JointState joint_state;
@@ -203,52 +189,41 @@ public:
     joint_state.name.resize(6);
     joint_state.position.resize(6);
     joint_state.name[0] = "waist";
-    joint_state.position[0] = state->thetas[1];
+    joint_state.position[0] = -state->thetas[1];
     joint_state.name[1] = "shoulder";
     joint_state.position[1] = state->thetas[2];
     joint_state.name[2] = "elbow";
     joint_state.position[2] = state->thetas[3];
     joint_state.name[3] = "yaw";
-    joint_state.position[3] = state->thetas[6] - M_PI; // -state->thetas[4] + M_PI;
+    joint_state.position[3] = -state->thetas[4] + M_PI;
     joint_state.name[4] = "pitch";
-    joint_state.position[4] = state->thetas[5] - 3*M_PI/4;
+    joint_state.position[4] = -state->thetas[5] - 3*M_PI/4;
     joint_state.name[5] = "roll";
-    joint_state.position[5] = state->thetas[4] + M_PI; // state->thetas[6] - M_PI;
+    joint_state.position[5] = -state->thetas[6] - M_PI;
     joint_publisher.publish(joint_state);
-    
+
     // Build the pose msg
     geometry_msgs::PoseStamped pose_msg;
     pose_msg.header = state_msg.header;
     pose_msg.header.frame_id = ref_frame;
     pose_msg.pose = state_msg.pose;
-    pose_msg.pose.position.x /= 1000.0;
+    pose_msg.pose.position.x /= -1000.0;
     pose_msg.pose.position.y /= 1000.0;
     pose_msg.pose.position.z /= 1000.0;
     pose_publisher.publish(pose_msg);
 
-    // // Check
-    // double roll2;
-    // double pitch2;
-    // double yaw2;
-  
-    // tf::Quaternion quat2;
-    // tf::quaternionMsgToTF(pose_msg.pose.orientation, quat2);
-
-    // tf::Matrix3x3(quat2).getRPY(roll2, pitch2, yaw2);
-    // pitch2 = -pitch2;
-    // ROS_INFO("Roll:%lf, Pitch:%lf, Yaw:%lf",roll2, pitch2, yaw2);
-
-    // // Build the cmd msg // ADD
-    // geometry_msgs::PoseStamped cmd_msg;
-    // cmd_msg.header = state_msg.header;
-    // cmd_msg.header.frame_id = ref_frame;
-    // cmd_msg.pose.position.x = (pose_msg.pose.position.z + 0.0979452972412) * 10; // 길이 mapping 잘 해 줘야 함
-    // cmd_msg.pose.position.y = -pose_msg.pose.position.x * 10;
-    // cmd_msg.pose.position.z = -(pose_msg.pose.position.y - 0.0855954589844) * 10;
-    // cmd_publisher.publish(cmd_msg);
+      geometry_msgs::Twist xyzrpy;
+      xyzrpy.linear.x = pose_msg.pose.position.x;
+      xyzrpy.linear.y = pose_msg.pose.position.y;
+      xyzrpy.linear.z = pose_msg.pose.position.z;
+      tf::Quaternion quat;
+      tf::quaternionMsgToTF(state_msg.pose.orientation, quat);
+      tf::Matrix3x3(quat).getRPY(xyzrpy.angular.x, xyzrpy.angular.y, xyzrpy.angular.z);
+      xyzrpy_publisher.publish(xyzrpy);
+      
 
     if ((state->buttons[0] != state->buttons_prev[0])
-        or (state->buttons[1] != state->buttons_prev[1])) 
+        or (state->buttons[1] != state->buttons_prev[1]))
     {
       if (state->buttons[0] == 1) {
         state->close_gripper = !(state->close_gripper);
@@ -266,7 +241,7 @@ public:
   }
 };
 
-HDCallbackCode HDCALLBACK omni_state_callback(void *pUserData) 
+HDCallbackCode HDCALLBACK omni_state_callback(void *pUserData)
 {
   OmniState *omni_state = static_cast<OmniState *>(pUserData);
   if (hdCheckCalibration() == HD_CALIBRATION_NEEDS_UPDATE) {
@@ -309,7 +284,7 @@ HDCallbackCode HDCALLBACK omni_state_callback(void *pUserData)
   omni_state->out_vel3 = omni_state->out_vel2;
   omni_state->out_vel2 = omni_state->out_vel1;
   omni_state->out_vel1 = omni_state->velocity;
-  
+
   //~ // Set forces if locked
   //~ if (omni_state->lock == true) {
     //~ omni_state->force = 0.04 * omni_state->units_ratio * (omni_state->lock_pos - omni_state->position)
@@ -378,7 +353,7 @@ void HHD_Auto_Calibration() {
   }
   while(hdCheckCalibration() != HD_CALIBRATION_OK) {
     usleep(1e6);
-    if (hdCheckCalibration() == HD_CALIBRATION_NEEDS_MANUAL_INPUT) 
+    if (hdCheckCalibration() == HD_CALIBRATION_NEEDS_MANUAL_INPUT)
       ROS_INFO("Please place the device into the inkwell for calibration");
     else if (hdCheckCalibration() == HD_CALIBRATION_NEEDS_UPDATE) {
       ROS_INFO("Calibration updated successfully");

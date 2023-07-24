@@ -23,10 +23,11 @@ double i = 0;
 double j = 0;
 int safety = 0;
 int safety_force = 0;
+int checkFirstPoseFlag;
 
 TorqJ::TorqJ()
-    : node_handle_(""),
-      priv_node_handle_("~")
+: node_handle_(""),
+  priv_node_handle_("~")
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
@@ -61,7 +62,7 @@ TorqJ::TorqJ()
 
   ds_wb_ = new DasomWorkbench;
 
-  // ds_wb_->run();
+  ds_wb_->run();
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -87,153 +88,148 @@ TorqJ::TorqJ()
   ROS_INFO("------------");
   ROS_INFO("Before you use admitService, put E.E to reference position");
 
-
-  //---------------------//
+//---------------------//
   //-----Matrix init-----//
   //---------------------//
 
-  // angle_ref << 0, 0, 0, 0, 0, 0;
-  // X_ref << 0.0, 0.0, 0.0;
-
-  // Cut_Off_Freq2 = Cut_Off_Freq * Cut_Off_Freq;
-
-  // angle_d << 0, 0, 0, 0, 0, 0;
-  // angle_d_lpf << 0, 0;
-
-
-  // //--For Model of DOB--//
-  // Q_M << 0, 0, 0, 0;
-  // Q_M_2 << 0, 0, 0, 0;
-
-  // Q_M_dot << 0, 0, 0, 0;
-  // Q_M_dot_2 << 0, 0, 0, 0;
-
-  // Q_M_B << 0, 0, 0, 1;
-
-
-  // Q_M_A << 0, 1, 0, 0,
-  //     0, 0, 1, 0,
-  //     0, 0, 0, 1,
-  //     -position_i_gain * Cut_Off_Freq2 / position_d_gain,
-  //     -(position_p_gain * Cut_Off_Freq2 + sqrt(2) * position_i_gain * Cut_Off_Freq) / position_d_gain,
-  //     -(position_d_gain * Cut_Off_Freq2 + sqrt(2) * position_p_gain * Cut_Off_Freq + position_i_gain) / position_d_gain,
-  //     -(position_p_gain + sqrt(2) * position_d_gain * Cut_Off_Freq) / position_d_gain;
-
-  // Q_M_C << Cut_Off_Freq2 * position_i_gain / position_d_gain,
-  //     Cut_Off_Freq2 * position_p_gain / position_d_gain,
-  //     Cut_Off_Freq2,
-  //     Cut_Off_Freq2 * polar_moment_1 / position_d_gain;
-
-
-  // //---For Q-filter--//
-  // Q_angle_d << 0, 0;
-  // Q_angle_d_2 << 0, 0;
-  // Q_angle_d_dot << 0, 0;
-  // Q_angle_d_dot_2 << 0, 0;
-  // Q_angle_d_A << 0, 1,
-  //     -Cut_Off_Freq2, -sqrt(2) * Cut_Off_Freq;
-
-  // Q_angle_d_B << 0, Cut_Off_Freq2;
-
-  // Q_angle_d_C << 1, 0;
-
-  // Q_angle_d_C = Q_angle_d_C.transpose();
-
-  // //////////////////////////////////////////
-  // ////////////////Admittance////////////////
-  // //////////////////////////////////////////
-  // A_x << 0, 1,
-  //     -virtual_spring[0] / virtual_mass[0], -virtual_damper[0] / virtual_mass[0];
-
-  // B_x << 0, 1 / virtual_mass[0];
-
-  // C_x << 1, 0;
-
-  // D_x << 0, 0;
-
-  // A_y << 0, 1,
-  //     -virtual_spring[1] / virtual_mass[1], -virtual_damper[1] / virtual_mass[1];
-
-  // B_y << 0, 1 / virtual_mass[1];
-
-  // C_y << 1, 0;
-
-  // D_y << 0, 0;
-
-  // A_z << 0, 1,
-  //     -virtual_spring[2] / virtual_mass[2], -virtual_damper[2] / virtual_mass[2];
-
-  // B_z << 0, 1 / virtual_mass[2];
-
-  // C_z << 1, 0;
-
-  // D_z << 0, 0;
-
-
-
-  // X_from_model_matrix << 0, 0;
-  // X_dot_from_model_matrix << 0, 0;
-
-  // Y_from_model_matrix << 0, 0;
-  // Y_dot_from_model_matrix << 0, 0;
-
-  // Z_from_model_matrix << 0, 0;
-  // Z_dot_from_model_matrix << 0, 0;
-
-
-  // //------------------//
-  // // Tuning parameter //
-  // //------------------//
-
-  // //--Dead Zone--//
-  // hysteresis_max << 0.35, 0.27, 0.2, 0, 0, 0; //나바
-  // hysteresis_min << -0.24, -0.35, -0.2, 0, 0, 0;
-
-  // //--Angle saturation--//
-  // angle_max << 1.6, 1.9, 0.75, 0, 0, 0; //나바
-  // angle_min << -0.7, -1.8, -2, 0, 0, 0;
-
-  // //--F_ext saturation--//
-  // Force_max << 2.0, 1.0, 0; //나바
-  // Force_min << -2.0, -1.0, 0;
-
-
-  // theta_d = M_PI/2; //Command End Effector orientation
-
-  // angle_ref << 0, 0, 0, 0, 0, 0;
-  // X_test << 0, 0, 0, 0, 0, 0;
-  // FK_EE_pos << 0, 0, 0;
-  // FK_EE_ori << 0, 0, 0;
-  ROS_INFO("Before you use admitService, put E.E to reference position");
-
   X_test.resize(6,1);
+  X_cmd.resize(6,1);
+  X_ref.resize(6,1);
   angle_ref.resize(6,1);
+  angle_d.resize(6,1);
   FK_EE_pos.resize(3,1);
   FK_EE_ori.resize(3,1);
   haptic_command.resize(6,1);
   haptic_initPose.resize(6,1);
-  initPose.resize(6,1);
+  initPose.resize(6, 1);
 
   angle_measured.resize(6,1);
-  angle_max.resize(6,1);
-  angle_min.resize(6,1);
   tau_measured.resize(6,1);
+  firstPose.resize(6,1);
   
   J.resize(6,6);
   JT.resize(6,6);
   JTI.resize(6,6);
+  PoseDelta.resize(6,1);
+
+  hysteresis_max.resize(6,1);
+  hysteresis_min.resize(6,1);
+
+  angle_max.resize(6,1);
+  angle_min.resize(6,1);
+  angle_safe.resize(6,1);
+
+  angle_ref << 0, 0, 0, 0, 0, 0;
+
+  Cut_Off_Freq2 = Cut_Off_Freq * Cut_Off_Freq;
+
+  angle_d << 0, 0, 0, 0, 0, 0;
+  angle_d_lpf << 0, 0;
+
+  angle_safe << 0, 0, 0, 0, 0, 0;
+
+  //--For Model of DOB--//
+  Q_M << 0, 0, 0, 0;
+  Q_M_2 << 0, 0, 0, 0;
+
+  Q_M_dot << 0, 0, 0, 0;
+  Q_M_dot_2 << 0, 0, 0, 0;
+
+  Q_M_B << 0, 0, 0, 1;
+
+
+  Q_M_A << 0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1,
+      -position_i_gain * Cut_Off_Freq2 / position_d_gain,
+      -(position_p_gain * Cut_Off_Freq2 + sqrt(2) * position_i_gain * Cut_Off_Freq) / position_d_gain,
+      -(position_d_gain * Cut_Off_Freq2 + sqrt(2) * position_p_gain * Cut_Off_Freq + position_i_gain) / position_d_gain,
+      -(position_p_gain + sqrt(2) * position_d_gain * Cut_Off_Freq) / position_d_gain;
+
+  Q_M_C << Cut_Off_Freq2 * position_i_gain / position_d_gain,
+      Cut_Off_Freq2 * position_p_gain / position_d_gain,
+      Cut_Off_Freq2,
+      Cut_Off_Freq2 * polar_moment_1 / position_d_gain;
+
+
+  //---For Q-filter--//
+  Q_angle_d << 0, 0;
+  Q_angle_d_2 << 0, 0;
+  Q_angle_d_dot << 0, 0;
+  Q_angle_d_dot_2 << 0, 0;
+  Q_angle_d_A << 0, 1,
+      -Cut_Off_Freq2, -sqrt(2) * Cut_Off_Freq;
+
+  Q_angle_d_B << 0, Cut_Off_Freq2;
+
+  Q_angle_d_C << 1, 0;
+
+  Q_angle_d_C = Q_angle_d_C.transpose();
+
+  //////////////////////////////////////////
+  ////////////////Admittance////////////////
+  //////////////////////////////////////////
+  A_x << 0, 1,
+      -virtual_spring[0] / virtual_mass[0], -virtual_damper[0] / virtual_mass[0];
+
+  B_x << 0, 1 / virtual_mass[0];
+
+  C_x << 1, 0;
+
+  D_x << 0, 0;
+
+  A_y << 0, 1,
+      -virtual_spring[1] / virtual_mass[1], -virtual_damper[1] / virtual_mass[1];
+
+  B_y << 0, 1 / virtual_mass[1];
+
+  C_y << 1, 0;
+
+  D_y << 0, 0;
+
+  A_z << 0, 1,
+      -virtual_spring[2] / virtual_mass[2], -virtual_damper[2] / virtual_mass[2];
+
+  B_z << 0, 1 / virtual_mass[2];
+
+  C_z << 1, 0;
+
+  D_z << 0, 0;
+
+
+  X_from_model_matrix << 0, 0;
+  X_dot_from_model_matrix << 0, 0;
+
+  Y_from_model_matrix << 0, 0;
+  Y_dot_from_model_matrix << 0, 0;
+
+  Z_from_model_matrix << 0, 0;
+  Z_dot_from_model_matrix << 0, 0;
+
+
+  //------------------//
+  // Tuning parameter //
+  //------------------//
+
+  //--Dead Zone--//
+  hysteresis_max << 0.35, 0.27, 0.2, 0, 0, 0; //나바
+  hysteresis_min << -0.24, -0.35, -0.2, 0, 0, 0;
+
+  //--Angle saturation--//
+  angle_max << 1.6, 1.9, 0.75, 1, 1, 1; //나바
+  angle_min << -0.7, -1.8, -2, -1, -1, -1;
+
+  //--F_ext saturation--//
+  Force_max << 2.0, 1.0, 0; //나바
+  Force_min << -2.0, -1.0, 0;
+
 
   X_test << 0, 0, 0, 0, 0, 0;
-  angle_ref << 0, 0, 0, 0, 0, 0;
   FK_EE_pos << 0, 0, 0;
   FK_EE_ori << 0, 0, 0;
-  ROS_INFO("fffffff");
 
-  initPoseFlag = false;   //초기값 맞으면 true로 바뀜
-  checkFirstPoseFlag = true; // 한번훑고 false로 바뀜
-  
   initPose << 0, 0.15, 0.3, 0, 0, 0;
-  haptic_initPose << 0.000000, 0.085595, -0.097945, -0.0075244, 0, -1.623111; //-1.204268
+  haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
 }
 
 TorqJ::~TorqJ()
@@ -263,48 +259,38 @@ void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   angle_measured[0] = msg->position.at(0);
   angle_measured[1] = msg->position.at(1);
   angle_measured[2] = msg->position.at(2);
-  angle_measured[3] = msg->position.at(3);// + M_PI;
+  angle_measured[3] = msg->position.at(3);
   angle_measured[4] = msg->position.at(4);
   angle_measured[5] = msg->position.at(5);
 
 
-  tau_measured[0] = msg->effort.at(0) * Kt_1; 
-  tau_measured[1] = msg->effort.at(1) * Kt_2; 
-  tau_measured[2] = msg->effort.at(2) * Kt_2; 
-  tau_measured[3] = msg->effort.at(3) * Kt_1; 
-  tau_measured[4] = msg->effort.at(4) * Kt_2; 
-  tau_measured[5] = msg->effort.at(5) * Kt_2;
+  tau_measured[0] = msg->effort.at(0); 
+  tau_measured[1] = msg->effort.at(1); 
+  tau_measured[2] = msg->effort.at(2); 
+  tau_measured[3] = msg->effort.at(3); 
+  tau_measured[4] = msg->effort.at(4); 
+  tau_measured[5] = msg->effort.at(5);
 }
 
-void TorqJ::joystickCallback(const geometry_msgs::PoseStamped &msg)
+void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
 {
-  haptic_command[0] = msg.pose.position.x;
-  haptic_command[1] = msg.pose.position.y;
-  haptic_command[2] = msg.pose.position.z;
-  // haptic_command[3] = msg.angular.x;
-  // haptic_command[4] = msg.angular.y;
-  // haptic_command[5] = msg.angular.z;  
-  tf::Quaternion quat;
-  tf::quaternionMsgToTF(msg.pose.orientation, quat);
+  haptic_command[0] = msg.linear.x;
+  haptic_command[1] = msg.linear.y;
+  haptic_command[2] = msg.linear.z;
+  haptic_command[3] = msg.angular.x;
+  haptic_command[4] = msg.angular.y;
+  haptic_command[5] = msg.angular.z;  
+  // tf::Quaternion quat;
+  // tf::quaternionMsgToTF(msg.pose.orientation, quat);
 
-  tf::Matrix3x3(quat).getRPY(haptic_command[3], haptic_command[4], haptic_command[5]); // position의 XYZ와 orientation의 XYZ 좌표계 방향이 맞지 않음
-  // ROS_WARN("BEFORE: %lf",haptic_command[4]);
-  haptic_command[4] = -haptic_command[4];
-  // ROS_WARN("AFTER: %lf",haptic_command[4]);
+  // tf::Matrix3x3(quat).getRPY(haptic_command[3], haptic_command[4], haptic_command[5]);
+  
   haptic_command = haptic_command - haptic_initPose + initPose;
-  ROS_WARN("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
-  // ROS_INFO("X: %lf",msg.pose.position.x);
-  // ROS_INFO("Y: %lf",msg.pose.position.y);
-  // ROS_INFO("Z: %lf",msg.pose.position.z);
-  // ROS_WARN("-------------------------------");
-  // ROS_INFO("x: %lf",msg.pose.orientation.x);
-  // ROS_INFO("y: %lf",msg.pose.orientation.y);
-  // ROS_INFO("z: %lf",msg.pose.orientation.z);
-  // ROS_INFO("w: %lf",msg.pose.orientation.w);
-  // ROS_WARN("====================================================");
+
+//  ROS_INFO("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
 }
 
-void TorqJ::second_order_butterworth()
+  void TorqJ::second_order_butterworth()
 {
   //////////////////////////////////////////
   ////////////////ButterWorth////////////////
@@ -355,7 +341,7 @@ void TorqJ::second_order_butterworth()
 
 
   filtered_current << bw2_filtered_current_1_output[2], bw2_filtered_current_2_output[2], bw2_filtered_current_3_output[2], 0, 0, 0; //나바
-  // std::cout<<filtered_current<<std::endl<<"butterworthbutterworth"<<std::endl;
+ // std::cout<<filtered_current<<std::endl<<"butterworthbutterworth"<<std::endl;
 }
 
 void TorqJ::Calc_Ext_Force()
@@ -364,14 +350,6 @@ void TorqJ::Calc_Ext_Force()
   J = Jacobian(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]); //나바
   JT = J.transpose();
   JTI = JT.completeOrthogonalDecomposition().pseudoInverse();
-
-
-
-
-  //---gravity model---//
-  tau_gravity << (mass1 * CoM1 * cos(angle_measured[0]) + mass2 * Link1 * cos(angle_measured[0]) + mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1]) + delta) * 9.81 - offset_1,
-      mass2 * CoM2 * cos(angle_measured[0] + angle_measured[1] + delta) * 9.81 - offset_2,
-      -offset_3, 0, 0, 0; //나바
 
   //---Calc Force_ext---//
   tau_ext = tau_measured - tau_gravity;
@@ -444,57 +422,27 @@ void TorqJ::calc_des()
 {
 
   //-----End Effector command generator-----//
-  
-  if(i < 1040)
-  {
-    i++;
-    X_ref[0] = 0.114329;
-    X_ref[1] = 0.218 + i / 20000;  //init: 0.218m, goal: 0.27m
-  }
+   
+if(i < 1040)
+{
+  i++;
+   X_ref[0] = 0.114329;
+   X_ref[1] = 0.218 + i / 20000;  //init: 0.218m, goal: 0.27m
+}
 
 
-  if(movingFlag && safety > 1000) 
-  {
-    //--If rosservice "movingService" calls, Path input is given sinusoidal in the x direction
-    //--For safe, it works after 5s from start.
-    j++;
+if(movingFlag && safety > 1000) 
+{
+  //--If rosservice "movingService" calls, Path input is given sinusoidal in the x direction
+  //--For safe, it works after 5s from start.
+  j++;
 
-    double Amp = 0.07;
-    double period = 5;
-    X_ref[0] = Amp * (sin(2* M_PI * 0.005 * j / period + M_PI/2)) + 0.114329 - Amp;
-    X_ref[1] = 0.27;
+   double Amp = 0.07;
+   double period = 5;
+   X_ref[0] = Amp * (sin(2* M_PI * 0.005 * j / period + M_PI/2)) + 0.114329 - Amp;
+   X_ref[1] = 0.27;
 
-  }
-  // --initial position--//
-  // [ INFO] [1687091726.145587992]: -0.217825, 1.685845, 0.111981
-  // [ WARN] [1687091726.145748576]: FK: 0.114329, 0.217195
-
-
-
-
-  //     //  Command Safety Function
-  //     if (std::isnan(X_Command[0]) || std::isnan(X_Command[1])) ROS_ERROR("Inverse Kinematics Error(NaN)");
-  //     else X_Command = X_cmd; // If wanna admittance, put "X_cmd". If don't wanna admittance, put "X_ref"
-
-
-
-  //   //-----Inverse Kinematics-----//
-  // POSITION_2[0] = X_Command[0] - Link3 * cos(theta_d);
-  // POSITION_2[1] = X_Command[1] - Link3 * sin(theta_d);
-
-  // r2 = pow(POSITION_2[0], 2) + pow(POSITION_2[1], 2);
-  // D = (r2 - Link1 * Link1 - Link2 * Link2) / (2 * Link1 * Link2);
-
-  // angle_ref[1] = atan2(sqrt(1 - D*D), D);
-  // angle_ref[0] = atan2(POSITION_2[1], POSITION_2[0]) - atan2(Link2 * sin(angle_ref[1]), Link1 + Link2 * cos(angle_ref[1]));
-  // angle_ref[2] = theta_d - (angle_ref[0] + angle_ref[1]);
-
-
-
-  angle_safe_func();      
-  DoB();
-  Calc_Ext_Force();
-  second_order_butterworth();
+}
 }
 
 void TorqJ::DoB()
@@ -546,70 +494,74 @@ void TorqJ::DoB()
 
 void TorqJ::angle_safe_func()
 {
-  if (safety < 1000) 
-  {
-  angle_command = angle_ref;
-
-  Q_M << 0, 0, 0, 0;
-  Q_M_2 << 0, 0, 0, 0;
-  Q_angle_d << 0, 0;
-  Q_angle_d_2 << 0, 0;
+  //   if (safety < 1000) 
+  //   {
+  //     angle_command = angle_ref;
     
-  }
-  else angle_command = angle_ref;
-  // DoB safety lock
-  // An impulse input is applied at startup.
+  //     Q_M << 0, 0, 0, 0;
+  //     Q_M_2 << 0, 0, 0, 0;
+  //     Q_angle_d << 0, 0;
+  //     Q_angle_d_2 << 0, 0;
+      
+  //   }
+  //   else angle_command = angle_ref;
+  //   // DoB safety lock
+  //   // An impulse input is applied at startup.
 
-  if (safety < 1300)  // Do not work safety function until 6.5s from startup.
-  {
-      angle_safe[0] = angle_command[0];
-      angle_safe[1] = angle_command[1];
-      angle_safe[2] = angle_command[2];
-      angle_safe[3] = angle_command[3];
-      angle_safe[4] = angle_command[4];
-      angle_safe[5] = angle_command[5];
-  }
-  else
-  {
+
+  // if (safety < 1300)  // Do not work safety function until 6.5s from startup.
+  // {
+  //     angle_safe[0] = angle_command[0];
+  //     angle_safe[1] = angle_command[1];
+  //     angle_safe[2] = angle_command[2];
+  //     angle_safe[3] = angle_command[3];
+  //     angle_safe[4] = angle_command[4];
+  //     angle_safe[5] = angle_command[5];
+  // }
+  // else
+  // {
     //--For warning message--//
-    if (std::isnan(angle_command[0])) ROS_ERROR("angle 1 is NaN!!");
-    else if (angle_command[0] > angle_max[0] || angle_command[0] < angle_min[0]) ROS_ERROR("angle 1 LIMIT");
+    if (angle_ref[0] > angle_max[0] || angle_ref[0] < angle_min[0]) ROS_ERROR("angle 1 LIMIT");
 
-    if (std::isnan(angle_command[1])) ROS_ERROR("angle 2 is NaN!!");
-    else if (angle_command[1] > angle_max[1] || angle_command[1] < angle_min[1]) ROS_ERROR("angle 2 LIMIT");
+    if (angle_ref[1] > angle_max[1] || angle_ref[1] < angle_min[1]) ROS_ERROR("angle 2 LIMIT");
 
-    if (std::isnan(angle_command[2])) ROS_ERROR("angle 3 is NaN!!");
-    else if (angle_command[2] > angle_max[2] || angle_command[2] < angle_min[2]) ROS_ERROR("angle 3 LIMIT");
+    if (angle_ref[2] > angle_max[2] || angle_ref[2] < angle_min[2]) ROS_ERROR("angle 3 LIMIT");
 
-    if (std::isnan(angle_command[3])) ROS_ERROR("angle 4 is NaN!!");
-    else if (angle_command[3] > angle_max[3] || angle_command[3] < angle_min[3]) ROS_ERROR("angle 4 LIMIT");
+    if (angle_ref[3] > angle_max[3] || angle_ref[3] < angle_min[3]) ROS_ERROR("angle 4 LIMIT");
 
-    if (std::isnan(angle_command[4])) ROS_ERROR("angle 5 is NaN!!");
-    else if (angle_command[4] > angle_max[4] || angle_command[4] < angle_min[4]) ROS_ERROR("angle 5 LIMIT");
+    if (angle_ref[4] > angle_max[4] || angle_ref[4] < angle_min[4]) ROS_ERROR("angle 5 LIMIT");
 
-    if (std::isnan(angle_command[5])) ROS_ERROR("angle 6 is NaN!!");
-    else if (angle_command[5] > angle_max[5] || angle_command[5] < angle_min[5]) ROS_ERROR("angle 6 LIMIT");
+    if (angle_ref[5] > angle_max[5] || angle_ref[5] < angle_min[5]) ROS_ERROR("angle 6 LIMIT");
+
+    if (std::isnan(angle_ref[0]) || std::isnan(angle_ref[1]) || std::isnan(angle_ref[2]) ||
+        std::isnan(angle_ref[3]) || std::isnan(angle_ref[4]) || std::isnan(angle_ref[5]))
+      ROS_WARN("Out of Workspace");
+
 
     //--for constraint--//
     if (
-        (std::isnan(angle_command[0]) && std::isnan(angle_command[1]) && std::isnan(angle_command[2])) ||
-        (angle_command[0] > angle_max[0] || angle_command[0] < angle_min[0]) ||
-        (angle_command[1] > angle_max[1] || angle_command[1] < angle_min[1]) ||
-        (angle_command[2] > angle_max[2] || angle_command[2] < angle_min[2])
+        (angle_ref[0] > angle_max[0] || angle_ref[0] < angle_min[0]) ||
+        (angle_ref[1] > angle_max[1] || angle_ref[1] < angle_min[1]) ||
+        (angle_ref[2] > angle_max[2] || angle_ref[2] < angle_min[2]) ||
+        (angle_ref[3] > angle_max[3] || angle_ref[3] < angle_min[3]) ||
+        (angle_ref[4] > angle_max[4] || angle_ref[4] < angle_min[4]) ||
+        (angle_ref[5] > angle_max[5] || angle_ref[5] < angle_min[5]) ||
+        std::isnan(angle_ref[0]) || std::isnan(angle_ref[1]) || std::isnan(angle_ref[2]) ||
+        std::isnan(angle_ref[3]) || std::isnan(angle_ref[4]) || std::isnan(angle_ref[5])
         )
     {
-      ROS_INFO("IK error");
+     // ROS_INFO("IK error");
     }
     else
     {
-      angle_safe[0] = angle_command[0];
-      angle_safe[1] = angle_command[1];
-      angle_safe[2] = angle_command[2];
-      angle_safe[3] = angle_command[3];
-      angle_safe[4] = angle_command[4];
-      angle_safe[5] = angle_command[5];
+      angle_safe[0] = angle_ref[0];
+      angle_safe[1] = angle_ref[1];
+      angle_safe[2] = angle_ref[2];
+      angle_safe[3] = angle_ref[3];
+      angle_safe[4] = angle_ref[4];
+      angle_safe[5] = angle_ref[5];
+  //    ROS_INFO("Moving. [%lf] [%lf] [%lf] [%lf] [%lf] [%lf]", angle_safe[0], angle_safe[1], angle_safe[2], angle_safe[3], angle_safe[4], angle_safe[5]);
     }
-  }
 }
 
 bool TorqJ::movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
@@ -758,39 +710,44 @@ void TorqJ::solveInverseKinematics()
 void TorqJ::setInitpose()
 {
 
+  initPosemovingCnt ++;
   FK_EE_pos = EE_pos(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
   FK_EE_ori = EE_orientation(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
 
-  if (checkFirstPoseFlag)
+    if (checkFirstPoseFlag = 0)
+    {
+    firstPose << FK_EE_pos[0], FK_EE_pos[1], FK_EE_pos[2], FK_EE_ori[0], FK_EE_ori[1], FK_EE_ori[2];
+    PoseDelta = (initPose - firstPose) / 10 ;
+    checkFirstPoseFlag = 1;
+    }
+
+  if((initPosemovingCnt % 40) == 0 && (initPosemovingCnt < 400));
   {
-  firstPose << FK_EE_pos[0], FK_EE_pos[1], FK_EE_pos[2], FK_EE_ori[0], FK_EE_ori[1], FK_EE_ori[2];
-  PoseDelta = (initPose - firstPose) / 1000;   //5초
-  checkFirstPoseFlag = false;
-  }
-
-
   X_cmd[0] = FK_EE_pos[0] + PoseDelta[0];
   X_cmd[1] = FK_EE_pos[1] + PoseDelta[1];
   X_cmd[2] = FK_EE_pos[2] + PoseDelta[2];
 
-  X_cmd[3] = FK_EE_ori[0] + PoseDelta[0];
-  X_cmd[4] = FK_EE_ori[1] + PoseDelta[1];
-  X_cmd[5] = FK_EE_ori[2] + PoseDelta[2];
+  X_cmd[3] = FK_EE_ori[0] + PoseDelta[3];
+  X_cmd[4] = FK_EE_ori[1] + PoseDelta[4];
+  X_cmd[5] = FK_EE_ori[2] + PoseDelta[5];
+  }
 
-  angle_ref = InverseKinematics(haptic_command[0], haptic_command[1], haptic_command[2],
-                                haptic_command[3], haptic_command[4], haptic_command[5]);
+  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_cmd[0], X_cmd[1], X_cmd[2], X_cmd[3], X_cmd[4], X_cmd[5]);
+  
+  angle_ref = InverseKinematics(X_cmd[0], X_cmd[1], X_cmd[2],
+                                X_cmd[3], X_cmd[4], X_cmd[5]);
+
 
   //init pose에 도달했나 확인
-  if(abs(initPose[0] - FK_EE_pos[0]) <0.02 && abs(initPose[1] - FK_EE_pos[1]) <0.02 &&
-    abs(initPose[2] - FK_EE_pos[2]) <0.02 && abs(initPose[3] - FK_EE_ori[0]) <0.02 && 
-    abs(initPose[4] - FK_EE_ori[1]) <0.02 && abs(initPose[5] - FK_EE_ori[2]) <0.02)
+  if(abs(initPose[0] - FK_EE_pos[0]) <0.05 && abs(initPose[1] - FK_EE_pos[1]) <0.05 &&
+     abs(initPose[2] - FK_EE_pos[2]) <0.05 && abs(initPose[3] - FK_EE_ori[0]) <0.05 && 
+     abs(initPose[4] - FK_EE_ori[1]) <0.05 && abs(initPose[5] - FK_EE_ori[2]) <0.05)
   {
     initPoseCnt ++;
-    if (initPoseCnt > 200) initPoseFlag = true;
 
-    ROS_ERROR("Arrived at Init Pose!!");
-    ROS_ERROR("Arrived at Init Pose!!");
+    ROS_INFO("Arrived at Init Pose!!");
+    ROS_INFO("Arrived at Init Pose!!");
   }
   else initPoseCnt = 0;
 
@@ -799,6 +756,7 @@ void TorqJ::setInitpose()
 int main(int argc, char **argv)
 {
   // Init ROS node
+  // Init ROS node
   ros::init(argc, argv, "TorqJ");
   TorqJ torqJ;
 
@@ -806,29 +764,33 @@ int main(int argc, char **argv)
 
   time_i = ros::Time::now().toSec();
 
+  checkFirstPoseFlag = 0;
+
+
   while (ros::ok())
   {
-    safety++;
 
     //---Measure sampling time---//
     time_f = ros::Time::now().toSec();
     time_loop = time_f - time_i;
     time_i = ros::Time::now().toSec();
+    ROS_WARN("-------------------------------------------------");
 
-    if(torqJ.initPoseFlag = false)
-    {
-    torqJ.setInitpose();
-    }
-    else
-    {
-    safety++;
-    torqJ.solveInverseKinematics();
-    }
+    //  if(torqJ.initPoseCnt < 200)
+    //  {
+    //    torqJ.setInitpose();
+    //  }
+    //  else
+    //  {
+    // safety++;
+    //  torqJ.solveInverseKinematics();
+    //  }
+     torqJ.solveInverseKinematics();
+     torqJ.angle_safe_func();
+     torqJ.PublishCmdNMeasured();
 
-    torqJ.PublishCmdNMeasured();
 
     ros::spinOnce();
-    
     loop_rate.sleep();
   }
 

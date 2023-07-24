@@ -27,35 +27,11 @@ class TorqJ
   TorqJ(); // 직접 객체를 생성하여 초기화;
   ~TorqJ();
 
-  double X = 0.23209;
-  double Y = 0;
-
-  //----------Link Lengths---------//
-	double Link1 = 0.10375;
-	double Link2 = 0.13634;
-  double Link3 = 0.104;
-  //----------Link Lengths---------//
-	double CoM1 = 0.07821;
-	double CoM2 = 0.1117;
-	double delta = 0.261;
-	double mass1 = 0.10772;
-	double mass2 = 0.29951;
-  double Kt_1 = 1;
-  double Kt_2 = 1;
-
-
-  //--Offset for gravity matrix--//
-  double offset_1 = 2.62;
-  double offset_2 = 0.;
-  double offset_3 = 0.0;
-
-
   // Eigen::Vector3d Wrist_Position;
   Eigen::Vector3d Orientation_ref;
   Eigen::VectorXd X_test;
-  Eigen::Vector3d X_ref;
-  Eigen::Vector3d X_cmd;
-  Eigen::Vector3d X_Command;
+  Eigen::VectorXd X_ref;
+  Eigen::VectorXd X_cmd;
   Eigen::Vector3d V_measured;
   Eigen::VectorXd angle_measured;
 
@@ -195,7 +171,8 @@ class TorqJ
   // Init position 맞추는 용도
   bool initPoseFlag;
   double initPoseCnt;
-  bool checkFirstPoseFlag;
+  int initPosemovingCnt;
+  //bool checkFirstPoseFlag;
   Eigen::VectorXd initPose;
   Eigen::VectorXd firstPose;
   Eigen::VectorXd PoseDelta;
@@ -602,7 +579,7 @@ class TorqJ
   void poseCallback(const geometry_msgs::Twist::ConstPtr &msg);
   void commandCallback(const sensor_msgs::JointState::ConstPtr &msg);
   void jointCallback(const sensor_msgs::JointState::ConstPtr &msg);
-  void joystickCallback(const geometry_msgs::PoseStamped &msg);
+  void joystickCallback(const geometry_msgs::Twist &msg);
 
 };
 
