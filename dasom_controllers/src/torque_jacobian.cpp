@@ -215,8 +215,10 @@ TorqJ::TorqJ()
   hysteresis_min << -0.24, -0.35, -0.2, 0, 0, 0;
 
   //--Angle saturation--//
-  angle_max << 1.6, 1.9, 0.75, 1, 1, 1; //나바
-  angle_min << -0.7, -1.8, -2, -1, -1, -1;
+  // angle_max << 1.6, 1.9, 0.75, 1, 1, 1; //나바
+  // angle_min << -0.7, -1.8, -2, -1, -1, -1;
+  angle_max << 3.13, 2, 2, 2, 2, 2; //나바
+  angle_min << -3.13, -2, -2, -2, -2, -2;
 
   //--F_ext saturation--//
   Force_max << 2.0, 1.0, 0; //나바
@@ -537,7 +539,7 @@ void TorqJ::angle_safe_func()
       ROS_WARN("Out of Workspace");
 
 
-    //--for constraint--//
+    //for constraint--//
     if (
         (angle_ref[0] > angle_max[0] || angle_ref[0] < angle_min[0]) ||
         (angle_ref[1] > angle_max[1] || angle_ref[1] < angle_min[1]) ||
@@ -561,6 +563,12 @@ void TorqJ::angle_safe_func()
       angle_safe[5] = angle_ref[5];
   //    ROS_INFO("Moving. [%lf] [%lf] [%lf] [%lf] [%lf] [%lf]", angle_safe[0], angle_safe[1], angle_safe[2], angle_safe[3], angle_safe[4], angle_safe[5]);
     }
+      // angle_safe[0] = angle_ref[0];
+      // angle_safe[1] = angle_ref[1];
+      // angle_safe[2] = angle_ref[2];
+      // angle_safe[3] = angle_ref[3];
+      // angle_safe[4] = angle_ref[4];
+      // angle_safe[5] = angle_ref[5];
 }
 
 bool TorqJ::movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
