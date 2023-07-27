@@ -587,9 +587,10 @@ class TorqJ
 double TorqJ::l1 = 0.05465;
 double TorqJ::l2 = 0.1585;
 double TorqJ::l3 = 0.099;
-double TorqJ::l4 = 0.04;
-double TorqJ::l5 = 0.06483;
-double TorqJ::l6 = 0.04;
-double TorqJ::l7 = 0.01;
+double TorqJ::l4 = 0.04233;
+double TorqJ::l5 = 0.06975;
+double TorqJ::l6 = 0.04233;
+double TorqJ::l7 = 0.1;
+
 
 #endif //TorqJ_H_

@@ -27,9 +27,9 @@ void joystickCallback(const geometry_msgs::PoseStamped& msg)
     transformStamped.header.stamp = ros::Time::now();
     transformStamped.header.frame_id = "joystickBase";
     transformStamped.child_frame_id = "joystickCMD";
-    transformStamped.transform.translation.x = msg.pose.position.x+ manipulator_initPose[0];
-    transformStamped.transform.translation.y = msg.pose.position.y+ manipulator_initPose[1];
-    transformStamped.transform.translation.z = msg.pose.position.z+ manipulator_initPose[2];
+    transformStamped.transform.translation.x = msg.pose.position.x + manipulator_initPose[0];
+    transformStamped.transform.translation.y = msg.pose.position.y + manipulator_initPose[1];
+    transformStamped.transform.translation.z = msg.pose.position.z + manipulator_initPose[2];
     
     tf::Quaternion quat;
     tf::quaternionMsgToTF(msg.pose.orientation, quat);
@@ -51,7 +51,7 @@ void joystickCallback(const geometry_msgs::PoseStamped& msg)
 int main(int argc, char **argv){
     ros::init(argc,argv,"setting_joystickCMD_tf");
     joystick_initPose << 0, 1.206859, -1.674547;
-    manipulator_initPose << 0, 0.15, 0.3;
+    manipulator_initPose << 0, 0.25, 0.3;
 
     ros::NodeHandle nh;
     ros::Subscriber sub = nh.subscribe("/phantom/pose", 10, &joystickCallback);
