@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   dynamixel_workbench_msgs
   dynamixel_workbench_toolbox
+  dasom_description
 )
 
 ################################################################################
@@ -35,7 +36,7 @@ find_package(catkin REQUIRED COMPONENTS
 ################################################################################
 catkin_package(
  INCLUDE_DIRS include
- CATKIN_DEPENDS roscpp sensor_msgs geometry_msgs dynamixel_workbench_msgs dynamixel_workbench_toolbox
+ CATKIN_DEPENDS roscpp sensor_msgs geometry_msgs dynamixel_workbench_msgs dynamixel_workbench_toolbox dasom_description
 )
 
 ################################################################################
