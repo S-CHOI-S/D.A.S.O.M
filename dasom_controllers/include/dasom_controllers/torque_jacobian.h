@@ -225,6 +225,8 @@ class TorqJ
   ros::Publisher joint_command_pub_;
   ros::Publisher joint_measured_pub_;
   ros::Publisher dasom_EE_pos_pub_;
+  ros::Publisher dasom_EE_cmd_pub_;
+  
   ros::Subscriber joint_states_sub_;
   ros::Subscriber joystick_sub_;
   ros::ServiceServer movingService;

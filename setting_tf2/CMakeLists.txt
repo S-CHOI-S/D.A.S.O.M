@@ -205,10 +205,6 @@ add_executable(setting_joystickCMD_tf src/setting_joystickCMD_tf.cpp)
 add_dependencies(setting_joystickCMD_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(setting_joystickCMD_tf ${catkin_LIBRARIES})
 
-add_executable(setting_joystickBase_tf src/setting_joystickBase_tf.cpp)
-add_dependencies(setting_joystickBase_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(setting_joystickBase_tf ${catkin_LIBRARIES})
-
 add_executable(setting_endEffector_tf src/setting_endEffector_tf.cpp)
 add_dependencies(setting_endEffector_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(setting_endEffector_tf ${catkin_LIBRARIES})

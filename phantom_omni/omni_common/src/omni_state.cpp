@@ -212,14 +212,18 @@ public:
     pose_msg.pose.position.z /= 1000.0;
     pose_publisher.publish(pose_msg);
 
-      geometry_msgs::Twist xyzrpy;
-      xyzrpy.linear.x = pose_msg.pose.position.x;
-      xyzrpy.linear.y = pose_msg.pose.position.y;
-      xyzrpy.linear.z = pose_msg.pose.position.z;
-      tf::Quaternion quat;
-      tf::quaternionMsgToTF(state_msg.pose.orientation, quat);
-      tf::Matrix3x3(quat).getRPY(xyzrpy.angular.x, xyzrpy.angular.y, xyzrpy.angular.z);
-      xyzrpy_publisher.publish(xyzrpy);
+    // Build the joysitck command msg
+    geometry_msgs::Twist xyzrpy;
+    xyzrpy.linear.x = pose_msg.pose.position.x;
+    xyzrpy.linear.y = pose_msg.pose.position.y - 0.0855954589844;
+    xyzrpy.linear.z = pose_msg.pose.position.z + 0.0979452972412;
+    tf::Quaternion quat;
+    tf::quaternionMsgToTF(state_msg.pose.orientation, quat);
+    tf::Matrix3x3(quat).getRPY(xyzrpy.angular.y, xyzrpy.angular.x, xyzrpy.angular.z);
+    xyzrpy.angular.x = (-xyzrpy.angular.x + 1.20787740832)/2;
+    xyzrpy.angular.y = (-xyzrpy.angular.y)/2;
+    xyzrpy.angular.z = (xyzrpy.angular.z + 1.61819366374)/2;
+    xyzrpy_publisher.publish(xyzrpy);
       
 
     if ((state->buttons[0] != state->buttons_prev[0])

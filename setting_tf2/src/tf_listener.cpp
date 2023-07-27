@@ -10,8 +10,6 @@ int main(int argc, char** argv){
 
     ros::NodeHandle nh;
 
-    ros::Publisher pos=nh.advertise<geometry_msgs::PoseStamped>("/joystick_cmd",100); //변환된 조이스틱 커맨드
-
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener(tfBuffer);
     tf2_ros::Buffer tfBuffer2;
@@ -34,16 +32,14 @@ int main(int argc, char** argv){
             continue;
             }
 
-        xyzrpy.pose.position.x=transformStamped.transform.translation.x;
-        xyzrpy.pose.position.y=transformStamped.transform.translation.y;
-        xyzrpy.pose.position.z=transformStamped.transform.translation.z;
+        // xyzrpy.pose.position.x=transformStamped.transform.translation.x;
+        // xyzrpy.pose.position.y=transformStamped.transform.translation.y;
+        // xyzrpy.pose.position.z=transformStamped.transform.translation.z;
 
-        xyzrpy.pose.orientation.x=transformStamped.transform.rotation.x;
-        xyzrpy.pose.orientation.y=transformStamped.transform.rotation.y;
-        xyzrpy.pose.orientation.z=transformStamped.transform.rotation.z;
-        xyzrpy.pose.orientation.w=transformStamped.transform.rotation.w;
-
-        pos.publish(xyzrpy);
+        // xyzrpy.pose.orientation.x=transformStamped.transform.rotation.x;
+        // xyzrpy.pose.orientation.y=transformStamped.transform.rotation.y;
+        // xyzrpy.pose.orientation.z=transformStamped.transform.rotation.z;
+        // xyzrpy.pose.orientation.w=transformStamped.transform.rotation.w;
 
         rate.sleep();
     }

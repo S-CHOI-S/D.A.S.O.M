@@ -217,8 +217,8 @@ TorqJ::TorqJ()
   //--Angle saturation--//
   // angle_max << 1.6, 1.9, 0.75, 1, 1, 1; //나바
   // angle_min << -0.7, -1.8, -2, -1, -1, -1;
-  angle_max << 3.13, 2, 2, 2, 2, 2; //나바
-  angle_min << -3.13, -2, -2, -2, -2, -2;
+  angle_max << 10, 10, 10, 10, 10, 10; //나바
+  angle_min << -10, -10, -10, -10, -10, -10;
 
   //--F_ext saturation--//
   Force_max << 2.0, 1.0, 0; //나바
@@ -228,8 +228,8 @@ TorqJ::TorqJ()
   X_test << 0, 0, 0, 0, 0, 0;
   FK_pose << 0, 0, 0, 0, 0, 0;
 
-  initPose << 0, 0.25, 0.3, 0, 0, 0;
-  haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
+  initPose << 0, 0.0, 0.35, M_PI/2, 0, 0;
+  // haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
 }
 
 TorqJ::~TorqJ()
@@ -243,12 +243,14 @@ void TorqJ::initPublisher()
   joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10);
   joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);  
   dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_pose", 10);  
+  dasom_EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_cmd", 10);
 }
 
 void TorqJ::initSubscriber()
 {
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
+
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
   admitService = node_handle_.advertiseService("/admitService", &TorqJ::AdmittanceCallback, this);
@@ -286,7 +288,7 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
 
   // tf::Matrix3x3(quat).getRPY(haptic_command[3], haptic_command[4], haptic_command[5]);
   
-  haptic_command = haptic_command - haptic_initPose + initPose;
+  haptic_command = haptic_command + initPose;
 
  ROS_INFO("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
 }
@@ -690,6 +692,18 @@ void TorqJ::PublishCmdNMeasured()
 
   joint_command_pub_.publish(joint_cmd);
 
+
+  geometry_msgs::Twist EE_cmd;
+  EE_cmd.linear.x = haptic_command[0];  
+  EE_cmd.linear.y = haptic_command[1];
+  EE_cmd.linear.z = haptic_command[2];
+
+  EE_cmd.angular.x = haptic_command[3];  
+  EE_cmd.angular.y = haptic_command[4];
+  EE_cmd.angular.z = haptic_command[5];
+
+
+  dasom_EE_cmd_pub_.publish(EE_cmd);
 }
 
 void TorqJ::solveInverseKinematics()
