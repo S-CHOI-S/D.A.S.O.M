@@ -12,3 +12,7 @@ ICROS 2023: 2023.06.21 ~ 2023.06.23
 -
 Manipulator System Based on Compliance Control For Object Manipulation
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&color=F72213&width=435&lines=%5BBest+Paper+Award-Winner%5D)](https://git.io/typing-svg)
+
+
+<br/>
+(You can check the publication in this page!: https://www.notion.so/pineasol/Publications-fc1044dd280544079cae4b1204109b53?pvs=4)
