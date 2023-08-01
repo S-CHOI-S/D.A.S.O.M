@@ -86,3 +86,7 @@ add_executable(try src/try.cpp)
 add_dependencies(try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(try ${catkin_LIBRARIES})
 
+add_executable(haptic_inst src/haptic_inst.cpp)
+add_dependencies(haptic_inst ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(haptic_inst ${catkin_LIBRARIES})
+

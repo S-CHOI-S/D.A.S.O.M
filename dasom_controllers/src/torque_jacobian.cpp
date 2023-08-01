@@ -217,8 +217,8 @@ TorqJ::TorqJ()
   //--Angle saturation--//
   // angle_max << 1.6, 1.9, 0.75, 1, 1, 1; //나바
   // angle_min << -0.7, -1.8, -2, -1, -1, -1;
-  angle_max << 10, 10, 10, 10, 10, 10; //나바
-  angle_min << -10, -10, -10, -10, -10, -10;
+  angle_max << M_PI/2+0.1, M_PI, 0, 2.35, 2.35, 2; //나바
+  angle_min << -M_PI/2-0.1, 0, -2.1, -2.35, -2.35, -0.3;
 
   //--F_ext saturation--//
   Force_max << 2.0, 1.0, 0; //나바
@@ -228,7 +228,7 @@ TorqJ::TorqJ()
   X_test << 0, 0, 0, 0, 0, 0;
   FK_pose << 0, 0, 0, 0, 0, 0;
 
-  initPose << 0, 0.0, 0.35, M_PI/2, 0, 0;
+  initPose << 0, 0.1, 0.35, M_PI/2, 0, 0;
   // haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
 }
 
@@ -250,7 +250,7 @@ void TorqJ::initSubscriber()
 {
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
-
+  // 여기 subscribe한 topic 이름 바꾸기!
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
   admitService = node_handle_.advertiseService("/admitService", &TorqJ::AdmittanceCallback, this);
@@ -280,9 +280,9 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
   haptic_command[0] = msg.linear.x;
   haptic_command[1] = msg.linear.y;
   haptic_command[2] = msg.linear.z;
-  haptic_command[3] = msg.angular.x;
-  haptic_command[4] = msg.angular.y;
-  haptic_command[5] = msg.angular.z;  
+  haptic_command[3] = 0; //msg.angular.x;
+  haptic_command[4] = 0; //msg.angular.y;
+  haptic_command[5] = 0; //msg.angular.z;  
   // tf::Quaternion quat;
   // tf::quaternionMsgToTF(msg.pose.orientation, quat);
 
@@ -819,7 +819,7 @@ int main(int argc, char **argv)
     torqJ.angle_safe_func();
     torqJ.PublishCmdNMeasured();
 
-    torqJ.ds_wb_->run();
+    // torqJ.ds_wb_->run();
 
 
     ros::spinOnce();

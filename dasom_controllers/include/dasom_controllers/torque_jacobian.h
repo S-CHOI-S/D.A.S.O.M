@@ -546,20 +546,46 @@ class TorqJ
     // 3X1
     Z - l7 * CmdOrientation(r,p,y)(2,1);
 
-    r2 = sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2) + pow(Wrist_Position[2] - l1,2));
+    r2 = sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2) + pow((Wrist_Position[2] - l1),2));
 
     theta1 = atan2(Wrist_Position[1], Wrist_Position[0]) - M_PI / 2;
 
-    D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
+    if(theta1 <= -M_PI)
+    {
+      ROS_FATAL("theta1 <= -M_PI"); 
+      theta1 = theta1 + M_PI;
 
-    theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
-          + atan2(sqrt(1-pow(D_theta2,2)),D_theta2); // sign
+      Wrist_Position[0] = - Wrist_Position[0];
+      Wrist_Position[1] = - Wrist_Position[1];
 
-    // ROS_INFO("%lf, %lf", D_theta2, theta2);
+      D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
+      theta3 = -(M_PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3));
 
-    D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
-    theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
+      D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
+      theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
+             - atan2(sqrt(1-pow(D_theta2,2)),D_theta2);
+      theta2 = M_PI - theta2;
+    }
 
+    else
+    {
+      ROS_FATAL("theta1 > -M_PI");
+      D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
+
+      theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
+            + atan2(sqrt(1-pow(D_theta2,2)),D_theta2); // sign
+
+      // ROS_INFO("%lf, %lf", D_theta2, theta2);
+  
+      D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
+      theta3 = -(M_PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
+    }
+//
+ROS_WARN("Wrist Position");
+ROS_INFO("%lf, %lf, %lf", Wrist_Position[0], Wrist_Position[1], Wrist_Position[2]);
+ROS_WARN("Calc Theta123");
+ROS_INFO("%lf, %lf, %lf", theta1, theta2, theta3);
+//
     Eigen::Matrix3d R36;
     R36 = R03(theta1, theta2, theta3).transpose() * CmdOrientation(r,p,y);
 
@@ -570,7 +596,9 @@ class TorqJ
     R36_r31 = R36(2,0);
 
     theta4 = atan2(-R36_r31, R36_r11); // pitch
+
     theta5 = atan2(R36_r21*cos(theta4), R36_r11); // yaw
+
     theta6 = atan2(-R36_r23, R36_r22); // roll
 
     Eigen::VectorXd theta(6);
