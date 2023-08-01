@@ -249,7 +249,7 @@ void TorqJ::initPublisher()
 void TorqJ::initSubscriber()
 {
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
-  joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
+  joystick_sub_ = node_handle_.subscribe("/instead_haptic", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   // 여기 subscribe한 topic 이름 바꾸기!
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
