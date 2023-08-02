@@ -96,6 +96,7 @@ TorqJ::TorqJ()
   X_cmd.resize(6,1);
   X_ref.resize(6,1);
   angle_ref.resize(6,1);
+  angle_ref_i.resize(6,1);
   angle_d.resize(6,1);
   FK_pose.resize(6,1);
   haptic_command.resize(6,1);
@@ -119,6 +120,7 @@ TorqJ::TorqJ()
   angle_safe.resize(6,1);
 
   angle_ref << 0, 0, 0, 0, 0, 0;
+  angle_ref_i << 0, 0, 0, 0, 0, 0;
 
   Cut_Off_Freq2 = Cut_Off_Freq * Cut_Off_Freq;
 
@@ -658,7 +660,6 @@ void TorqJ::CommandGenerator()
   X_test[5] = 0 * (t / 0.005) / (180 * M_PI); //1초에 몇 도(degree) 씩 회전시킬지
 }
 
-
 void TorqJ::PublishCmdNMeasured()
 {
 
@@ -715,6 +716,23 @@ void TorqJ::solveInverseKinematics()
   angle_ref = InverseKinematics(haptic_command[0], haptic_command[1], haptic_command[2],
                                 haptic_command[3], haptic_command[4], haptic_command[5]);
 
+  for(int i = 3; i < 6; i++)
+  {
+    if(abs(angle_ref[i] - angle_ref_i[i]) >= 3.14 && abs(angle_ref[i] - angle_ref_i[i]) <= 2 * 3.14)
+    {
+      if(angle_ref[i] > 0) 
+      {
+        angle_ref[i] -= PI; 
+        // ROS_ERROR("HERE! (+) -> (-)");
+      }
+      else 
+      {
+        angle_ref[i] += PI; 
+        // ROS_ERROR("THERE! (-) -> (+)");
+      }
+    }
+  }
+
   ROS_INFO("=============angle command from inverse kinematics=========");
   ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
   ROS_INFO("=============angle measured from inverse kinematics=========");
@@ -735,7 +753,8 @@ void TorqJ::solveInverseKinematics()
   msg.angular.z = FK_pose[5];
 
   dasom_EE_pos_pub_.publish(msg);
-  
+
+  angle_ref_i = angle_ref;  
 }
 
 void TorqJ::setInitpose()

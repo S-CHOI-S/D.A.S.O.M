@@ -46,6 +46,7 @@ class TorqJ
 
 
   Eigen::VectorXd angle_ref;
+  Eigen::VectorXd angle_ref_i;
   Eigen::VectorXd tau_gravity;
   Eigen::VectorXd FK_pose;
   Eigen::Vector2d POSITION_2;
@@ -330,16 +331,23 @@ class TorqJ
 
   static Eigen::Matrix3d R03(double theta_1, double theta_2, double theta_3)
   {
-    Eigen::Matrix4d L;
-    L << L1(theta_1)*L2(theta_2)*L3(theta_3);
+    Eigen::Matrix4d P1;
+    P1 << L1(theta_1);
+
+    Eigen::Matrix4d P2;
+    P2 << P1 * L2(theta_2);
+
+    Eigen::Matrix4d P3;
+    P3 << P2 * L3(theta_3);
 
     Eigen::Matrix3d R03;
-    R03 << L(0,0), L(0,1), L(0,2),
-           L(1,0), L(1,1), L(1,2),
-           L(2,0), L(2,1), L(2,2);
+    R03 << P3(0,0), P3(0,1), P3(0,2),
+           P3(1,0), P3(1,1), P3(1,2),
+           P3(2,0), P3(2,1), P3(2,2);
 
     return R03;
   }
+
 
   //////////////////////////////////////////////////////
   //////////////--- Forward Kinematics ---//////////////
@@ -548,28 +556,28 @@ class TorqJ
 
     r2 = sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2) + pow((Wrist_Position[2] - l1),2));
 
-    theta1 = atan2(Wrist_Position[1], Wrist_Position[0]) - M_PI / 2;
+    theta1 = atan2(Wrist_Position[1], Wrist_Position[0]) - PI / 2;
 
-    if(theta1 <= -M_PI)
+    if(theta1 <= -PI)
     {
-      ROS_FATAL("theta1 <= -M_PI"); 
-      theta1 = theta1 + M_PI;
+      // ROS_FATAL("theta1 <= -PI"); 
+      theta1 = theta1 + PI;
 
-      Wrist_Position[0] = - Wrist_Position[0];
-      Wrist_Position[1] = - Wrist_Position[1];
+      Wrist_Position[0] = -Wrist_Position[0];
+      Wrist_Position[1] = -Wrist_Position[1];
 
       D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
-      theta3 = -(M_PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3));
+      theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3));
 
       D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
       theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
              - atan2(sqrt(1-pow(D_theta2,2)),D_theta2);
-      theta2 = M_PI - theta2;
+      theta2 = PI - theta2;
     }
 
     else
     {
-      ROS_FATAL("theta1 > -M_PI");
+      // ROS_FATAL("theta1 > -PI");
       D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
 
       theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
@@ -578,14 +586,9 @@ class TorqJ
       // ROS_INFO("%lf, %lf", D_theta2, theta2);
   
       D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
-      theta3 = -(M_PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
+      theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
     }
-//
-ROS_WARN("Wrist Position");
-ROS_INFO("%lf, %lf, %lf", Wrist_Position[0], Wrist_Position[1], Wrist_Position[2]);
-ROS_WARN("Calc Theta123");
-ROS_INFO("%lf, %lf, %lf", theta1, theta2, theta3);
-//
+    
     Eigen::Matrix3d R36;
     R36 = R03(theta1, theta2, theta3).transpose() * CmdOrientation(r,p,y);
 
