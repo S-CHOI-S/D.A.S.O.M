@@ -14,9 +14,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  sensor_msgs
   orocos_kdl
+  cv_bridge
+  image_transport
 )
 
+find_package(OpenCV REQUIRED)
 ################################################################################
 # Setup for python modules and scripts
 ################################################################################
@@ -44,13 +48,16 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS} 
+  ${Boost_INCLUDE_DIRS}
 )
 
 add_library(dasom_toolbox
   src/dasom_toolbox/dasom_workbench.cpp
+  #src/dasom_toolbox/dasom_camera.cpp
 )
 add_dependencies(dasom_toolbox ${catkin_EXPORTED_TARGETS})
-target_link_libraries(dasom_toolbox ${catkin_LIBRARIES})
+target_link_libraries(dasom_toolbox ${catkin_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 ################################################################################
 # Install

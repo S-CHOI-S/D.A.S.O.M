@@ -11,5 +11,9 @@
   <depend>roscpp</depend>
   <depend>rospy</depend>
   <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
   <exec_depend>orocos_kdl</exec_depend>
+  <depend>cv_bridge</depend>
+  <depend>opencv2</depend>
+
 </package>
