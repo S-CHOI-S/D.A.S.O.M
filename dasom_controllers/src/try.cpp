@@ -1,12 +1,17 @@
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
+#include <dasom_toolbox/dasom_camera.h>
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
     ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
-    
+    ////////////////////
+    image_transport::ImageTransport it(nh);
+    image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
+    //////////////////// 
+
     ros::Rate loop_rate(20);
 
     double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0;
@@ -14,9 +19,11 @@ int main(int argc, char **argv)
     double t = 0;
 
     sensor_msgs::JointState joint_states;
-
+    ////////////////////
+    DasomCam ds_cam_(pub, 0);
+    ////////////////////
     while (ros::ok())
-    {
+    {ds_cam_.UpdateCamera(); ////////////////////
         //update joint_state
         joint_states.header.stamp = ros::Time::now();
         joint_states.name.resize(4);

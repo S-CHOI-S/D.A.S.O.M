@@ -18,34 +18,31 @@
 #define DASOM_CAMERA_H_
 
 #include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/jntarray.hpp>
-#include <kdl/frames_io.hpp>
-#include <sensor_msgs/JointState.h>
+#include <image_transport/image_transport.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <sstream>
 
-class DasomWorkbench
+class DasomCam
 {
  public:
-  DasomWorkbench();
-  ~DasomWorkbench();
+  DasomCam(image_transport::Publisher& publisher, int cam_num_);
+  ~DasomCam();
 
-  void test();  
-  void run();
-  void initializeRobotLinks();
-  void computeMCGDynamics();
+  image_transport::Publisher cam_pub_;
+  
+  void UpdateCamera();
+  void test();
 
  private:
   ros::NodeHandle nh_;
-  ros::Rate loop_rate_;
+  image_transport::ImageTransport it_;
 
-  KDL::Chain kdl_chain_; // 로봇팔 체인
-  KDL::JntArray q_;      // 관절 위치
-  KDL::JntArray q_dot_;  // 관절 속도
-  KDL::JntArray q_dotdot_; // 관절 가속도
+  cv::VideoCapture cap;
+  cv::Mat frame;
+  sensor_msgs::ImagePtr msg;
 
-  float cnt__ = 0;
-  float sec = 0;
+  void initCamera(int cam_num);
 
 };
 
