@@ -1,3 +1,19 @@
+/*******************************************************************************
+* D.A.S.O.M
+*
+* Department of Aerial Manipulator System for Object Manipulation
+*
+*     https://github.com/S-CHOI-S/D.A.S.O.M.git
+*
+* Mobile Robotics Lab. (MRL)
+* 	  @ Seoul National University of Science and Technology
+*
+*	  https://mrl.seoultech.ac.kr/index.do
+*
+*******************************************************************************/
+
+/* Authors: Sol Choi (Jennifer) */
+
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
 #include <dasom_toolbox/dasom_camera.h>
@@ -7,10 +23,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
     ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
-    ////////////////////
+    
+    // For DasomCam
     image_transport::ImageTransport it(nh);
     image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
-    //////////////////// 
 
     ros::Rate loop_rate(20);
 
@@ -19,11 +35,15 @@ int main(int argc, char **argv)
     double t = 0;
 
     sensor_msgs::JointState joint_states;
-    ////////////////////
+
+    // For DasomCam
     DasomCam ds_cam_(pub, 0);
-    ////////////////////
+
     while (ros::ok())
-    {ds_cam_.UpdateCamera(); ////////////////////
+    {   
+        // For DasomCam
+        ds_cam_.UpdateCamera();
+        
         //update joint_state
         joint_states.header.stamp = ros::Time::now();
         joint_states.name.resize(4);
