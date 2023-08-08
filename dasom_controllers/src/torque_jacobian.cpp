@@ -230,7 +230,7 @@ TorqJ::TorqJ()
   X_test << 0, 0, 0, 0, 0, 0;
   FK_pose << 0, 0, 0, 0, 0, 0;
 
-  initPose << 0, 0.1, 0.35, M_PI/2, 0, 0;
+  initPose << 0, 0.05, 0.25, M_PI/2, 0, 0;
   // haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
 }
 
@@ -251,7 +251,7 @@ void TorqJ::initPublisher()
 void TorqJ::initSubscriber()
 {
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
-  joystick_sub_ = node_handle_.subscribe("/instead_haptic", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
+  joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   // 여기 subscribe한 topic 이름 바꾸기!
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
@@ -716,9 +716,11 @@ void TorqJ::solveInverseKinematics()
   angle_ref = InverseKinematics(haptic_command[0], haptic_command[1], haptic_command[2],
                                 haptic_command[3], haptic_command[4], haptic_command[5]);
 
-  for(int i = 3; i < 6; i++)
+
+
+  for(int i = 0; i < 6; i++)
   {
-    if(abs(angle_ref[i] - angle_ref_i[i]) >= 3.14 && abs(angle_ref[i] - angle_ref_i[i]) <= 2 * 3.14)
+    if(abs(angle_ref[i] - angle_ref_i[i]) >= 3.0 && abs(angle_ref[i] - angle_ref_i[i]) <= 2 * 3.0)
     {
       if(angle_ref[i] > 0) 
       {
