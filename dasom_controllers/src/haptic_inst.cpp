@@ -38,7 +38,7 @@ HI::HI()
 
   initSubscriber();
 
-    X_test.resize(6,1);
+  X_test.resize(6,1);
   X_cmd.resize(6,1);
   X_ref.resize(6,1);
   angle_ref.resize(6,1);

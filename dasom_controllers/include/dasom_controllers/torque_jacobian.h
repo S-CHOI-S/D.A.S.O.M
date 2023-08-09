@@ -18,6 +18,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_msgs/TFMessage.h>
 #include "tf/transform_datatypes.h"
+#include "omni_msgs/OmniButtonEvent.h"
 
 #define PI 3.14159256359
 
@@ -186,6 +187,10 @@ class TorqJ
   //--Service Flag--//
   bool movingFlag = false;
 
+  // Haptic Joystick Button
+  bool grey_button;
+  bool white_button;
+
   void calc_des();
   void PublishCmdNMeasured();
   void DoB();
@@ -230,6 +235,8 @@ class TorqJ
   
   ros::Subscriber joint_states_sub_;
   ros::Subscriber joystick_sub_;
+  ros::Subscriber button_sub_;
+
   ros::ServiceServer movingService;
   ros::ServiceServer admitService;
 
@@ -614,6 +621,7 @@ class TorqJ
   void commandCallback(const sensor_msgs::JointState::ConstPtr &msg);
   void jointCallback(const sensor_msgs::JointState::ConstPtr &msg);
   void joystickCallback(const geometry_msgs::Twist &msg);
+  void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
 
 };
 

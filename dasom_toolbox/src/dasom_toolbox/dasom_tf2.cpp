@@ -16,12 +16,16 @@
 
 #include "../../include/dasom_toolbox/dasom_tf2.h"
 
-DasomTF2::DasomTF2(ros::Subscriber& subscriber, std::string str)
+DasomTF2::DasomTF2(ros::Subscriber& subscriber, std::string topic_name, std::string parent_frame, std::string child_frame)
 : nh_(""), loop_rate_(200)
 {
   tf2_sub_ = subscriber;
-  ROS_WARN("%s",str.c_str());
-  tf2_sub_ = nh_.subscribe(str.c_str,10,&DasomTF2::Callback,this);
+
+  if(!(topic_name.c_str() == "/dasombasePlate/world")) tf2_sub_ = nh_.subscribe(topic_name.c_str(),10,&DasomTF2::CallbackTwist,this);
+  else tf2_sub_ = nh_.subscribe(topic_name.c_str(),10,&DasomTF2::CallbackPoseStamped,this);
+  
+  parent_frame_ = parent_frame;
+  child_frame_ = child_frame;
 }
 
 DasomTF2::~DasomTF2()
@@ -31,24 +35,21 @@ DasomTF2::~DasomTF2()
 
 void DasomTF2::test()
 {
-  while(ros::ok())
-  {
-    ROS_INFO("HI! Here is DasomTF2!");
-  }
+  ROS_INFO("HI! Here is DasomTF2!");
 }
 
-void DasomTF2::Callback(const geometry_msgs::Twist& msg)
+void DasomTF2::CallbackTwist(const geometry_msgs::Twist& msg)
 {
   static tf2_ros::StaticTransformBroadcaster br;
   geometry_msgs::TransformStamped transformStamped;
 
   transformStamped.header.stamp = ros::Time::now();
-  transformStamped.header.frame_id = "world";
-  transformStamped.child_frame_id = "joystickCMD";
+  transformStamped.header.frame_id = parent_frame_.c_str();
+  transformStamped.child_frame_id = child_frame_.c_str();
   transformStamped.transform.translation.x = msg.linear.x;
   transformStamped.transform.translation.y = msg.linear.y;
   transformStamped.transform.translation.z = msg.linear.z;
-  
+
   tf::Quaternion quat;
 
   quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
@@ -57,8 +58,30 @@ void DasomTF2::Callback(const geometry_msgs::Twist& msg)
   transformStamped.transform.rotation.y = quat.y();
   transformStamped.transform.rotation.z = quat.z();
   transformStamped.transform.rotation.w = quat.w();
-  
+
   br.sendTransform(transformStamped);
 
-  ros::spin();
+  ros::spinOnce();
+}
+
+void DasomTF2::CallbackPoseStamped(const geometry_msgs::PoseStamped& msg)
+{
+  static tf2_ros::StaticTransformBroadcaster br;
+  geometry_msgs::TransformStamped transformStamped;
+
+  transformStamped.header.stamp = ros::Time::now();
+  transformStamped.header.frame_id = parent_frame_.c_str();
+  transformStamped.child_frame_id = child_frame_.c_str();
+  transformStamped.transform.translation.x = msg.pose.position.x;
+  transformStamped.transform.translation.y = msg.pose.position.y;
+  transformStamped.transform.translation.z = msg.pose.position.z;
+
+  transformStamped.transform.rotation.x = msg.pose.orientation.x;
+  transformStamped.transform.rotation.y = msg.pose.orientation.y;
+  transformStamped.transform.rotation.z = msg.pose.orientation.z;
+  transformStamped.transform.rotation.w = msg.pose.orientation.w;
+
+  br.sendTransform(transformStamped);
+
+  ros::spinOnce();
 }

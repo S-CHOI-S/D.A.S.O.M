@@ -252,7 +252,7 @@ void TorqJ::initSubscriber()
 {
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
-  // 여기 subscribe한 topic 이름 바꾸기!
+  button_sub_ = node_handle_.subscribe("/phantom/button", 10, &TorqJ::buttonCallback, this, ros::TransportHints().tcpNoDelay());
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
   admitService = node_handle_.advertiseService("/admitService", &TorqJ::AdmittanceCallback, this);
@@ -293,6 +293,31 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
   haptic_command = haptic_command + initPose;
 
  ROS_INFO("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
+}
+
+void TorqJ::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
+{
+  if(msg.grey_button == 0) 
+  {
+    grey_button = false;
+    ROS_WARN("grey button LOCKED!");
+  }
+  else 
+  {
+    grey_button = true;
+    ROS_WARN("grey button OPENED!");
+  }
+
+  if(msg.white_button == 0) 
+  {
+    white_button = false;
+    ROS_WARN("white button LOCKED!");
+  }
+  else 
+  {
+    white_button = true;
+    ROS_WARN("white button OPENED!");
+  }
 }
 
 void TorqJ::second_order_butterworth()

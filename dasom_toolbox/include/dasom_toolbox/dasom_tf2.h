@@ -35,18 +35,23 @@
 class DasomTF2
 {
  public:
-  DasomTF2(ros::Subscriber& subscriber, std::string str);
+  DasomTF2(ros::Subscriber& subscriber, std::string topic_name, 
+	   std::string parent_frame, std::string child_frame);
   ~DasomTF2();
 
-  ros::Subscriber tf2_sub_;
-
   void test();
-  void Callback(const geometry_msgs::Twist& msg);
 
  private:
   ros::NodeHandle nh_;
   ros::Rate loop_rate_;
 
+  ros::Subscriber tf2_sub_;
+
+  std::string parent_frame_;
+  std::string child_frame_; 
+
+  void CallbackTwist(const geometry_msgs::Twist& msg);
+  void CallbackPoseStamped(const geometry_msgs::PoseStamped& msg);
 
 };
 

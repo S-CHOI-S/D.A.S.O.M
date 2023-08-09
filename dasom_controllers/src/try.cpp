@@ -21,6 +21,8 @@
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/Point.h>
 
+#define PI 3.141592
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "try");
@@ -34,7 +36,8 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(20);
 
-    double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0;
+    double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
+           base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
     double i = 0;
     double t = 0;
 
@@ -44,8 +47,7 @@ int main(int argc, char **argv)
     DasomCam ds_cam_(pub, 0);
 
     // For DasomTF2
-    DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd");
-    ds_tf2_.test();
+    DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
 
     while (ros::ok())
     {   
@@ -54,22 +56,37 @@ int main(int argc, char **argv)
         
         //update joint_state
         joint_states.header.stamp = ros::Time::now();
-        joint_states.name.resize(4);
-        joint_states.position.resize(4);
-        joint_states.name[0] = "joint1";
+        joint_states.name.resize(9);
+        joint_states.position.resize(9);
+        joint_states.name[0] = "id_1";
         joint_states.position[0] = joint1;
-        joint_states.name[1] = "joint2";
+        joint_states.name[1] = "id_2";
         joint_states.position[1] = joint2;
-        joint_states.name[2] = "joint3";
+        joint_states.name[2] = "id_3";
         joint_states.position[2] = joint3;
-        joint_states.name[3] = "joint4";
+        joint_states.name[3] = "id_4";
         joint_states.position[3] = joint4;
+        joint_states.name[4] = "id_5";
+        joint_states.position[4] = joint5;
+        joint_states.name[5] = "id_6";
+        joint_states.position[5] = joint6;
+        joint_states.name[6] = "base_joint_X";
+        joint_states.position[6] = base_joint_X;
+        joint_states.name[7] = "base_joint_Y";
+        joint_states.position[7] = base_joint_Y;
+        joint_states.name[8] = "base_joint_Z";
+        joint_states.position[8] = base_joint_Z;
 
         t = i / 100;
         joint1 = t;
         joint2 = 1 + t;
         joint3 = -t;
         joint4 = t;
+        joint5 = 0;
+        joint6 = 0;
+        base_joint_X = sin(4*t-PI);
+        base_joint_Y = sin(4*t-PI);
+        base_joint_Z = sin(2*t);
 
         joint_pub.publish(joint_states);
 

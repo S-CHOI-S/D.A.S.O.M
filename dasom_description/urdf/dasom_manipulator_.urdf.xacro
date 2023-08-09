@@ -14,16 +14,6 @@
   <!-- Import Rviz colors -->
   <xacro:include filename="$(find dasom_description)/urdf/materials.xacro" />
 
-  <!-- World -->
-  <link name="world"/>
-
-  <!-- World fixed joint-->
-  <joint name="world_fixed" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="world"/>
-    <child link="link1"/>
-  </joint>
-
   <!-- Link 1 -->
   <link name="link1">
     <visual>
