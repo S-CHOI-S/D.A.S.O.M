@@ -19,4 +19,5 @@
   <depend>dynamixel_workbench_msgs</depend>
   <depend>dynamixel_workbench_toolbox</depend>
   <depend>dasom_description</depend>
+  <depend>dasom_toolbox</depend>
 </package>

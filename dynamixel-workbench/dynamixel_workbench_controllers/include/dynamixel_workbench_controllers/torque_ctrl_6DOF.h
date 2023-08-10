@@ -27,10 +27,14 @@
 #include "message_header.h"
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/Twist.h"
+#include "geometry_msgs/PoseStamped.h"
 
 #include <dynamixel_workbench_toolbox/dynamixel_workbench.h>
 #include <dynamixel_workbench_msgs/DynamixelStateList.h>
 #include <dynamixel_workbench_msgs/JointCommand.h>
+
+#include <tf2/LinearMath/Quaternion.h>
+#include "tf/transform_datatypes.h"
 
 class TorqueControl
 {
@@ -47,6 +51,7 @@ class TorqueControl
 
   // ROS Topic Subscriber
   ros::Subscriber joint_command_sub_;
+  ros::Subscriber paletrone_sub_;
 
   // ROS Service Server
 
@@ -71,6 +76,13 @@ class TorqueControl
   double num_deriv[16] = {0, };
   int32_t goal_dxl_position[16];
 
+  double base_joint_X = 0;
+  double base_joint_Y = 0;
+  double base_joint_Z = 0;
+  double base_joint_r = 0;
+  double base_joint_p = 0;
+  double base_joint_y = 0;
+
  public:
   TorqueControl();
   ~TorqueControl();
@@ -93,6 +105,7 @@ class TorqueControl
                                dynamixel_workbench_msgs::JointCommand::Response &res);
   void goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg);
 
+  void paletroneCallback(const geometry_msgs::PoseStamped &msg);
 
 };
 

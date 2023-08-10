@@ -102,6 +102,7 @@ void TorqueControl::initPublisher()
 void TorqueControl::initSubscriber()
 {
   joint_command_sub_ = node_handle_.subscribe("/goal_dynamixel_position", 10, &TorqueControl::goalJointPositionCallback, this);
+  paletrone_sub_ = node_handle_.subscribe("/dasombasePlate/world", 10, &TorqueControl::paletroneCallback, this);
 }
 
 void TorqueControl::jointStatePublish()
@@ -132,8 +133,20 @@ void TorqueControl::jointStatePublish()
     id_num << "id_" << (int)(dxl_id_[index]);
 
     dynamixel_.name.push_back(id_num.str());
+    dynamixel_.name.push_back("base_joint_X");
+    dynamixel_.name.push_back("base_joint_Y");
+    dynamixel_.name.push_back("base_joint_Z");
+    dynamixel_.name.push_back("base_joint_r");
+    dynamixel_.name.push_back("base_joint_p");
+    dynamixel_.name.push_back("base_joint_y");
 
     dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]));
+    dynamixel_.position.push_back(base_joint_X);
+    dynamixel_.position.push_back(base_joint_Y);
+    dynamixel_.position.push_back(base_joint_Z);
+    dynamixel_.position.push_back(base_joint_r);
+    dynamixel_.position.push_back(base_joint_p);
+    dynamixel_.position.push_back(base_joint_y);
     // dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
     dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], present_current[index]));
 
@@ -154,6 +167,17 @@ void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::Con
   }
 
   dxl_wb_->syncWrite("Goal_Position", goal_dxl_position);
+}
+
+void TorqueControl::paletroneCallback(const geometry_msgs::PoseStamped &msg)
+{
+  base_joint_X = msg.pose.position.x;
+  base_joint_Y = msg.pose.position.y;
+  base_joint_Z = msg.pose.position.z;
+
+  tf::Quaternion quat;
+  tf::quaternionMsgToTF(msg.pose.orientation, quat);
+  tf::Matrix3x3(quat).getRPY(base_joint_r, base_joint_p, base_joint_y);
 }
 
 void TorqueControl::Test()
