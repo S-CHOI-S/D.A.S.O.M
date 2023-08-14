@@ -57,15 +57,15 @@ void DasomCam::initCamera(int cam_num)
 
 void DasomCam::UpdateCamera()
 {
-  ROS_INFO("Reading camera frame!");
+  // ROS_INFO("Reading camera frame!");
   cap >> frame;
 
   // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(100,100),100,cv::Scalar(255,0,0),1,4,0);
+  circle(frame, cv::Point(100,100), 100, cv::Scalar(255, 0, 0), 1, 4, 0);
 
   if(!frame.empty())
   {
-    ROS_INFO("Converting frame to ROS message!");
+    // ROS_INFO("Converting frame to ROS message!");
     msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
 
     cam_pub_.publish(msg);

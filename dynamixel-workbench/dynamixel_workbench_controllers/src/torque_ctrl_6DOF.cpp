@@ -149,6 +149,12 @@ void TorqueControl::jointStatePublish()
     dynamixel_.position.push_back(base_joint_y);
     // dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
     dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], present_current[index]));
+    dynamixel_.effort.push_back(0);
+    dynamixel_.effort.push_back(0);
+    dynamixel_.effort.push_back(0);
+    dynamixel_.effort.push_back(0);
+    dynamixel_.effort.push_back(0);
+    dynamixel_.effort.push_back(0);
 
     present_position_[index] = dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]);
   }

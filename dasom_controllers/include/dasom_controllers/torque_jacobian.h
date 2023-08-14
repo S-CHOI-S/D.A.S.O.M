@@ -37,6 +37,7 @@ class TorqJ
   Eigen::VectorXd X_cmd;
   Eigen::Vector3d V_measured;
   Eigen::VectorXd angle_measured;
+  Eigen::VectorXd EE_command;
 
   Eigen::VectorXd haptic_command;
   Eigen::VectorXd haptic_initPose;
@@ -191,6 +192,9 @@ class TorqJ
   bool grey_button;
   bool white_button;
 
+  Eigen::VectorXd gimbal_tf;
+  Eigen::VectorXd optitrack_tf;
+
   void calc_des();
   void PublishCmdNMeasured();
   void DoB();
@@ -200,7 +204,6 @@ class TorqJ
   void second_order_butterworth();
   void CommandGenerator();
   void solveInverseKinematics();
-  void setInitpose();
   bool movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
                              dasom_controllers::movingFlag::Response &res);
   bool AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
@@ -232,10 +235,12 @@ class TorqJ
   ros::Publisher joint_measured_pub_;
   ros::Publisher dasom_EE_pos_pub_;
   ros::Publisher dasom_EE_cmd_pub_;
+  ros::Publisher gimbal_pub; /////////////////////////////////////
   
   ros::Subscriber joint_states_sub_;
   ros::Subscriber joystick_sub_;
   ros::Subscriber button_sub_;
+  ros::Subscriber gimbal_sub_; ///////////////////////////////////
 
   ros::ServiceServer movingService;
   ros::ServiceServer admitService;
@@ -622,6 +627,7 @@ class TorqJ
   void jointCallback(const sensor_msgs::JointState::ConstPtr &msg);
   void joystickCallback(const geometry_msgs::Twist &msg);
   void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
+  void gimbalCallback(const geometry_msgs::PoseStamped &msg);
 
 };
 

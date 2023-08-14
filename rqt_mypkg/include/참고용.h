@@ -13,9 +13,8 @@
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/JointState.h>
 #include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Core>
 #include <vector>
-#include <geometry_msgs/PoseStamped.h>
+#include "std_srvs/Empty.h"
 
 #include "sensor_msgs/Image.h"
 #include <cv_bridge/cv_bridge.h>
@@ -23,8 +22,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <image_transport/image_transport.h>
 #include <QImage>
-#include "omni_msgs/OmniButtonEvent.h"
-
 
 
 //#include "rqt_mypkg/FAC_HoverService.h"
@@ -40,26 +37,41 @@ public:
     virtual void initPlugin(qt_gui_cpp::PluginContext& context);
     virtual void shutdownPlugin();
 
-
-
+    template <class T>
+T map(T x, T in_min, T in_max, T out_min, T out_max){
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
   cv::Mat conversion_mat_; //0807
-  Eigen::VectorXd measured_angle;
-  Eigen::VectorXd measured_position;
-  Eigen::VectorXd cmd_position;
-
-  bool grey_button;
-
-
 
 private slots:
 
-  void gui_init_callback(const ros::TimerEvent&);  
-  void AngleSubscriber_Callback(const sensor_msgs::JointState::ConstPtr &msg);
-  void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
-  void measured_EE_callback(const geometry_msgs::Twist::ConstPtr& msg);
-  void cmd_EE_callback(const geometry_msgs::Twist::ConstPtr& msg);
-  void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
+   // void Arm_Callback(bool val);    
+    void publisher_set(const ros::TimerEvent&);
+    void callback_set(const ros::TimerEvent&);
+//    void TextBox_callback(const ros::TimerEvent&);    
+    void ping_callback(const ros::TimerEvent&);    
+    void qsc_x_callback(int val);
+    void qsc_y_callback(int val);
+    void qsc_z_callback(int val);
+    void writeLog(QString str);
+    void btn_Start_Callback(bool val);
+    void AngleSubscriber_Callback(const sensor_msgs::JointState &msg);
+    void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
+
+    static Eigen::Matrix4d DH(double alpha, double a, double d, double theta)
+{
+    double cosT = cos(theta), sinT = sin(theta);
+    double cosA = cos(alpha), sinA = sin(alpha);
+    Eigen::Matrix4d T;
+    T <<      cosT, -sinT*cosA,  sinT*sinA,  a*cosT,
+              sinT,  cosT*cosA, -cosT*sinA,  a*sinT,
+                 0,       sinA,       cosA,       d,
+                 0,          0,          0,       1;
+    return T;
+};
+
+
 
  //   bool FAC_Hover_Callback(rqt_mypkg::FAC_HoverService::Request &req, rqt_mypkg::FAC_HoverService::Response &res);
  //   void keyPressEvent(QKeyEvent *event); 
@@ -68,16 +80,15 @@ private slots:
     Ui::MyPluginWidget ui_;
     QWidget* widget_;
     ros::Publisher publisher;         //이건 GUI Shutdown 용이라서 건들면 안 됨.
+    ros::Publisher cmd_Publisher;
     ros::Publisher pub;
-    
+    ros::Publisher Test_Pub;
     ros::Subscriber AngleSubscriber;
-    ros::Subscriber cam_subscriber;
-    ros::Subscriber EE_subscriber;
-    ros::Subscriber joystick_sub_;
-    ros::Subscriber button_sub_;
-
+    ros::Subscriber subscriber_;
 //    ros::ServiceClient ping_client;
-    ros::Timer gui_init_set;
+    ros::Timer Publisher_set;
+    ros::Timer Callback_set;
+    ros::Timer TextBox_set;
     QImage qimage_;
 
 

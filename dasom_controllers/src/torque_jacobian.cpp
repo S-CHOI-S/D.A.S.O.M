@@ -217,10 +217,10 @@ TorqJ::TorqJ()
   hysteresis_min << -0.24, -0.35, -0.2, 0, 0, 0;
 
   //--Angle saturation--//
-  // angle_max << 1.6, 1.9, 0.75, 1, 1, 1; //나바
-  // angle_min << -0.7, -1.8, -2, -1, -1, -1;
-  angle_max << M_PI/2+0.1, M_PI, 0, 2.35, 2.35, 2; //나바
-  angle_min << -M_PI/2-0.1, 0, -2.1, -2.35, -2.35, -0.3;
+  // angle_max << M_PI/2+0.1, M_PI, 0, 2.35, 2.35, 2; //나바
+  // angle_min << -M_PI/2-0.1, 0, -2.1, -2.35, -2.35, -0.3;
+  angle_max << 10, 10, 10, 10, 10, 10; //나바
+  angle_min << -10, -10, -10, -10, -10, -10;
 
   //--F_ext saturation--//
   Force_max << 2.0, 1.0, 0; //나바
@@ -230,8 +230,10 @@ TorqJ::TorqJ()
   X_test << 0, 0, 0, 0, 0, 0;
   FK_pose << 0, 0, 0, 0, 0, 0;
 
-  initPose << 0, 0.05, 0.25, M_PI/2, 0, 0;
+  initPose << 0, 0.25, 0.25, M_PI/2, 0, 0;
   // haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
+  grey_button = true;
+  white_button = true;
 }
 
 TorqJ::~TorqJ()
@@ -246,6 +248,7 @@ void TorqJ::initPublisher()
   joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);  
   dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_pose", 10);  
   dasom_EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_cmd", 10);
+  gimbal_pub = node_handle_.advertise<geometry_msgs::Twist>("/dasom/gimbal_plag", 10);
 }
 
 void TorqJ::initSubscriber()
@@ -253,6 +256,7 @@ void TorqJ::initSubscriber()
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   button_sub_ = node_handle_.subscribe("/phantom/button", 10, &TorqJ::buttonCallback, this, ros::TransportHints().tcpNoDelay());
+  gimbal_sub_ = node_handle_.subscribe("/dasom/gimbal_tf", 10, &TorqJ::gimbalCallback, this, ros::TransportHints().tcpNoDelay());
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
   admitService = node_handle_.advertiseService("/admitService", &TorqJ::AdmittanceCallback, this);
@@ -295,28 +299,50 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
  ROS_INFO("Haptic command %lf, %lf, %lf, %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2], haptic_command[3], haptic_command[4], haptic_command[5]);
 }
 
+void TorqJ::gimbalCallback(const geometry_msgs::PoseStamped &msg)
+{
+  gimbal_tf[0] = msg.pose.position.x;
+  gimbal_tf[1] = msg.pose.position.y;
+  gimbal_tf[2] = msg.pose.position.z;
+
+  tf::Quaternion quat;
+  tf::quaternionMsgToTF(msg.pose.orientation,quat);
+
+  tf::Matrix3x3(quat).getRPY(gimbal_tf[3], gimbal_tf[4], gimbal_tf[5]);
+}
+
 void TorqJ::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
 {
-  if(msg.grey_button == 0) 
+  if(msg.grey_button == 1) 
   {
-    grey_button = false;
-    ROS_WARN("grey button LOCKED!");
-  }
-  else 
-  {
-    grey_button = true;
-    ROS_WARN("grey button OPENED!");
+    if(grey_button)
+    {
+      grey_button = false;
+      ROS_INFO("Grey: false");
+
+      geometry_msgs::Twist msg;
+      gimbal_pub.publish(msg);
+    }
+    else
+    {
+      grey_button = true;
+      ROS_INFO("Grey: True");
+    }
   }
 
-  if(msg.white_button == 0) 
+  if(msg.white_button == 1) 
   {
-    white_button = false;
-    ROS_WARN("white button LOCKED!");
-  }
-  else 
-  {
-    white_button = true;
-    ROS_WARN("white button OPENED!");
+    if(white_button)
+    {
+      white_button = false;
+      ROS_INFO("white: false");
+
+    }
+    else
+    {
+      white_button = true;
+      ROS_INFO("white: true");
+    }
   }
 }
 
@@ -667,22 +693,19 @@ bool TorqJ::AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
 double t = 0;
 void TorqJ::CommandGenerator()
 {
-  t++;
-  double Amp = 0.07;
-  double period = 5;
-  X_test[0] = Amp * (sin(2* M_PI * 0.005 * t / period + M_PI/2)) + 0.114329 - Amp;
+  if(grey_button) EE_command = haptic_command;
+  else EE_command = gimbal_tf;
 
-  double Amp1 = 0.07;
-  double period1 = 5;
-  X_test[1] = 0.15; //Amp1 * (sin(2* M_PI * 0.005 * t / period1 + M_PI/2)) + 0.114329 - Amp1;
+  geometry_msgs::Twist EE_cmd;
 
-  double Amp2 = 0.05;
-  double period2 = 5;
-  X_test[2] = Amp2 * (sin(2* M_PI * 0.005 * t / period2 + M_PI/2)) + 0.114329 - Amp2 + 0.1;
+  EE_cmd.linear.x = EE_command[0];
+  EE_cmd.linear.y = EE_command[1];
+  EE_cmd.linear.z = EE_command[2];
+  EE_cmd.angular.x = EE_command[3];
+  EE_cmd.angular.y = EE_command[4];
+  EE_cmd.angular.z = EE_command[5];
 
-  X_test[3] = 0 * (t / 0.005) / (180 * M_PI);
-  X_test[4] = 0 * (t / 0.005) / (180 * M_PI);
-  X_test[5] = 0 * (t / 0.005) / (180 * M_PI); //1초에 몇 도(degree) 씩 회전시킬지
+  dasom_EE_cmd_pub_.publish(EE_cmd);
 }
 
 void TorqJ::PublishCmdNMeasured()
@@ -738,10 +761,8 @@ void TorqJ::solveInverseKinematics()
 
   // EE_position과 orientation이 들어왔을 것: X_ref, Orientation_ref
 
-  angle_ref = InverseKinematics(haptic_command[0], haptic_command[1], haptic_command[2],
-                                haptic_command[3], haptic_command[4], haptic_command[5]);
-
-
+  angle_ref = InverseKinematics(EE_command[0], EE_command[1], EE_command[2],
+                                EE_command[3], EE_command[4], EE_command[5]);
 
   for(int i = 0; i < 6; i++)
   {
@@ -760,16 +781,18 @@ void TorqJ::solveInverseKinematics()
     }
   }
 
-  ROS_INFO("=============angle command from inverse kinematics=========");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
-  ROS_INFO("=============angle measured from inverse kinematics=========");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
-
   FK_pose = EE_pose(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+
+  // ROS_INFO("=============angle command from inverse kinematics=========");
+  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1], angle_ref[2], angle_ref[3], angle_ref[4], angle_ref[5]);
+  // ROS_INFO("=============angle measured from inverse kinematics=========");
+  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+
+  // FK_pose = EE_pose(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
   
-  ROS_INFO("============error angle================");
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0] - angle_ref[0], angle_measured[1] - angle_ref[1], angle_measured[2] - angle_ref[2], angle_measured[3] - angle_ref[3], angle_measured[4] - angle_ref[4], angle_measured[5] - angle_ref[5]);
-  ROS_WARN("======================================================================================");
+  // ROS_INFO("============error angle================");
+  // ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0] - angle_ref[0], angle_measured[1] - angle_ref[1], angle_measured[2] - angle_ref[2], angle_measured[3] - angle_ref[3], angle_measured[4] - angle_ref[4], angle_measured[5] - angle_ref[5]);
+  // ROS_WARN("======================================================================================");
   // ROS_ERROR("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
   msg.linear.x = FK_pose[0];
@@ -782,51 +805,6 @@ void TorqJ::solveInverseKinematics()
   dasom_EE_pos_pub_.publish(msg);
 
   angle_ref_i = angle_ref;  
-}
-
-void TorqJ::setInitpose()
-{
-
-  initPosemovingCnt ++;
-  FK_pose = EE_pose(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
-  
-
-  if (checkFirstPoseFlag = 0)
-  {
-  firstPose << FK_pose[0], FK_pose[1], FK_pose[2], FK_pose[3], FK_pose[4], FK_pose[5];
-  PoseDelta = (initPose - firstPose) / 10 ;
-  checkFirstPoseFlag = 1;
-  }
-
-  if((initPosemovingCnt % 40) == 0 && (initPosemovingCnt < 400));
-  {
-    X_cmd[0] = FK_pose[0] + PoseDelta[0];
-    X_cmd[1] = FK_pose[1] + PoseDelta[1];
-    X_cmd[2] = FK_pose[2] + PoseDelta[2];
-
-    X_cmd[3] = FK_pose[3] + PoseDelta[3];
-    X_cmd[4] = FK_pose[4] + PoseDelta[4];
-    X_cmd[5] = FK_pose[5] + PoseDelta[5];
-  }
-
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", X_cmd[0], X_cmd[1], X_cmd[2], X_cmd[3], X_cmd[4], X_cmd[5]);
-  
-  angle_ref = InverseKinematics(X_cmd[0], X_cmd[1], X_cmd[2],
-                                X_cmd[3], X_cmd[4], X_cmd[5]);
-
-
-  //init pose에 도달했나 확인
-  if(abs(initPose[0] - FK_pose[0]) <0.05 && abs(initPose[1] - FK_pose[1]) <0.05 &&
-     abs(initPose[2] - FK_pose[2]) <0.05 && abs(initPose[3] - FK_pose[3]) <0.05 && 
-     abs(initPose[4] - FK_pose[4]) <0.05 && abs(initPose[5] - FK_pose[5]) <0.05)
-  {
-    initPoseCnt ++;
-
-    ROS_INFO("Arrived at Init Pose!!");
-    ROS_INFO("Arrived at Init Pose!!");
-  }
-  else initPoseCnt = 0;
-
 }
 
 int main(int argc, char **argv)
@@ -861,6 +839,7 @@ int main(int argc, char **argv)
     // safety++;
     //  torqJ.solveInverseKinematics();
     //  }
+    torqJ.CommandGenerator();
     torqJ.solveInverseKinematics();
     torqJ.angle_safe_func();
     torqJ.PublishCmdNMeasured();
