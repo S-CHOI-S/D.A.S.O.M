@@ -26,28 +26,28 @@ void joystickCallback(const geometry_msgs::Twist& msg)
 
     transformStamped.header.stamp = ros::Time::now();
     transformStamped.header.frame_id = "world";
-    transformStamped.child_frame_id = "joystickCMD";
+    transformStamped.child_frame_id = "gimbal_tf";
     transformStamped.transform.translation.x = msg.linear.x;
     transformStamped.transform.translation.y = msg.linear.y;
     transformStamped.transform.translation.z = msg.linear.z;
     
-    tf::Quaternion quat;
-
-    quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
+        tf2::Quaternion quat;
+        quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
 
     transformStamped.transform.rotation.x = quat.x();
     transformStamped.transform.rotation.y = quat.y();
     transformStamped.transform.rotation.z = quat.z();
     transformStamped.transform.rotation.w = quat.w();
-    
+    ROS_INFO("a");
+
     br.sendTransform(transformStamped);
 }
 
 int main(int argc, char **argv){
-    ros::init(argc,argv,"setting_joystickCMD_tf");
+    ros::init(argc,argv,"setting_gimbal_tf");
 
     ros::NodeHandle nh;
-    ros::Subscriber sub = nh.subscribe("/dasom/EE_cmd", 10, &joystickCallback);
+    ros::Subscriber sub = nh.subscribe("/dasom/gimbal_tf", 10, &joystickCallback);
 
 
     ros::spin();

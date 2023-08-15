@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2
   tf2_ros
+  omni_common
 )
 
 ## System dependencies are found with CMake's conventions
@@ -45,7 +46,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .msg/.srv/.action file to be processed
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
+catkin_package(
+  CATKIN_DEPENDS omni_common
+#  DEPENDS system_lib
+)
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
@@ -201,14 +205,14 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(setting_joystickCMD_tf src/setting_joystickCMD_tf.cpp)
-add_dependencies(setting_joystickCMD_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(setting_joystickCMD_tf ${catkin_LIBRARIES})
-
-add_executable(setting_endEffector_tf src/setting_endEffector_tf.cpp)
-add_dependencies(setting_endEffector_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(setting_endEffector_tf ${catkin_LIBRARIES})
+add_executable(tf_broadcaster src/tf_broadcaster.cpp)
+add_dependencies(tf_broadcaster ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(tf_broadcaster ${catkin_LIBRARIES})
 
 add_executable(tf_listener src/tf_listener.cpp)
 add_dependencies(tf_listener ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(tf_listener ${catkin_LIBRARIES})
+
+add_executable(setting_gimbal_tf src/setting_gimbal_tf.cpp)
+add_dependencies(setting_gimbal_tf ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(setting_gimbal_tf ${catkin_LIBRARIES})

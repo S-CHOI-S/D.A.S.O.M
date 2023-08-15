@@ -13,6 +13,13 @@
 
 #define PI 3.141592
 
+geometry_msgs::Vector3 rpy; 
+
+Eigen::VectorXd manipulator_initPose;
+Eigen::VectorXd joystick_initPose;
+
+
+
 void joystickCallback(const geometry_msgs::Twist& msg)
 {
     static tf2_ros::StaticTransformBroadcaster br;

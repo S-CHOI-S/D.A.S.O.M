@@ -21,15 +21,9 @@ DasomTF2::DasomTF2(ros::Subscriber& subscriber, std::string topic_name, std::str
 {
   tf2_sub_ = subscriber;
 
-  if(!(topic_name.c_str() == std::string("/dasombasePlate/world"))) 
-  {
-    tf2_sub_ = nh_.subscribe(topic_name.c_str(),10,&DasomTF2::CallbackTwist,this);
-  }
-  else 
-  {
-    tf2_sub_ = nh_.subscribe(topic_name.c_str(),10,&DasomTF2::CallbackPoseStamped,this);
-  }
-
+  if(!(topic_name.c_str() == "/dasombasePlate/world")) tf2_sub_ = nh_.subscribe(topic_name.c_str(),10,&DasomTF2::CallbackTwist,this);
+  else tf2_sub_ = nh_.subscribe(topic_name.c_str(),10,&DasomTF2::CallbackPoseStamped,this);
+  
   parent_frame_ = parent_frame;
   child_frame_ = child_frame;
 }

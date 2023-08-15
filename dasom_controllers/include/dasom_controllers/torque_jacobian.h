@@ -14,11 +14,16 @@
 #include <dynamixel_workbench_msgs/EECommand.h>
 #include "dasom_controllers/movingFlag.h"
 #include "dasom_controllers/admittanceTest.h"
-#include <dasom_toolbox/dasom_workbench.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_msgs/TFMessage.h>
 #include "tf/transform_datatypes.h"
 #include "omni_msgs/OmniButtonEvent.h"
+
+#include <dasom_toolbox/dasom_workbench.h>
+#include <dasom_toolbox/dasom_camera.h>
+#include <dasom_toolbox/dasom_tf2.h>
+
+
 
 #define PI 3.14159256359
 
@@ -41,6 +46,7 @@ class TorqJ
 
   Eigen::VectorXd haptic_command;
   Eigen::VectorXd haptic_initPose;
+  Eigen::VectorXd world_hapticCmd;
 
   Eigen::MatrixXd J;
   Eigen::MatrixXd JT;
@@ -52,7 +58,6 @@ class TorqJ
   Eigen::VectorXd tau_gravity;
   Eigen::VectorXd FK_pose;
   Eigen::Vector2d POSITION_2;
-
 
   //--DoB--//
 
@@ -100,6 +105,11 @@ class TorqJ
   Eigen::Vector3d Force_ext_not_deadzone;
   Eigen::Vector3d Force_max;
   Eigen::Vector3d Force_min;
+  Eigen::VectorXd gimbal_tf;
+  Eigen::VectorXd global_EE_tf;
+  Eigen::VectorXd optitrack_tf;
+  Eigen::VectorXd paletrone_tf;
+  
 
 //--Admittance Control--//
   Eigen::Matrix2d A_x;
@@ -192,10 +202,6 @@ class TorqJ
   bool grey_button;
   bool white_button;
 
-  Eigen::VectorXd gimbal_tf;
-  Eigen::VectorXd optitrack_tf;
-
-  void calc_des();
   void PublishCmdNMeasured();
   void DoB();
   void Calc_Ext_Force();
@@ -235,12 +241,12 @@ class TorqJ
   ros::Publisher joint_measured_pub_;
   ros::Publisher dasom_EE_pos_pub_;
   ros::Publisher dasom_EE_cmd_pub_;
-  ros::Publisher gimbal_pub; /////////////////////////////////////
-  
+  ros::Publisher gimbal_pub;
   ros::Subscriber joint_states_sub_;
   ros::Subscriber joystick_sub_;
   ros::Subscriber button_sub_;
-  ros::Subscriber gimbal_sub_; ///////////////////////////////////
+  ros::Subscriber gimbal_sub_;
+  ros::Subscriber paletrone_sub_;
 
   ros::ServiceServer movingService;
   ros::ServiceServer admitService;
@@ -570,26 +576,26 @@ class TorqJ
 
     theta1 = atan2(Wrist_Position[1], Wrist_Position[0]) - PI / 2;
 
-    if(theta1 <= -PI)
-    {
-      // ROS_FATAL("theta1 <= -PI"); 
-      theta1 = theta1 + PI;
+    // if(theta1 <= -PI)
+    // {
+    //   // ROS_FATAL("theta1 <= -PI"); 
+    //   theta1 = theta1 + PI;
 
-      Wrist_Position[0] = -Wrist_Position[0];
-      Wrist_Position[1] = -Wrist_Position[1];
+    //   Wrist_Position[0] = -Wrist_Position[0];
+    //   Wrist_Position[1] = -Wrist_Position[1];
 
-      D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
-      theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3));
+    //   D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
+    //   theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3));
 
-      D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
-      theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
-             - atan2(sqrt(1-pow(D_theta2,2)),D_theta2);
-      theta2 = PI - theta2;
-    }
+    //   D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
+    //   theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
+    //          - atan2(sqrt(1-pow(D_theta2,2)),D_theta2);
+    //   theta2 = PI - theta2;
+    // }
 
-    else
-    {
-      // ROS_FATAL("theta1 > -PI");
+    // else
+    // {
+    //   // ROS_FATAL("theta1 > -PI");
       D_theta2 = (pow(l2,2) + pow(r2,2) - pow((l3 + l5),2)) / (2 * l2 * r2);
 
       theta2 = atan2(Wrist_Position[2] - l1, sqrt(pow(Wrist_Position[0],2) + pow(Wrist_Position[1],2)))
@@ -599,7 +605,7 @@ class TorqJ
   
       D_theta3 = (pow(l2,2) + pow((l3 + l5),2) - pow(r2,2)) / (2 * l2 * (l3 + l5));
       theta3 = -(PI - atan2(sqrt(1 - pow(D_theta3,2)), D_theta3)); // sign
-    }
+    // }
     
     Eigen::Matrix3d R36;
     R36 = R03(theta1, theta2, theta3).transpose() * CmdOrientation(r,p,y);
@@ -628,7 +634,7 @@ class TorqJ
   void joystickCallback(const geometry_msgs::Twist &msg);
   void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
   void gimbalCallback(const geometry_msgs::PoseStamped &msg);
-
+  void paletroneCallback(const geometry_msgs::PoseStamped &msg);
 };
 
 double TorqJ::l1 = 0.05465;

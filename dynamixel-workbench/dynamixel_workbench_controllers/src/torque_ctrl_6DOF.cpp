@@ -145,8 +145,9 @@ void TorqueControl::jointStatePublish()
   {
     base_joint_y = base_joint_y + 2 * 3.14;
   }
+  
+  // else if(base_joint_y > 3.1)
 
-  // For PALETRONE(receiving tf2)
   dynamixel_.name.push_back("base_joint_X");
   dynamixel_.name.push_back("base_joint_Y");
   dynamixel_.name.push_back("base_joint_Z");
@@ -167,13 +168,13 @@ void TorqueControl::jointStatePublish()
   dynamixel_.effort.push_back(0);
 
   joint_states_pub_.publish(dynamixel_);
+  ROS_INFO("X = %lf", base_joint_X);
+  ROS_INFO("Y = %lf", base_joint_Y);
+  ROS_INFO("Z = %lf", base_joint_Z);
+  ROS_INFO("r = %lf", base_joint_r);
+  ROS_INFO("p = %lf", base_joint_p);
+  ROS_INFO("y = %lf", base_joint_y);
 
-  // ROS_INFO("X = %lf", base_joint_X);
-  // ROS_INFO("Y = %lf", base_joint_Y);
-  // ROS_INFO("Z = %lf", base_joint_Z);
-  // ROS_INFO("r = %lf", base_joint_r);
-  // ROS_INFO("p = %lf", base_joint_p);
-  // ROS_INFO("y = %lf", base_joint_y);
 }
 
 void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg)

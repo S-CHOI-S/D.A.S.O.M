@@ -23,7 +23,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <image_transport/image_transport.h>
 #include <QImage>
-#include "omni_msgs/OmniButtonEvent.h"
+#include <omni_msgs/OmniButtonEvent.h>
 
 
 

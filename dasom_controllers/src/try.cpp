@@ -23,33 +23,12 @@
 
 #define PI 3.141592
 
-sensor_msgs::JointState joint_states;
-
-double i = 0;
-double t = 0;
-
-double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
-       base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0,
-       base_joint_r = 0, base_joint_p = 0, base_joint_y = 0;
-
-void paletroneCallback(const geometry_msgs::PoseStamped &msg)
-{
-    base_joint_X = msg.pose.position.x;
-    base_joint_Y = msg.pose.position.y;
-    base_joint_Z = msg.pose.position.z;
-
-    tf::Quaternion quat;
-    tf::quaternionMsgToTF(msg.pose.orientation, quat);
-    tf::Matrix3x3(quat).getRPY(base_joint_r, base_joint_p, base_joint_y);
-}
-
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
     ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
     ros::Subscriber sub;
-    ros::Subscriber paletrone_sub_ = nh.subscribe("/dasombasePlate/world", 10, &paletroneCallback);
     
     // For DasomCam
     image_transport::ImageTransport it(nh);
@@ -57,19 +36,18 @@ int main(int argc, char **argv)
 
     ros::Rate loop_rate(20);
 
-    // double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
-    //        base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0,
-    //        base_joint_r = 0, base_joint_p = 0, base_joint_y = 0;
-    // double i = 0;
-    // double t = 0;
+    double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
+           base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
+    double i = 0;
+    double t = 0;
 
-    // sensor_msgs::JointState joint_states;
+    sensor_msgs::JointState joint_states;
 
     // For DasomCam
     DasomCam ds_cam_(pub, 0);
 
     // For DasomTF2
-    // DasomTF2 ds_tf2_(sub,"/dasombasePlate/world","world","dasombaseplate");
+    DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
 
     while (ros::ok())
     {   
@@ -78,8 +56,8 @@ int main(int argc, char **argv)
         
         //update joint_state
         joint_states.header.stamp = ros::Time::now();
-        joint_states.name.resize(12);
-        joint_states.position.resize(12);
+        joint_states.name.resize(9);
+        joint_states.position.resize(9);
         joint_states.name[0] = "id_1";
         joint_states.position[0] = joint1;
         joint_states.name[1] = "id_2";
@@ -98,12 +76,6 @@ int main(int argc, char **argv)
         joint_states.position[7] = base_joint_Y;
         joint_states.name[8] = "base_joint_Z";
         joint_states.position[8] = base_joint_Z;
-        joint_states.name[9] = "base_joint_r";
-        joint_states.position[9] = base_joint_r;
-        joint_states.name[10] = "base_joint_p";
-        joint_states.position[10] = base_joint_p;
-        joint_states.name[11] = "base_joint_y";
-        joint_states.position[11] = base_joint_y;
 
         t = i / 100;
         joint1 = t;
@@ -112,25 +84,22 @@ int main(int argc, char **argv)
         joint4 = t;
         joint5 = 0;
         joint6 = 0;
-        // base_joint_X = sin(4*t-PI);
-        // base_joint_Y = sin(4*t-PI);
-        // base_joint_Z = sin(2*t);
-        // base_joint_r = t;
-        // base_joint_p = 0;
-        // base_joint_y = 0;
+        base_joint_X = sin(4*t-PI);
+        base_joint_Y = sin(4*t-PI);
+        base_joint_Z = sin(2*t);
 
         joint_pub.publish(joint_states);
 
         i++;
 
         ROS_ERROR("i: %lf", i);
-        // if(i > 157) break;
+        if(i > 157) break;
 
-        // ROS_INFO("joint1: %lf", joint1);
-        // ROS_INFO("joint2: %lf", joint2);
-        // ROS_INFO("joint3: %lf", joint3);
-        // ROS_INFO("joint4: %lf", joint4);
-        // ROS_WARN("==========================");
+        ROS_INFO("joint1: %lf", joint1);
+        ROS_INFO("joint2: %lf", joint2);
+        ROS_INFO("joint3: %lf", joint3);
+        ROS_INFO("joint4: %lf", joint4);
+        ROS_WARN("==========================");
 
         ros::spinOnce();
         loop_rate.sleep();

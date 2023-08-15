@@ -52,7 +52,6 @@ class TorqueControl
   // ROS Topic Subscriber
   ros::Subscriber joint_command_sub_;
   ros::Subscriber paletrone_sub_;
-
   // ROS Service Server
 
   // ROS Service Client

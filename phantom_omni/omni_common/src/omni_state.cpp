@@ -207,12 +207,20 @@ public:
     pose_msg.header = state_msg.header;
     pose_msg.header.frame_id = ref_frame;
     pose_msg.pose = state_msg.pose;
+    pose_msg.pose.orientation.x = state_msg.pose.orientation.x;
+    pose_msg.pose.orientation.y = state_msg.pose.orientation.y;
+    pose_msg.pose.orientation.z = state_msg.pose.orientation.z;
+    pose_msg.pose.orientation.w = state_msg.pose.orientation.w;
+
     pose_msg.pose.position.x /= -1000.0;
     pose_msg.pose.position.y /= 1000.0;
     pose_msg.pose.position.z /= 1000.0;
+
     pose_publisher.publish(pose_msg);
 
-    // Build the joysitck command msg
+
+
+    //Build the joysitck command msg
     geometry_msgs::Twist xyzrpy;
     xyzrpy.linear.x = pose_msg.pose.position.x;
     xyzrpy.linear.y = pose_msg.pose.position.y - 0.0855954589844;
@@ -394,6 +402,7 @@ int main(int argc, char** argv) {
   if (HD_DEVICE_ERROR(error = hdGetError())) {
     //hduPrintError(stderr, &error, "Failed to initialize haptic device");
     ROS_ERROR("Failed to initialize haptic device"); //: %s", &error);
+    ros::shutdown(); //
     return -1;
   }
 

@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   dasom_description
   setting_tf2
   omni_common
+  omni_msgs
 )
 
 ## System dependencies are found with CMake's conventions

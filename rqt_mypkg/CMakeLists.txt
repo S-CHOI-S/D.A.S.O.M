@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
   cv_bridge
+  omni_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -56,7 +57,7 @@ generate_messages(
 catkin_package(
 # INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME} 
-  CATKIN_DEPENDS roscpp rqt_gui rqt_gui_cpp std_msgs cv_bridge
+  CATKIN_DEPENDS roscpp rqt_gui rqt_gui_cpp std_msgs cv_bridge omni_msgs
 #  DEPENDS system_lib
 )
 
