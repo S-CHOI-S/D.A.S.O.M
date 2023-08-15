@@ -33,33 +33,34 @@
   </joint>
   <link name="base_link_Z"/>
 
+
   <!-- Define Z-axis prismatic joint and link -->
-  <joint name="base_joint_r" type="revolute">
+  <joint name="base_joint_y" type="revolute">
     <parent link="base_link_Z"/>
-    <child link="base_link_r" />
+    <child link="base_link_y" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
-    <limit lower="-0.5" upper="0.5" effort="100" velocity="0.1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-5" upper="5" effort="100" velocity="0.1"/>
   </joint>
-  <link name="base_link_r"/>
+  <link name="base_link_y"/>
 
   <!-- Define Z-axis prismatic joint and link -->
   <joint name="base_joint_p" type="revolute">
-    <parent link="base_link_r"/>
+    <parent link="base_link_y"/>
     <child link="base_link_p" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <limit lower="-0.5" upper="0.5" effort="100" velocity="0.1"/>
+    <limit lower="-5" upper="5" effort="100" velocity="0.1"/>
   </joint>
   <link name="base_link_p"/>
 
   <!-- Define Z-axis prismatic joint and link -->
-  <joint name="base_joint_y" type="revolute">
+  <joint name="base_joint_r" type="revolute">
     <parent link="base_link_p"/>
     <child link="base_link" />
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <axis xyz="0 0 1"/>
-    <limit lower="-0.5" upper="0.5" effort="100" velocity="0.1"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-5" upper="5" effort="100" velocity="0.1"/>
   </joint>
 
   <link name="base_link">

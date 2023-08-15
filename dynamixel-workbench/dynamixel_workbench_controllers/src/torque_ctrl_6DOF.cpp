@@ -133,32 +133,47 @@ void TorqueControl::jointStatePublish()
     id_num << "id_" << (int)(dxl_id_[index]);
 
     dynamixel_.name.push_back(id_num.str());
-    dynamixel_.name.push_back("base_joint_X");
-    dynamixel_.name.push_back("base_joint_Y");
-    dynamixel_.name.push_back("base_joint_Z");
-    dynamixel_.name.push_back("base_joint_r");
-    dynamixel_.name.push_back("base_joint_p");
-    dynamixel_.name.push_back("base_joint_y");
 
     dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]));
-    dynamixel_.position.push_back(base_joint_X);
-    dynamixel_.position.push_back(base_joint_Y);
-    dynamixel_.position.push_back(base_joint_Z);
-    dynamixel_.position.push_back(base_joint_r);
-    dynamixel_.position.push_back(base_joint_p);
-    dynamixel_.position.push_back(base_joint_y);
-    // dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
+    // dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]);
     dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], present_current[index]));
-    dynamixel_.effort.push_back(0);
-    dynamixel_.effort.push_back(0);
-    dynamixel_.effort.push_back(0);
-    dynamixel_.effort.push_back(0);
-    dynamixel_.effort.push_back(0);
-    dynamixel_.effort.push_back(0);
 
     present_position_[index] = dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]);
   }
+
+  if(0 > base_joint_y)
+  {
+    base_joint_y = base_joint_y + 2 * 3.14;
+  }
+
+  // For PALETRONE(receiving tf2)
+  dynamixel_.name.push_back("base_joint_X");
+  dynamixel_.name.push_back("base_joint_Y");
+  dynamixel_.name.push_back("base_joint_Z");
+  dynamixel_.name.push_back("base_joint_y");
+  dynamixel_.name.push_back("base_joint_p");
+  dynamixel_.name.push_back("base_joint_r");
+  dynamixel_.position.push_back(base_joint_X);
+  dynamixel_.position.push_back(base_joint_Y);
+  dynamixel_.position.push_back(base_joint_Z);
+  dynamixel_.position.push_back(base_joint_y);
+  dynamixel_.position.push_back(base_joint_p);
+  dynamixel_.position.push_back(base_joint_r);
+  dynamixel_.effort.push_back(0);
+  dynamixel_.effort.push_back(0);
+  dynamixel_.effort.push_back(0);
+  dynamixel_.effort.push_back(0);
+  dynamixel_.effort.push_back(0);
+  dynamixel_.effort.push_back(0);
+
   joint_states_pub_.publish(dynamixel_);
+
+  // ROS_INFO("X = %lf", base_joint_X);
+  // ROS_INFO("Y = %lf", base_joint_Y);
+  // ROS_INFO("Z = %lf", base_joint_Z);
+  // ROS_INFO("r = %lf", base_joint_r);
+  // ROS_INFO("p = %lf", base_joint_p);
+  // ROS_INFO("y = %lf", base_joint_y);
 }
 
 void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg)
