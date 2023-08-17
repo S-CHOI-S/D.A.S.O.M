@@ -30,6 +30,8 @@
 #include <tf2_msgs/TFMessage.h>
 #include "tf/transform_datatypes.h"
 
+#include <cstdlib>
+
 double prev_time;
 int calibrationStyle;
 
@@ -93,7 +95,7 @@ public:
     std::string force_feedback_topic = std::string(stream3.str());
     haptic_sub = n.subscribe(force_feedback_topic.c_str(), 1, &PhantomROS::force_callback, this, ros::TransportHints().tcpNoDelay());
 
-    //Publish on NAME/pose  //이거쓰자
+    //Publish on NAME/pose  //이거 쓰자
     std::ostringstream stream4;
     stream4 << omni_name << "/pose";
     std::string pose_topic_name = std::string(stream4.str());
@@ -231,8 +233,7 @@ public:
     xyzrpy.angular.x = (-xyzrpy.angular.x + 1.20787740832)/2;
     xyzrpy.angular.y = (-xyzrpy.angular.y)/2;
     xyzrpy.angular.z = (xyzrpy.angular.z + 1.61819366374)/2;
-    xyzrpy_publisher.publish(xyzrpy);
-      
+    xyzrpy_publisher.publish(xyzrpy);      
 
     if ((state->buttons[0] != state->buttons_prev[0])
         or (state->buttons[1] != state->buttons_prev[1]))
@@ -304,9 +305,11 @@ HDCallbackCode HDCALLBACK omni_state_callback(void *pUserData)
   //~ }
   hduVector3Dd feedback;
   // Notice that we are changing Y <---> Z and inverting the Z-force_feedback
-  feedback[0] = omni_state->force[0];
-  feedback[1] = omni_state->force[2];
-  feedback[2] = -omni_state->force[1];
+
+  // Force Feedback
+  feedback[0] = omni_state->force[0]; // X 방향
+  feedback[1] = omni_state->force[2]; // -Z 방향
+  feedback[2] = -omni_state->force[1]; // Y 방향
   hdSetDoublev(HD_CURRENT_FORCE, feedback);
 
   //Get buttons

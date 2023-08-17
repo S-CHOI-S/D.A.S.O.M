@@ -10,7 +10,7 @@
 
 
 int main(int argc, char** argv){
-    ros::init(argc,argv,"tf_listener");
+    ros::init(argc,argv,"tf_listener_2");
 
     ros::NodeHandle nh;
 
@@ -21,13 +21,13 @@ int main(int argc, char** argv){
     
 
 
-    ros::Publisher gimbal_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/global_EE_frame/world", 10);
+    ros::Publisher gimbal_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/gimbal_EE_cmd", 10);
 
     ros::Rate rate(250);
     while(nh.ok()){
         geometry_msgs::TransformStamped transformStamped;
         try{
-            transformStamped = tfBuffer.lookupTransform("world", "global_EE_pose", ros::Time(0));
+            transformStamped = tfBuffer.lookupTransform("paletrone", "global_gimbal_tf", ros::Time(0));
             }
         catch(tf2::TransformException &ex){
             ROS_WARN("%s",ex.what());

@@ -67,6 +67,7 @@ class TorqJ
   Eigen::VectorXd d_hat;
   Eigen::VectorXd angle_d_safe;
   Eigen::VectorXd angle_command;
+  Eigen::VectorXd gimbal_EE_cmd;
 
   double position_p_gain;
   double position_i_gain;
@@ -106,6 +107,7 @@ class TorqJ
   Eigen::Vector3d Force_max;
   Eigen::Vector3d Force_min;
   Eigen::VectorXd gimbal_tf;
+
   Eigen::VectorXd global_EE_tf;
   Eigen::VectorXd optitrack_tf;
   Eigen::VectorXd paletrone_tf;
@@ -247,6 +249,7 @@ class TorqJ
   ros::Subscriber button_sub_;
   ros::Subscriber gimbal_sub_;
   ros::Subscriber paletrone_sub_;
+  ros::Subscriber gimbal_cmd_sub_;
 
   ros::ServiceServer movingService;
   ros::ServiceServer admitService;
@@ -635,6 +638,7 @@ class TorqJ
   void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
   void gimbalCallback(const geometry_msgs::PoseStamped &msg);
   void paletroneCallback(const geometry_msgs::PoseStamped &msg);
+  void gimbal_cmdCallback(const geometry_msgs::PoseStamped &msg);
 };
 
 double TorqJ::l1 = 0.05465;

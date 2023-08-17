@@ -1,3 +1,4 @@
+
 #include <ros/ros.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -13,6 +14,7 @@
 #include "omni_msgs/OmniButtonEvent.h"
 
 
+
 #define PI 3.141592
 
 geometry_msgs::Vector3 rpy; 
@@ -24,7 +26,31 @@ double yaw;
 
 
 
+void global_gimbalCallback(const geometry_msgs::Twist& msg)
+{
+    static tf2_ros::StaticTransformBroadcaster br;
+    geometry_msgs::TransformStamped transformStamped;
 
+    transformStamped.header.stamp = ros::Time::now();
+    transformStamped.header.frame_id = "world";
+    transformStamped.child_frame_id = "global_gimbal_tf";
+    transformStamped.transform.translation.x = msg.linear.x;
+    transformStamped.transform.translation.y = msg.linear.y;
+    transformStamped.transform.translation.z = msg.linear.z;
+    
+   tf::Quaternion quat;
+
+    quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
+
+    transformStamped.transform.rotation.x = quat.x();
+    transformStamped.transform.rotation.y = quat.y();
+    transformStamped.transform.rotation.z = quat.z();
+    transformStamped.transform.rotation.w = quat.w();
+
+
+    br.sendTransform(transformStamped);
+
+}
 
 void optitrackCallback(const geometry_msgs::PoseStamped& msg)
 {
@@ -82,13 +108,13 @@ void joystickCallback(const geometry_msgs::Twist& msg)
 
 
 void PoseCallback(const geometry_msgs::Twist& msg)
-{
+{//use
     static tf2_ros::StaticTransformBroadcaster br_pose;
     geometry_msgs::TransformStamped transformStamped_pose;
 
     transformStamped_pose.header.stamp = ros::Time::now();
     transformStamped_pose.header.frame_id = "paletrone";
-    transformStamped_pose.child_frame_id = "global_EE_pose_tf";
+    transformStamped_pose.child_frame_id = "global_EE_pose";
     transformStamped_pose.transform.translation.x = msg.linear.x;
     transformStamped_pose.transform.translation.y = msg.linear.y;
     transformStamped_pose.transform.translation.z = msg.linear.z;
@@ -114,50 +140,46 @@ void PoseCallback(const geometry_msgs::Twist& msg)
 
 bool grey_button = true;
 
-void gimbalTF_Callback(const geometry_msgs::Twist &msg)
+void gimbalTF_Callback(const geometry_msgs::PoseStamped &msg)
 {  
-//     static tf2_ros::StaticTransformBroadcaster br;
-//     geometry_msgs::TransformStamped transformStamped;
+    static tf2_ros::StaticTransformBroadcaster br;
+    geometry_msgs::TransformStamped transformStamped;
 
-//     transformStamped.header.stamp = ros::Time::now();
-//     transformStamped.header.frame_id = "world";
-//     transformStamped.child_frame_id = "gimbal_frame";
-//     transformStamped.transform.translation.x = msg.linear.x;
-//     transformStamped.transform.translation.y = msg.linear.y;
-//     transformStamped.transform.translation.z = msg.linear.z;
-    
-//     tf::Quaternion quat;
+    transformStamped.header.stamp = ros::Time::now();
+    transformStamped.header.frame_id = "world";
+    transformStamped.child_frame_id = "global_gimbal_tf";
+    transformStamped.transform.translation.x = msg.pose.position.x;
+    transformStamped.transform.translation.y = msg.pose.position.y;
+    transformStamped.transform.translation.z = msg.pose.position.z;
 
-//     quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
+    transformStamped.transform.rotation.x = msg.pose.orientation.x;
+    transformStamped.transform.rotation.y = msg.pose.orientation.y;
+    transformStamped.transform.rotation.z = msg.pose.orientation.z;
+    transformStamped.transform.rotation.w = msg.pose.orientation.w;
 
-//     transformStamped.transform.rotation.x = quat.x();
-//     transformStamped.transform.rotation.y = quat.y();
-//     transformStamped.transform.rotation.z = quat.z();
-//     transformStamped.transform.rotation.w = quat.w();
-
-//     br.sendTransform(transformStamped);
+    br.sendTransform(transformStamped);
 }
 
 
 void gimbalCallback(const geometry_msgs::PoseStamped& msg)
 {
-    // static tf2_ros::StaticTransformBroadcaster br_gimbal;
-    // geometry_msgs::TransformStamped transformStamped_pose;
+    static tf2_ros::StaticTransformBroadcaster br_gimbal;
+    geometry_msgs::TransformStamped transformStamped_pose;
 
-    // transformStamped_pose.header.stamp = ros::Time::now();
-    // transformStamped_pose.header.frame_id = "paletrone";
-    // transformStamped_pose.child_frame_id = "gimbal_tf";
-    // transformStamped_pose.transform.translation.x = msg.pose.position.x;
-    // transformStamped_pose.transform.translation.y = msg.pose.position.y;
-    // transformStamped_pose.transform.translation.z = msg.pose.position.z;
+    transformStamped_pose.header.stamp = ros::Time::now();
+    transformStamped_pose.header.frame_id = "paletrone";
+    transformStamped_pose.child_frame_id = "gimbal_tf";
+    transformStamped_pose.transform.translation.x = msg.pose.position.x;
+    transformStamped_pose.transform.translation.y = msg.pose.position.y;
+    transformStamped_pose.transform.translation.z = msg.pose.position.z;
 
-    // transformStamped_pose.transform.rotation.x = msg.pose.orientation.x;
-    // transformStamped_pose.transform.rotation.y = msg.pose.orientation.y;
-    // transformStamped_pose.transform.rotation.z = msg.pose.orientation.z;
-    // transformStamped_pose.transform.rotation.w = msg.pose.orientation.w;
-    // br_gimbal.sendTransform(transformStamped_pose);
+    transformStamped_pose.transform.rotation.x = msg.pose.orientation.x;
+    transformStamped_pose.transform.rotation.y = msg.pose.orientation.y;
+    transformStamped_pose.transform.rotation.z = msg.pose.orientation.z;
+    transformStamped_pose.transform.rotation.w = msg.pose.orientation.w;
+    br_gimbal.sendTransform(transformStamped_pose);
 
-    // // ROS_INFO("BBBBBBBBBBBBBBBBBBBBBBB%lf %lf %lf %lf %lf %lf", msg.linear.x, msg.linear.y, msg.linear.z, msg.angular.x, msg.angular.y, msg.angular.z);
+    // ROS_INFO("BBBBBBBBBBBBBBBBBBBBBBB%lf %lf %lf %lf %lf %lf", msg.linear.x, msg.linear.y, msg.linear.z, msg.angular.x, msg.angular.y, msg.angular.z);
 
 }
 
@@ -175,7 +197,7 @@ int main(int argc, char **argv)
 
     ros::Publisher EE_drone_pose_pub_ = nh.advertise<geometry_msgs::PoseStamped>("/dasom/EE_drone_pose", 10);
 
-    ros::Subscriber button_sub_ = nh.subscribe("/dasom/gimbal_plag", 1, gimbalTF_Callback, ros::TransportHints().tcpNoDelay());
+    ros::Subscriber gimbal_pose_sub_ = nh.subscribe("/dasom/global_gimbal_pose", 1, gimbalTF_Callback, ros::TransportHints().tcpNoDelay());
 
 
 

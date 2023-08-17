@@ -31,7 +31,7 @@ class DasomCam
 
   image_transport::Publisher cam_pub_;
   
-  void UpdateCamera();
+  void UpdateCamera(double core_x, double core_y);
   void test();
 
  private:

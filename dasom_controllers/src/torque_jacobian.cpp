@@ -119,9 +119,10 @@ TorqJ::TorqJ()
   angle_min.resize(6,1);
   angle_safe.resize(6,1);
   EE_command.resize(6);
-  gimbal_tf.resize(6);
-  global_EE_tf.resize(6);
+  gimbal_tf.resize(7);
+  global_EE_tf.resize(7);
   paletrone_tf.resize(6);
+  gimbal_EE_cmd.resize(6);
 
 
 
@@ -257,7 +258,7 @@ void TorqJ::initPublisher()
   joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);  
   dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_pose", 10);  
   dasom_EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_cmd", 10);  
-  gimbal_pub = node_handle_.advertise<geometry_msgs::Twist>("/dasom/gimbal_plag", 10);
+  gimbal_pub = node_handle_.advertise<geometry_msgs::PoseStamped>("/dasom/global_gimbal_pose", 10);
 }
 
 void TorqJ::initSubscriber()
@@ -265,8 +266,9 @@ void TorqJ::initSubscriber()
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &TorqJ::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &TorqJ::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   button_sub_ = node_handle_.subscribe("/phantom/button", 10, &TorqJ::buttonCallback, this, ros::TransportHints().tcpNoDelay());
-  gimbal_sub_ = node_handle_.subscribe("/dasom/gimbal_tf", 10, &TorqJ::gimbalCallback, this, ros::TransportHints().tcpNoDelay());
+  gimbal_sub_ = node_handle_.subscribe("/dasom/global_EE_frame/world", 10, &TorqJ::gimbalCallback, this, ros::TransportHints().tcpNoDelay());
   paletrone_sub_ = node_handle_.subscribe("/dasombasePlate/world", 10, &TorqJ::paletroneCallback, this, ros::TransportHints().tcpNoDelay());
+  gimbal_cmd_sub_ = node_handle_.subscribe("/dasom/gimbal_EE_cmd", 10, &TorqJ::gimbal_cmdCallback, this, ros::TransportHints().tcpNoDelay());
 
 
   movingService = node_handle_.advertiseService("/movingService", &TorqJ::movingServiceCallback, this);
@@ -276,14 +278,14 @@ void TorqJ::initSubscriber()
 
 void TorqJ::paletroneCallback(const geometry_msgs::PoseStamped &msg)
 {
-  paletrone_tf[0] = msg.pose.position.x;
-  paletrone_tf[1] = msg.pose.position.y;
-  paletrone_tf[2] = msg.pose.position.z;
+  // paletrone_tf[0] = msg.pose.position.x;
+  // paletrone_tf[1] = msg.pose.position.y;
+  // paletrone_tf[2] = msg.pose.position.z;
 
-  tf::Quaternion quat;
-  tf::quaternionMsgToTF(msg.pose.orientation,quat);
+  // tf::Quaternion quat;
+  // tf::quaternionMsgToTF(msg.pose.orientation,quat);
 
-  tf::Matrix3x3(quat).getRPY(paletrone_tf[3], paletrone_tf[4], paletrone_tf[5]);
+  // tf::Matrix3x3(quat).getRPY(paletrone_tf[3], paletrone_tf[4], paletrone_tf[5]);
 }
 
 void TorqJ::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -314,21 +316,34 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
 
 
 void TorqJ::gimbalCallback(const geometry_msgs::PoseStamped &msg)
-// global_EE_tf 받아오기
+// global_EE_pose 받아오기
 {
 
   global_EE_tf[0] = msg.pose.position.x;
   global_EE_tf[1] = msg.pose.position.y;
   global_EE_tf[2] = msg.pose.position.z;
 
+  global_EE_tf[3] = msg.pose.orientation.x;
+  global_EE_tf[4] = msg.pose.orientation.y;
+  global_EE_tf[5] = msg.pose.orientation.z;
+  global_EE_tf[6] = msg.pose.orientation.w;
+
+}
+
+
+void TorqJ::gimbal_cmdCallback(const geometry_msgs::PoseStamped &msg)
+{
+
+  gimbal_EE_cmd[0] = msg.pose.position.x;
+  gimbal_EE_cmd[1] = msg.pose.position.y;
+  gimbal_EE_cmd[2] = msg.pose.position.z;
+
   tf::Quaternion quat;
   tf::quaternionMsgToTF(msg.pose.orientation,quat);
 
-  tf::Matrix3x3(quat).getRPY(global_EE_tf[3], global_EE_tf[4], global_EE_tf[5]);
+  tf::Matrix3x3(quat).getRPY(gimbal_EE_cmd[3], gimbal_EE_cmd[4], gimbal_EE_cmd[5]);
 
-  // ROS_INFO("BBBBB %lf, %lf, %lf, %lf, %lf, %lf",global_EE_tf[0], global_EE_tf[1], global_EE_tf[2], global_EE_tf[3], global_EE_tf[4], global_EE_tf[5]);
 }
-
 
 
 void TorqJ::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
@@ -339,20 +354,24 @@ void TorqJ::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
     {
       grey_button = false;
       ROS_INFO("Grey: false");
-      geometry_msgs::Twist global_EE_tf_msg;
 
       gimbal_tf = global_EE_tf;
 
-      global_EE_tf_msg.linear.x = gimbal_tf[0];
-      global_EE_tf_msg.linear.y = gimbal_tf[1];
-      global_EE_tf_msg.linear.z = gimbal_tf[2];
+      geometry_msgs::PoseStamped gimbal_tf_msg;
 
-      global_EE_tf_msg.angular.x = gimbal_tf[3];
-      global_EE_tf_msg.angular.y = gimbal_tf[4];
-      global_EE_tf_msg.angular.z = gimbal_tf[5];
 
-      gimbal_pub.publish(global_EE_tf_msg);
+      gimbal_tf_msg.pose.position.x = gimbal_tf[0];
+      gimbal_tf_msg.pose.position.y = gimbal_tf[1];
+      gimbal_tf_msg.pose.position.z = gimbal_tf[2];
 
+      gimbal_tf_msg.pose.orientation.x = gimbal_tf[3];
+      gimbal_tf_msg.pose.orientation.y = gimbal_tf[4];
+      gimbal_tf_msg.pose.orientation.z = gimbal_tf[5];
+      gimbal_tf_msg.pose.orientation.w = gimbal_tf[6];
+
+    gimbal_pub.publish(gimbal_tf_msg);
+    //3번 내용.
+    //broadcaster의 gimbalTF_Callback에서 정의중 
       // ROS_INFO("GIMBAL_TF = %lf, %lf, %lf, %lf, %lf, %lf", gimbal_tf[0], gimbal_tf[1], gimbal_tf[2], gimbal_tf[3], gimbal_tf[4], gimbal_tf[5]);
     }
     else
@@ -702,13 +721,16 @@ bool TorqJ::AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
 double t = 0;
 void TorqJ::CommandGenerator()
 {
-  if(grey_button == true) EE_command = haptic_command + initPose;
-  else EE_command = gimbal_tf - paletrone_tf;
-
-  // ROS_WARN("haptic+initpose: %lf %lf %lf %lf %lf %lf", haptic_command[0] + initPose[0], haptic_command[1] + initPose[1], haptic_command[2] + initPose[2], haptic_command[3] + initPose[3], haptic_command[4] + initPose[4], haptic_command[5] + initPose[5]);
-  // ROS_ERROR("gimbal_tf: %lf %lf %lf %lf %lf %lf ", global_EE_tf[0], global_EE_tf[1], global_EE_tf[2], global_EE_tf[3], global_EE_tf[4], global_EE_tf[5]);
-  ROS_WARN("EE_COMMAND: %lf %lf %lf %lf %lf %lf", EE_command[0], EE_command[1], EE_command[2], EE_command[3], EE_command[4], EE_command[5]);
-
+  if(grey_button == true) 
+  {
+    EE_command = haptic_command + initPose;
+    ROS_INFO("Command Mode");
+  }
+  else 
+  {
+    EE_command = gimbal_EE_cmd;
+    ROS_INFO("Gimballing Mode");
+  }
 
   geometry_msgs::Twist EE_cmd;
 
@@ -738,19 +760,19 @@ void TorqJ::PublishCmdNMeasured()
   joint_cmd.position.push_back(angle_safe[4]); 
   joint_cmd.position.push_back(angle_safe[5]); 
 
-  joint_cmd.velocity.push_back(angle_measured[0] - angle_ref[0]); 
-  joint_cmd.velocity.push_back(angle_measured[1] - angle_ref[1]); 
-  joint_cmd.velocity.push_back(angle_measured[2] - angle_ref[2]); 
-  joint_cmd.velocity.push_back(angle_measured[3] - angle_ref[3]); 
-  joint_cmd.velocity.push_back(angle_measured[4] - angle_ref[4]); 
-  joint_cmd.velocity.push_back(angle_measured[5] - angle_ref[5]); 
+  // joint_cmd.velocity.push_back(angle_measured[0] - angle_ref[0]); 
+  // joint_cmd.velocity.push_back(angle_measured[1] - angle_ref[1]); 
+  // joint_cmd.velocity.push_back(angle_measured[2] - angle_ref[2]); 
+  // joint_cmd.velocity.push_back(angle_measured[3] - angle_ref[3]); 
+  // joint_cmd.velocity.push_back(angle_measured[4] - angle_ref[4]); 
+  // joint_cmd.velocity.push_back(angle_measured[5] - angle_ref[5]); 
 
-  joint_cmd.effort.push_back(haptic_command[0]); 
-  joint_cmd.effort.push_back(haptic_command[1]); 
-  joint_cmd.effort.push_back(haptic_command[2]); 
-  joint_cmd.effort.push_back(haptic_command[3]); 
-  joint_cmd.effort.push_back(haptic_command[4]); 
-  joint_cmd.effort.push_back(haptic_command[5]);  
+  // joint_cmd.effort.push_back(haptic_command[0]); 
+  // joint_cmd.effort.push_back(haptic_command[1]); 
+  // joint_cmd.effort.push_back(haptic_command[2]); 
+  // joint_cmd.effort.push_back(haptic_command[3]); 
+  // joint_cmd.effort.push_back(haptic_command[4]); 
+  // joint_cmd.effort.push_back(haptic_command[5]);  
 
   joint_command_pub_.publish(joint_cmd);
 }
@@ -809,21 +831,37 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "TorqJ");
   TorqJ torqJ;
 
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(200);
 
   time_i = ros::Time::now().toSec();
 
   checkFirstPoseFlag = 0;
 
-  ros::NodeHandle nh;
-  image_transport::ImageTransport it(nh);
-  image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
+  // ros::NodeHandle nh;
+  // image_transport::ImageTransport it(nh);
+  // image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
 
-  DasomCam ds_cam(pub, 0);
+  // DasomCam ds_cam(pub, 0);
+
+
+  //////////////
+  // -- TF -- //
+  //////////////
+  // - global paletrone position - //
+  // tf_broadcaster의 optitrackCallback
+  //  world to Paletrone
+
+
+  // - global EE position - //
+  // - tf_broadcaster 의 posecallback
+  // paletrone to global_EE_pose
+
+
+
 
   while (ros::ok())
   {
-    ds_cam.UpdateCamera();
+    // ds_cam.UpdateCamera();
 
     //---Measure sampling time---//
     time_f = ros::Time::now().toSec();

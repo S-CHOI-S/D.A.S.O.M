@@ -25,10 +25,6 @@
 #include <QImage>
 #include <omni_msgs/OmniButtonEvent.h>
 
-
-
-//#include "rqt_mypkg/FAC_HoverService.h"
-//#include <QKeyEvent> 
 namespace rqt_mypkg_cpp
 {
 
@@ -41,9 +37,7 @@ public:
     virtual void shutdownPlugin();
 
 
-
-
-  cv::Mat conversion_mat_; //0807
+  cv::Mat conversion_mat_;
   Eigen::VectorXd measured_angle;
   Eigen::VectorXd measured_position;
   Eigen::VectorXd cmd_position;
@@ -60,9 +54,6 @@ private slots:
   void measured_EE_callback(const geometry_msgs::Twist::ConstPtr& msg);
   void cmd_EE_callback(const geometry_msgs::Twist::ConstPtr& msg);
   void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
-
- //   bool FAC_Hover_Callback(rqt_mypkg::FAC_HoverService::Request &req, rqt_mypkg::FAC_HoverService::Response &res);
- //   void keyPressEvent(QKeyEvent *event); 
     
     private:
     Ui::MyPluginWidget ui_;
@@ -76,15 +67,13 @@ private slots:
     ros::Subscriber joystick_sub_;
     ros::Subscriber button_sub_;
 
-//    ros::ServiceClient ping_client;
     ros::Timer gui_init_set;
     QImage qimage_;
 
-
-    geometry_msgs::Twist test;
-    //    ros::ServiceServer HoverServer;
 };
 
-}  // namespace rqt_mypkg_cpp
+}  
+
+// namespace rqt_mypkg_cpp
 
 #endif  // RQT_MYPKG_CPP_MY_PLUGIN_H
