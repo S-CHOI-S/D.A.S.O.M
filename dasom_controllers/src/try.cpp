@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     while (ros::ok())
     {   
         // For DasomCam
-        ds_cam_.UpdateCamera(0, 0);
+        ds_cam_.UpdateCamera(0, 0, 0);
         
         //update joint_state
         joint_states.header.stamp = ros::Time::now();

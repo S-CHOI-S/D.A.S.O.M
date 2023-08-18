@@ -55,13 +55,17 @@ void DasomCam::initCamera(int cam_num)
   } 
 }
 
-void DasomCam::UpdateCamera(double core_x, double core_y)
+void DasomCam::UpdateCamera(double core_x, double core_y, double core_z)
 {
   // ROS_INFO("Reading camera frame!");
   cap >> frame;
 
   // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core_x, 250 - core_y),200,cv::Scalar(255,0,0),3,4,0);
+  circle(frame, cv::Point(250 - core_x, 250 - core_y), 200 - core_z, cv::Scalar(255,0,0), 3, 4, 0);
+  
+  // line(frame, point1, point2, color, thickness, line type, shift);
+  line(frame, cv::Point(230 - core_x, 250 - core_y), cv::Point(270 - core_x, 250 - core_y), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(250 - core_x, 230 - core_y), cv::Point(250 - core_x, 270 - core_y), cv::Scalar::all(255), 3, 4, 0);
 
   if(!frame.empty())
   {

@@ -60,8 +60,10 @@ class DasomCamControl
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
   ros::Subscriber joystick_sub_;
+  ros::Subscriber button_sub_;
 
   void joystickCallback(const geometry_msgs::Twist &msg);
+  void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
 
 };
 
