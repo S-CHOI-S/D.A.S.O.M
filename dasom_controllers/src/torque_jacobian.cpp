@@ -369,7 +369,7 @@ void TorqJ::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       gimbal_tf_msg.pose.orientation.z = gimbal_tf[5];
       gimbal_tf_msg.pose.orientation.w = gimbal_tf[6];
 
-    gimbal_pub.publish(gimbal_tf_msg);
+      gimbal_pub.publish(gimbal_tf_msg);
     //3번 내용.
     //broadcaster의 gimbalTF_Callback에서 정의중 
       // ROS_INFO("GIMBAL_TF = %lf, %lf, %lf, %lf, %lf, %lf", gimbal_tf[0], gimbal_tf[1], gimbal_tf[2], gimbal_tf[3], gimbal_tf[4], gimbal_tf[5]);

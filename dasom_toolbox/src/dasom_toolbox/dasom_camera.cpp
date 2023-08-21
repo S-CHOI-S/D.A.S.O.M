@@ -22,6 +22,7 @@ DasomCam::DasomCam(image_transport::Publisher& publisher, int cam_num_)
   cam_pub_ = publisher;
 
   initCamera(cam_num_);
+  ROS_WARN("HHEERREE!");
 }
 
 DasomCam::~DasomCam()
@@ -76,4 +77,14 @@ void DasomCam::UpdateCamera(double core_x, double core_y, double core_z)
     cv::waitKey(1);
   }
   ros::spinOnce();
+}
+
+void DasomCam::DrawGimbalCross(double core_x, double core_y, double core_z)
+{
+  // line(frame, point1, point2, color, thickness, line type, shift);
+  line(frame, cv::Point(230 - core_x, 250 - core_y), cv::Point(270 - core_x, 250 - core_y), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(250 - core_x, 230 - core_y), cv::Point(250 - core_x, 270 - core_y), cv::Scalar::all(255), 3, 4, 0);
+
+  // putText(frame, string, Point(x,y), font face, font scale, color, thickness, line type, bottom left origin);
+  putText(frame, "gimbal", cv::Point(210 - core_x, 290 - core_y), 3,0.7,cv::Scalar::all(255),1,8);
 }

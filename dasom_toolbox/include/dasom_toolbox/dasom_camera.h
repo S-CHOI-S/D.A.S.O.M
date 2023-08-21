@@ -30,8 +30,11 @@ class DasomCam
   ~DasomCam();
 
   image_transport::Publisher cam_pub_;
+
+  cv::Mat frame;
   
   void UpdateCamera(double core_x, double core_y, double core_z);
+  void DrawGimbalCross(double core_x, double core_y, double core_z);
   void test();
 
  private:
@@ -39,7 +42,6 @@ class DasomCam
   image_transport::ImageTransport it_;
 
   cv::VideoCapture cap;
-  cv::Mat frame;
   sensor_msgs::ImagePtr msg;
 
   void initCamera(int cam_num);

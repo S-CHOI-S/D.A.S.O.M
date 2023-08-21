@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
     tf
     ddynamic_reconfigure
     diagnostic_updater
+    pcl_ros
     )
 
 if(BUILD_WITH_OPENMP)
@@ -88,6 +89,7 @@ include_directories(
     include
     ${realsense2_INCLUDE_DIR}
     ${catkin_INCLUDE_DIRS}
+    ${PCL_INCLUDE_DIRS}
     )
 
 # RealSense ROS Node
@@ -99,7 +101,14 @@ catkin_package(
     image_transport
     ddynamic_reconfigure
     nav_msgs
+    pcl_ros
     )
+
+add_executable(d435i_try src/d435i_try.cpp)
+add_dependencies(d435i_try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(d435i_try ${realsense2_LIBRARY}
+    ${catkin_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT} ${PCL_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME}
     include/constants.h
