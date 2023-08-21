@@ -74,7 +74,11 @@ void DasomCamControl::joystickCallback(const geometry_msgs::Twist &msg)
   haptic_pose[4] = msg.angular.y;
   haptic_pose[5] = msg.angular.z;
 
-  ROS_INFO("core_x = %lf, core_y = %lf, core_z = %lf", haptic_pose[0], haptic_pose[2], haptic_pose[1]);
+  haptic_position[0] = haptic_pose[0];
+  haptic_position[1] = haptic_pose[1];
+  haptic_position[2] = haptic_pose[2];
+
+  // ROS_INFO("core_x = %lf, core_y = %lf, core_z = %lf", haptic_pose[0], haptic_pose[2], haptic_pose[1]);
 }
 
 void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
@@ -92,20 +96,26 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       grey_button++;
       ROS_INFO("Grey: Gimbaling mode");
 
-      gimbal_tf = global_EE_tf;
+      // gimbal_tf = global_EE_tf;
+      gimbal_tf = haptic_pose;
+      gimbal_position_tf = haptic_position;
 
-      ds_cam_->DrawGimbalCross(gimbal_tf[0],gimbal_tf[1],gimbal_tf[2]);
+      // ds_cam_->DrawGimbalCross(gimbal_tf[0],gimbal_tf[1],gimbal_tf[2]);
+      // while(true)
+      // {
+        // ds_cam_->DrawGimbalCross(haptic_pose[0],haptic_pose[1],haptic_pose[2]);
+      // }
 
       grey = false;
 
       // ROS_INFO("GIMBAL_TF = %lf, %lf, %lf, %lf, %lf, %lf", gimbal_tf[0], gimbal_tf[1], gimbal_tf[2], gimbal_tf[3], gimbal_tf[4], gimbal_tf[5]);
     }
-    else if(grey_button == 1 && grey == true)
+    else if(grey_button == 1)
     {
       grey_button++;
       ROS_INFO("Grey: Gimbaling + Command mode");
     }
-    else if(grey_button == 2 && grey == true)
+    else if(grey_button == 2)
     {
       grey_button = 0;
       ROS_INFO("Grey: Command mode");
@@ -117,10 +127,30 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
 
 void DasomCamControl::L()
 {
-  // ds_cam_->test();
-  ds_cam_->UpdateCamera(1000 * haptic_pose[0], 
-                                      1000 * haptic_pose[2], 
-                                      1000 * haptic_pose[1]);
+  if(grey_button == 0)
+  {
+    ROS_INFO("grey 0");
+    ds_cam_->UpdateCamera(1000 * haptic_position);
+  }
+
+  else if(grey_button == 1) 
+  {
+    ROS_INFO("grey 1");
+    ds_cam_->UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf); 
+  }
+
+  else if(grey_button == 2) 
+  {
+    ROS_INFO("grey 2");
+    if(ds_cam_->gimbalcommand_safe == false)
+    {
+      ds_cam_->UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);
+    }
+    else 
+    {
+      ds_cam_->UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf);
+    }
+  }
 }
 
 int main(int argc, char **argv)
@@ -131,24 +161,25 @@ int main(int argc, char **argv)
 
   // ds_cam_ctrl.ds_cam_;
 
-  double t = 0;
+  // double t = 0;
 
   ros::Rate loop_rate(200);
 
   while (ros::ok())
   {
-    ds_cam_ctrl.haptic_pose[0] = 0.1* sin(t/50); 
-    ds_cam_ctrl.haptic_pose[2] = 0.1* sin(t/50); 
-    ds_cam_ctrl.haptic_pose[1] = 0.1* sin(t/50);
+    // ds_cam_ctrl.haptic_pose[0] = 0.1* sin(t/50); 
+    // ds_cam_ctrl.haptic_pose[2] = 0.1* sin(t/50); 
+    // ds_cam_ctrl.haptic_pose[1] = 0.1* sin(t/50);
 
     // ds_cam_ctrl.ds_cam_->UpdateCamera(1000 * ds_cam_ctrl.haptic_pose[0], 
     //                                   1000 * ds_cam_ctrl.haptic_pose[2], 
     //                                   1000 * ds_cam_ctrl.haptic_pose[1]);
 
     ds_cam_ctrl.L();
+
     ros::spinOnce();
     loop_rate.sleep(); 
-    t++;
+    // t++;
   }
 
   return 0;

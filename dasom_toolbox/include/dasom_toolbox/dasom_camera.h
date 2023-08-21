@@ -22,6 +22,14 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <sstream>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
+
+#define black cv::Scalar::all(0)
+#define white cv::Scalar::all(255)
+#define red cv::Scalar(255,0,0)
+#define green cv::Scalar(0,255,0)
+#define blue cv::Scalar(0,0,255)
 
 class DasomCam
 {
@@ -32,9 +40,13 @@ class DasomCam
   image_transport::Publisher cam_pub_;
 
   cv::Mat frame;
+
+  bool gimbalcommand_safe = false;
   
-  void UpdateCamera(double core_x, double core_y, double core_z);
-  void DrawGimbalCross(double core_x, double core_y, double core_z);
+  void UpdateCamera(Eigen::Vector3d core);
+  void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
+  void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
+  bool UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
   void test();
 
  private:
@@ -43,6 +55,8 @@ class DasomCam
 
   cv::VideoCapture cap;
   sensor_msgs::ImagePtr msg;
+
+  int i = 0;
 
   void initCamera(int cam_num);
 

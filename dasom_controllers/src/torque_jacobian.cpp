@@ -742,6 +742,8 @@ void TorqJ::CommandGenerator()
   EE_cmd.angular.z = EE_command[5];
 
   dasom_EE_cmd_pub_.publish(EE_cmd);
+
+  ROS_INFO("[%lf] [%lf] [%lf] [%lf] [%lf] [%lf]", angle_ref[0] - angle_measured[0], angle_ref[1] - angle_measured[1], angle_ref[2] - angle_measured[2], angle_ref[3] - angle_measured[3], angle_ref[4] - angle_measured[4], angle_ref[5] - angle_measured[5]);
 }
 
 void TorqJ::PublishCmdNMeasured()

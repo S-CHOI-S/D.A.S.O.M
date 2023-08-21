@@ -43,12 +43,12 @@ TorqueControl::TorqueControl()
 
   initMsg();
 
-  for (int index = 0; index < dxl_cnt_; index++)
-  {
-    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
-    dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
-    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
-  }
+  // for (int index = 0; index < dxl_cnt_; index++)
+  // {
+  //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
+  //   dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
+  //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
+  // }
 
   dxl_wb_->addSyncWrite("Goal_Position");
   dxl_wb_->addSyncRead("Present_Position");

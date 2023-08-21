@@ -44,6 +44,14 @@ class DasomCamControl
   Eigen::VectorXd gimbal_tf;
   Eigen::VectorXd global_EE_tf;
 
+  Eigen::Vector3d haptic_position;
+  Eigen::Vector3d gimbal_position_tf;
+
+  double map(double input_data, double input_min, double input_max, double output_min, double output_max)
+  {
+    return (input_data - input_min) * (output_max - output_min) / (input_max - input_min) + output_min;
+  }
+
   void L();
   
  private:
