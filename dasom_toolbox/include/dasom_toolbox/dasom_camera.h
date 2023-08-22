@@ -59,6 +59,7 @@ class DasomCam
   int i = 0;
 
   void initCamera(int cam_num);
+  void DetectLightBulb();
 
 };
 

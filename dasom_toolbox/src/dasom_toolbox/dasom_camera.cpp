@@ -157,3 +157,26 @@ void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
   }
   ros::spinOnce();
 }
+
+void DasomCam::DetectLightBulb()
+{
+  cv::Mat frame_hsv;
+  cv::Mat frame_erode;
+  cv::Mat frame_dilate;
+
+  cv::cvtColor(frame, frame_hsv, cv::COLOR_BGR2HSV);
+
+  cv::Mat lightbulb_mask, lightbulb_frame;
+
+  cv::Scalar lower_lightbulb = cv::Scalar(15,30,85);
+  cv::Scalar upper_lightbulb = cv::Scalar(75,255,255);
+
+  cv::inRange(frame_hsv, lower_lightbulb, upper_lightbulb, lightbulb_mask);
+  cv::bitwise_and(frame, frame, lightbulb_frame, lightbulb_mask);
+
+  cv::erode(lightbulb_mask, frame_erode, cv::Mat(), cv::Point(-1,-1), 5);
+  cv::dilate(frame_erode, frame_dilate, cv::Mat(), cv::Point(-1,-1), 2);
+
+  // ROS_WARN("Detect!");
+  // imshow("detect",frame_dilate);
+}
