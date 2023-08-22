@@ -43,10 +43,10 @@ class DasomCam
 
   bool gimbalcommand_safe = false;
   
-  void UpdateCamera(Eigen::Vector3d core);
+  void UpdateCameraCommand(Eigen::Vector3d core);
   void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
   void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
-  bool UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
+  void UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
   void test();
 
  private:

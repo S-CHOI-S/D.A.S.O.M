@@ -52,7 +52,7 @@ class DasomCamControl
     return (input_data - input_min) * (output_max - output_min) / (input_max - input_min) + output_min;
   }
 
-  void L();
+  void Update();
   
  private:
   /*****************************************************************************

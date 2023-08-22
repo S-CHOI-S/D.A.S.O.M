@@ -55,10 +55,12 @@ void DasomCam::initCamera(int cam_num)
   } 
 }
 
-void DasomCam::UpdateCamera(Eigen::Vector3d core)
+void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 {
   // ROS_INFO("Reading camera frame!");
   cap >> frame;
+
+  gimbalcommand_safe = false;
 
   // circle(frame, core, radius, color, thickness, line type, shift);
   circle(frame, cv::Point(250 - core[0], 250 - core[1]), 200 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
@@ -92,6 +94,9 @@ void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
 {
   cap >> frame;
 
+  i = 0;
+  ROS_WARN("i = %d", i);
+
   DrawGimbalCross(gimbal, white);
 
   // circle(frame, core, radius, color, thickness, line type, shift);
@@ -112,7 +117,7 @@ void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
   ros::spinOnce();
 }
 
-bool DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal)
+void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal)
 {
   cap >> frame;
   ROS_ERROR("%lf, %lf", core[0] - gimbal[0], core[1] - gimbal[1]);
@@ -131,7 +136,7 @@ bool DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
     DrawGimbalCross(gimbal, green);
     
     i++; 
-    //ROS_WARN("i = %d", i);
+    ROS_WARN("i = %d", i);
     
     if(i >= 50) gimbalcommand_safe = true;
   }
@@ -151,6 +156,4 @@ bool DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
     cv::waitKey(1);
   }
   ros::spinOnce();
-
-  return gimbalcommand_safe;
 }
