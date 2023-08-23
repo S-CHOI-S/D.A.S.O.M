@@ -27,9 +27,9 @@
 
 #define black cv::Scalar::all(0)
 #define white cv::Scalar::all(255)
-#define red cv::Scalar(255,0,0)
+#define blue cv::Scalar(255,0,0)
 #define green cv::Scalar(0,255,0)
-#define blue cv::Scalar(0,0,255)
+#define red cv::Scalar(0,0,255)
 
 class DasomCam
 {

@@ -16,6 +16,8 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
 #include <dasom_toolbox/dasom_realsense_d435i.h>
 #include <dasom_toolbox/dasom_camera.h>
 #include <dasom_toolbox/dasom_tf2.h>
@@ -29,6 +31,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
     ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
+    ros::Publisher rs_c_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/color", 10);
+    ros::Publisher rs_d_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/depth", 10);
     ros::Subscriber sub;
     
     // For DasomCam
@@ -44,8 +48,12 @@ int main(int argc, char **argv)
 
     sensor_msgs::JointState joint_states;
 
+    Eigen::Vector2d point;
+
+    point << 800, 400;
+
     // For DasomRealSense
-    DasomRealSense ds_rs_;
+    DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
 
     // For DasomCam
     DasomCam ds_cam_(pub, 0);
@@ -56,7 +64,8 @@ int main(int argc, char **argv)
     while (ros::ok())
     {   
         // For DasomRealSense
-        ds_rs_.test();
+        // ds_rs_.test();
+        ds_rs_.updateCamera();
 
         // For DasomCam
         // ds_cam_.UpdateCamera(0, 0, 0);

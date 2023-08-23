@@ -20,10 +20,10 @@ int main(int argc, char** argv)
 
     rs2::device dev = dev_list[0];  // 첫 번째 디바이스 사용
 
-    while(ros::ok())
-    {
-        ROS_INFO("PASS");
-    }
+    // while(ros::ok())
+    // {
+    //     ROS_INFO("PASS");
+    // }
 
     // MyRealSenseNode my_node(nh, pnh, dev, dev.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER));
 
@@ -32,59 +32,59 @@ int main(int argc, char** argv)
 
     // ros::spin();
 
-    // // Create a RealSense pipeline and configuration
-    // rs2::pipeline pipe;
-    // rs2::config cfg;
+    // Create a RealSense pipeline and configuration
+    rs2::pipeline pipe;
+    rs2::config cfg;
 
-    // cfg.enable_stream(rs2_stream::RS2_STREAM_COLOR, RS2_FORMAT_BGR8, 30); // Enable color stream
-    // cfg.enable_stream(rs2_stream::RS2_STREAM_DEPTH, RS2_FORMAT_Z16, 30); // Enable depth stream
+    cfg.enable_stream(rs2_stream::RS2_STREAM_COLOR, RS2_FORMAT_BGR8, 30); // Enable color stream
+    cfg.enable_stream(rs2_stream::RS2_STREAM_DEPTH, RS2_FORMAT_Z16, 30); // Enable depth stream
 
-    // // Start streaming
-    // pipe.start(cfg);
-
-
-//     ROS_INFO("AAA");
-
-//     try 
-//     {  ROS_INFO("BBB");
+    // Start streaming
+    pipe.start(cfg);
 
 
-//         while (ros::ok()) 
-//         {ROS_INFO("CCC");
-//             // rs2::frameset c_frames = pipe.wait_for_frames();
-//             rs2::frameset frames = pipe.wait_for_frames();
-// ROS_INFO("DDD");
-//             // Get the color frame
-//             rs2::video_frame color_frame = frames.get_color_frame(); // Get color frame
-//             rs2::depth_frame depth_frame = frames.get_depth_frame(); // Get depth frame
-// ROS_INFO("EEE");
-//             if(!color_frame || !depth_frame)
-//             {
-//                 ROS_INFO("FFF");
-//                 // Create a ROS sensor_msgs::Image message
-//                 sensor_msgs::ImagePtr msg = boost::make_shared<sensor_msgs::Image>();
+    ROS_INFO("AAA");
 
-//                 msg->header.stamp = ros::Time::now();
-//                 msg->header.frame_id = "camera_frame";
-//                 msg->height = color_frame.get_height();
-//                 msg->width = color_frame.get_width();
-//                 msg->encoding = "bgr8";  // BGR 8-bit encoding
-//                 msg->step = color_frame.get_stride_in_bytes();
-//                 msg->data.resize(color_frame.get_height() * color_frame.get_stride_in_bytes());
-//                 std::memcpy(msg->data.data(), color_frame.get_data(), msg->data.size());
+    try 
+    {  ROS_INFO("BBB");
 
-//                 // Publish the image message
-//                 image_pub.publish(msg);
 
-//                 // Get the depth value at a specific pixel (x, y)
-//                 int x = 320; // Example pixel coordinates
-//                 int y = 240;
-//                 float depth_meters = depth_frame.get_distance(x, y); // Get depth in meters
+        while (ros::ok()) 
+        {ROS_INFO("CCC");
+            // rs2::frameset c_frames = pipe.wait_for_frames();
+            rs2::frameset frames = pipe.wait_for_frames();
+ROS_INFO("DDD");
+            // Get the color frame
+            rs2::video_frame color_frame = frames.get_color_frame(); // Get color frame
+            rs2::depth_frame depth_frame = frames.get_depth_frame(); // Get depth frame
+ROS_INFO("EEE");
+            if(!color_frame || !depth_frame)
+            {
+                ROS_INFO("FFF");
+                // Create a ROS sensor_msgs::Image message
+                sensor_msgs::ImagePtr msg = boost::make_shared<sensor_msgs::Image>();
 
-//                 // Print the distance in meters
-//                 std::cout << "Distance at (" << x << ", " << y << "): " << depth_meters << " meters" << std::endl;
+                msg->header.stamp = ros::Time::now();
+                msg->header.frame_id = "camera_frame";
+                msg->height = color_frame.get_height();
+                msg->width = color_frame.get_width();
+                msg->encoding = "bgr8";  // BGR 8-bit encoding
+                msg->step = color_frame.get_stride_in_bytes();
+                msg->data.resize(color_frame.get_height() * color_frame.get_stride_in_bytes());
+                std::memcpy(msg->data.data(), color_frame.get_data(), msg->data.size());
+
+                // Publish the image message
+                image_pub.publish(msg);
+
+                // Get the depth value at a specific pixel (x, y)
+                int x = 320; // Example pixel coordinates
+                int y = 240;
+                float depth_meters = depth_frame.get_distance(x, y); // Get depth in meters
+
+                // Print the distance in meters
+                std::cout << "Distance at (" << x << ", " << y << "): " << depth_meters << " meters" << std::endl;
            
-//             }
+            }
 
 //             // if(depth_frame)
 //             // {
@@ -101,13 +101,13 @@ int main(int argc, char** argv)
 
 
 //             ros::spinOnce();
-//         }
-//     } 
+        }
+    } 
     
-//     catch (const rs2::error &e) 
-//     {
-//         std::cerr << "RealSense error: " << e.what() << std::endl;
-//     }
+    catch (const rs2::error &e) 
+    {
+        std::cerr << "RealSense error: " << e.what() << std::endl;
+    }
 
     return 0;
 }
