@@ -15,5 +15,8 @@
   <exec_depend>orocos_kdl</exec_depend>
   <depend>cv_bridge</depend>
   <depend>opencv2</depend>
+  <depend>realsense2_camera</depend>
+  <depend>ddynamic_reconfigure</depend>
+  <depend>diagnostic_updater</depend>
 
 </package>

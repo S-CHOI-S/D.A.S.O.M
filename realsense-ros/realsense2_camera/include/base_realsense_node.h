@@ -1,5 +1,7 @@
 // License: Apache 2.0. See LICENSE file in root directory.
 // Copyright(c) 2018 Intel Corporation. All Rights Reserved
+#ifndef BASE_REALSENSE_NODE_H
+#define BASE_REALSENSE_NODE_H
 
 #pragma once
 
@@ -343,3 +345,4 @@ namespace realsense2_camera
 
 }
 
+#endif // BASE_REALSENSE_NODE_H

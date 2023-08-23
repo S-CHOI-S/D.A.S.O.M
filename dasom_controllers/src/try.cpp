@@ -16,6 +16,7 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
+#include <dasom_toolbox/dasom_realsense_d435i.h>
 #include <dasom_toolbox/dasom_camera.h>
 #include <dasom_toolbox/dasom_tf2.h>
 #include <visualization_msgs/Marker.h>
@@ -43,6 +44,9 @@ int main(int argc, char **argv)
 
     sensor_msgs::JointState joint_states;
 
+    // For DasomRealSense
+    DasomRealSense ds_rs_;
+
     // For DasomCam
     DasomCam ds_cam_(pub, 0);
 
@@ -51,6 +55,9 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {   
+        // For DasomRealSense
+        ds_rs_.test();
+
         // For DasomCam
         // ds_cam_.UpdateCamera(0, 0, 0);
         
@@ -92,14 +99,14 @@ int main(int argc, char **argv)
 
         i++;
 
-        ROS_ERROR("i: %lf", i);
+        // ROS_ERROR("i: %lf", i);
         if(i > 157) break;
 
-        ROS_INFO("joint1: %lf", joint1);
-        ROS_INFO("joint2: %lf", joint2);
-        ROS_INFO("joint3: %lf", joint3);
-        ROS_INFO("joint4: %lf", joint4);
-        ROS_WARN("==========================");
+        // ROS_INFO("joint1: %lf", joint1);
+        // ROS_INFO("joint2: %lf", joint2);
+        // ROS_INFO("joint3: %lf", joint3);
+        // ROS_INFO("joint4: %lf", joint4);
+        // ROS_WARN("==========================");
 
         ros::spinOnce();
         loop_rate.sleep();

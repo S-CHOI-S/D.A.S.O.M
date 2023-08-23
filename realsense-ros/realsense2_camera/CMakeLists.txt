@@ -104,12 +104,6 @@ catkin_package(
     pcl_ros
     )
 
-add_executable(d435i_try src/d435i_try.cpp)
-add_dependencies(d435i_try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(d435i_try ${realsense2_LIBRARY}
-    ${catkin_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT} ${PCL_INCLUDE_DIRS})
-
 add_library(${PROJECT_NAME}
     include/constants.h
     include/realsense_node_factory.h
@@ -124,13 +118,24 @@ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 
 target_include_directories(${PROJECT_NAME}
-  PRIVATE ${realsense2_INCLUDE_DIR})
+  PRIVATE ${realsense2_INCLUDE_DIR}
+## ADD
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  )
 
 target_link_libraries(${PROJECT_NAME}
     ${realsense2_LIBRARY}
     ${catkin_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
     )
+
+add_executable(d435i_try src/d435i_try.cpp)
+add_dependencies(d435i_try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(d435i_try ${realsense2_LIBRARY}
+    ${catkin_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT} ${PCL_INCLUDE_DIRS})
 
 if(WIN32)
 set_target_properties(${realsense2_LIBRARY} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
@@ -143,9 +148,13 @@ endif()
 
 # Install nodelet library
 install(TARGETS ${PROJECT_NAME}
+    ## ADD
+    EXPORT ${PROJECT_NAME}-targets
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+    ## ADD
+    INCLUDES DESTINATION include
     )
 
 # Install header files
@@ -167,4 +176,11 @@ install(DIRECTORY rviz/
 install(FILES nodelet_plugins.xml
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
     )
+
+# Export the package for use from the build-tree
+# (this registers the build-tree with a global CMake-registry)
+export(EXPORT ${PROJECT_NAME}-targets
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake"
+    NAMESPACE ${PROJECT_NAME}::
+)
 
