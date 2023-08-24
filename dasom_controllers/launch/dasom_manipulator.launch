@@ -1,6 +1,6 @@
 <launch>
   <include file="$(find omni_common)/launch/omni_state.launch"/>
-  <include file="$(find setting_tf2)/launch/tf2_setting.launch"/>
+  <include file="$(find setting_tf2)/launch/tf2_setting.launch" />
 
 
 <!--For DoB&Current based position control-->

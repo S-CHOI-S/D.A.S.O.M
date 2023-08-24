@@ -303,7 +303,7 @@ int main(int argc, char **argv)
 {
     // Init ROS node
     ros::init(argc, argv, "haptic_inst");
-    // ros::NodeHandle nh;
+    ros::NodeHandle nh;
     // ros::Publisher haptic_cmd_ = nh.advertise<geometry_msgs::Twist>("/instead_haptic",10);
     HI hi;
     ros::Rate loop_rate(250);
@@ -311,10 +311,13 @@ int main(int argc, char **argv)
     // geometry_msgs::Twist msg;
     // double i = 0;
 
+    nh.setParam("/haptic_node_started", true);
+    ROS_WARN("Haptic Device is running!");   
+
     while(ros::ok())
     {
-        hi.CommandGenerator();
-        hi.solveInverseKinematics();
+        // hi.CommandGenerator();
+        // hi.solveInverseKinematics();
 
         // msg.linear.x = 0 +0.1*sin(i/1000);
         // msg.linear.y = -0.05; // y축 방향으로 안정적인 거 확인!
@@ -326,8 +329,8 @@ int main(int argc, char **argv)
         // haptic_cmd_.publish(msg);
 
         // i++;
-
-        ros::spinOnce();
+ROS_INFO("X_cmd = %lf",0);
+        ros::spin();
 	    loop_rate.sleep();
     }
     

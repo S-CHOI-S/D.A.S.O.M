@@ -389,6 +389,9 @@ void *ros_publish(void *ptr) {
   ros::AsyncSpinner spinner(2);
   spinner.start();
 
+  ros::param::set("haptic_node_started", true);
+  ROS_WARN("Haptic Device is running!");
+
   while (ros::ok()) {
     omni_ros->publish_omni_state();
     loop_rate.sleep();
@@ -396,7 +399,8 @@ void *ros_publish(void *ptr) {
   return NULL;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) 
+{
   ////////////////////////////////////////////////////////////////
   // Init Phantom
   ////////////////////////////////////////////////////////////////
@@ -423,6 +427,7 @@ int main(int argc, char** argv) {
   // Init ROS
   ////////////////////////////////////////////////////////////////
   ros::init(argc, argv, "omni_haptic_node");
+  ros::NodeHandle nh;
   OmniState state;
   PhantomROS omni_ros;
 

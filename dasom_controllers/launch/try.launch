@@ -1,5 +1,6 @@
 <launch>
-  <include file="$(find dasom_description)/launch/dasom_manipulator.launch"/>
+
+  <node name="haptic_inst" pkg="dasom_controllers" type="haptic_inst" required="true"/>  
 
   <node name="try" pkg="dasom_controllers" type="try" required="true" output="screen"/>
 

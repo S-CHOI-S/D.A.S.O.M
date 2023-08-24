@@ -41,6 +41,10 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
+    ROS_WARN("try node start!");
+
+    // nh.setParam("/dasom_rviz_started", true);
+
     // ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
     ros::Publisher rs_c_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/color", 10);
     ros::Publisher rs_d_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/depth", 10);
@@ -148,10 +152,10 @@ int main(int argc, char **argv)
         // ROS_INFO("joint2: %lf", joint2);
         // ROS_INFO("joint3: %lf", joint3);
         // ROS_INFO("joint4: %lf", joint4);
-        // ROS_WARN("==========================");
+        ROS_WARN("==========================");
 
-        ros::spinOnce();
-        loop_rate.sleep();
+        // ros::spinOnce();
+        // loop_rate.sleep();
         
     }
 
