@@ -163,9 +163,12 @@ void DasomRealSense::DrawPoint2ColorFrame(rs2::video_frame frame)
   // Convert rs2::video_frame to OpenCV Mat
   cv::Mat color_mat(cv::Size(frame.get_width(), frame.get_height()), CV_8UC3, (void*)frame.get_data(), cv::Mat::AUTO_STEP);
 
-  cv::circle(color_mat, cv::Point(distance_point[0], distance_point[1]), 10, red, -1);
+  distance_x = map(distance_point[0], 0, 848, 0, 1920);
+  distance_y = map(distance_point[1], 0, 480, 0, 1080);
 
-  cv::putText(color_mat, "distance", cv::Point(distance_point[0] - 70, distance_point[1] + 40), 3, 1, red, 2, 8);
+  cv::circle(color_mat, cv::Point(distance_x, distance_y), 10, red, -1);
+
+  cv::putText(color_mat, "distance", cv::Point(distance_x - 70, distance_y + 40), 3, 1, red, 2, 8);
 }
 
 void DasomRealSense::DrawPoint2DepthFrame(rs2::depth_frame frame)

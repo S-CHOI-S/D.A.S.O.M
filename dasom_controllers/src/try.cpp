@@ -49,8 +49,8 @@ int main(int argc, char **argv)
     ros::Subscriber sub;
     
     // For DasomCam
-    // image_transport::ImageTransport it(nh);
-    // image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
+    image_transport::ImageTransport it(nh);
+    image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
 
     ros::Rate loop_rate(200);
 
@@ -61,19 +61,19 @@ int main(int argc, char **argv)
 
     // sensor_msgs::JointState joint_states;
 
-    // Eigen::Vector2d point;
+    Eigen::Vector3d point;
 
-    // point << 800, 400;
+    point << 0, 0, 0;
 
     // For DasomLPF
-    DasomLPF ds_lpf_(8);
-    DasomLPF ds_lpf_2(8);
+    // DasomLPF ds_lpf_(8);
+    // DasomLPF ds_lpf_2(8);
 
-    // For DasomRealSense
+    //For DasomRealSense
     // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
 
     // For DasomCam
-    // DasomCam ds_cam_(pub, 0);
+    DasomCam ds_cam_(pub, 0);
 
     // // For DasomTF2
     // DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
@@ -82,25 +82,26 @@ int main(int argc, char **argv)
     while (ros::ok())
     {   
         // For DasomLPF
-        geometry_msgs::Twist msg;
-        law_data = 0.1*sin(50 * i * i - i) + 10 * sin(0.005 * 3.14 * 2 / 4 * i);
+        // geometry_msgs::Twist msg;
+        // law_data = 0.1*sin(50 * i * i - i) + 10 * sin(0.005 * 3.14 * 2 / 4 * i);
 
-        raw_data = 0.1*cos(50 * i * i - i) + 10 * cos(0.005 * 3.14 * 2 / 4 * i);
-        // msg.header.stamp = ros::Time::now();
-        msg.linear.x = ds_lpf_.updateLPF(0.005, law_data);
-        msg.linear.y = law_data;
+        // raw_data = 0.1*cos(50 * i * i - i) + 10 * cos(0.005 * 3.14 * 2 / 4 * i);
+        // // msg.header.stamp = ros::Time::now();
+        // msg.linear.x = ds_lpf_.updateLPF(0.005, law_data);
+        // msg.linear.y = law_data;
 
-        msg.angular.x = ds_lpf_2.updateLPF(0.005, raw_data);
-        msg.angular.y = raw_data;
+        // msg.angular.x = ds_lpf_2.updateLPF(0.005, raw_data);
+        // msg.angular.y = raw_data;
 
-        joint_pub.publish(msg);
+        // joint_pub.publish(msg);
 
         // For DasomRealSense
         // ds_rs_.test();
         // ds_rs_.updateCamera();
 
         // For DasomCam
-        // ds_cam_.UpdateCamera(0, 0, 0);
+        ds_cam_.UpdateCameraCommand(point);
+        // ds_cam_.DetectLightBulb();
         
         //update joint_state
         // joint_states.header.stamp = ros::Time::now();

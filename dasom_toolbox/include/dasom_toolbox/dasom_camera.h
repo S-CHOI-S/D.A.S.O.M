@@ -43,6 +43,7 @@ class DasomCam
 
   bool gimbalcommand_safe = false;
   
+  void DetectLightBulb();
   void UpdateCameraCommand(Eigen::Vector3d core);
   void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
   void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
@@ -59,7 +60,7 @@ class DasomCam
   int i = 0;
 
   void initCamera(int cam_num);
-  void DetectLightBulb();
+  //void DetectLightBulb();
 
 };
 

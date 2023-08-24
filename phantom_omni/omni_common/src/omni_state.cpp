@@ -30,10 +30,12 @@
 #include <tf2_msgs/TFMessage.h>
 #include "tf/transform_datatypes.h"
 
-#include <cstdlib>
-
 double prev_time;
 int calibrationStyle;
+
+geometry_msgs::PoseStamped pose_msg_i;
+geometry_msgs::Twist xyzrpy;
+
 
 struct OmniState {
   hduVector3Dd position;  //3x1 vector of position
@@ -95,7 +97,7 @@ public:
     std::string force_feedback_topic = std::string(stream3.str());
     haptic_sub = n.subscribe(force_feedback_topic.c_str(), 1, &PhantomROS::force_callback, this, ros::TransportHints().tcpNoDelay());
 
-    //Publish on NAME/pose  //이거 쓰자
+    //Publish on NAME/pose  //이거쓰자
     std::ostringstream stream4;
     stream4 << omni_name << "/pose";
     std::string pose_topic_name = std::string(stream4.str());
@@ -220,20 +222,21 @@ public:
 
     pose_publisher.publish(pose_msg);
 
-
-
-    //Build the joysitck command msg
-    geometry_msgs::Twist xyzrpy;
-    xyzrpy.linear.x = pose_msg.pose.position.x;
-    xyzrpy.linear.y = pose_msg.pose.position.y - 0.0855954589844;
-    xyzrpy.linear.z = pose_msg.pose.position.z + 0.0979452972412;
+    // Build the joysitck command msg
+    if(abs(pose_msg.pose.position.x - pose_msg_i.pose.position.x) < 0.01) xyzrpy.linear.x = pose_msg.pose.position.x;
+    if(abs(pose_msg.pose.position.y - pose_msg_i.pose.position.y) < 0.01) xyzrpy.linear.y = pose_msg.pose.position.y - 0.0855954589844;
+    if(abs(pose_msg.pose.position.z - pose_msg_i.pose.position.z) < 0.01) xyzrpy.linear.z = pose_msg.pose.position.z + 0.0979452972412;
     tf::Quaternion quat;
     tf::quaternionMsgToTF(state_msg.pose.orientation, quat);
     tf::Matrix3x3(quat).getRPY(xyzrpy.angular.y, xyzrpy.angular.x, xyzrpy.angular.z);
     xyzrpy.angular.x = (-xyzrpy.angular.x + 1.20787740832)/2;
     xyzrpy.angular.y = (-xyzrpy.angular.y)/2;
     xyzrpy.angular.z = (xyzrpy.angular.z + 1.61819366374)/2;
-    xyzrpy_publisher.publish(xyzrpy);      
+
+    pose_msg_i = pose_msg;
+
+    xyzrpy_publisher.publish(xyzrpy);
+      
 
     if ((state->buttons[0] != state->buttons_prev[0])
         or (state->buttons[1] != state->buttons_prev[1]))
@@ -305,11 +308,9 @@ HDCallbackCode HDCALLBACK omni_state_callback(void *pUserData)
   //~ }
   hduVector3Dd feedback;
   // Notice that we are changing Y <---> Z and inverting the Z-force_feedback
-
-  // Force Feedback
-  feedback[0] = omni_state->force[0]; // X 방향
-  feedback[1] = omni_state->force[2]; // -Z 방향
-  feedback[2] = -omni_state->force[1]; // Y 방향
+  feedback[0] = omni_state->force[0];
+  feedback[1] = omni_state->force[2];
+  feedback[2] = -omni_state->force[1];
   hdSetDoublev(HD_CURRENT_FORCE, feedback);
 
   //Get buttons

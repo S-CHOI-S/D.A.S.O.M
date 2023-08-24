@@ -55,6 +55,14 @@ class DasomRealSense
 
   Eigen::Vector2d distance_point;
 
+  double map(double input_data, double input_min, double input_max, double output_min, double output_max)
+  {
+    return (input_data - input_min) * (output_max - output_min) / (input_max - input_min) + output_min;
+  }
+
+  double distance_x;
+  double distance_y;
+
   void ColorFrame();
   void DepthFrame();
   void Point2Distance(rs2::depth_frame frame, Eigen::Vector2d point);
