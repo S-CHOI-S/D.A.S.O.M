@@ -26,7 +26,7 @@ DasomCam::DasomCam(image_transport::Publisher& publisher, int cam_num_)
 
 DasomCam::~DasomCam()
 {
-  
+  cam_pub_.shutdown();
 }
 
 void DasomCam::test()

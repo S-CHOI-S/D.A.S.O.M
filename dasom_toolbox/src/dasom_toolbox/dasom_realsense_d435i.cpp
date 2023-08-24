@@ -40,7 +40,8 @@ DasomRealSense::DasomRealSense(Eigen::Vector2d depth_point, ros::Publisher& c_pu
 
 DasomRealSense::~DasomRealSense()
 {
-  
+  color_pub.shutdown();
+  depth_pub.shutdown();
 }
 
 void DasomRealSense::test()

@@ -18,98 +18,130 @@
 #include "sensor_msgs/JointState.h"
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
+#include <dasom_toolbox/dasom_lpf.h>
 #include <dasom_toolbox/dasom_realsense_d435i.h>
 #include <dasom_toolbox/dasom_camera.h>
 #include <dasom_toolbox/dasom_tf2.h>
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/Point.h>
+#include <geometry_msgs/Twist.h>
 
 #define PI 3.141592
+
+double joint = 0;
+double joint2 = 0;
+double i = 0;
+void Callback(const sensor_msgs::JointState &msg)
+{
+    joint = msg.effort[0];
+    joint2 = msg.effort[1] + 0.1*sin(3.14 * i * i - i);
+}
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
-    ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
+    // ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
     ros::Publisher rs_c_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/color", 10);
     ros::Publisher rs_d_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/depth", 10);
+    ros::Publisher joint_pub = nh.advertise<geometry_msgs::Twist>("/joint1", 100);
+    ros::Subscriber subs_ = nh.subscribe("/dasom/joint_states", 10, Callback);
     ros::Subscriber sub;
     
     // For DasomCam
-    image_transport::ImageTransport it(nh);
-    image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
+    // image_transport::ImageTransport it(nh);
+    // image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
 
-    ros::Rate loop_rate(20);
+    ros::Rate loop_rate(200);
 
-    double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
-           base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
-    double i = 0;
-    double t = 0;
+    // double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
+    //        base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
+    // double i = 0;
+    // double t = 0;
 
-    sensor_msgs::JointState joint_states;
+    // sensor_msgs::JointState joint_states;
 
-    Eigen::Vector2d point;
+    // Eigen::Vector2d point;
 
-    point << 800, 400;
+    // point << 800, 400;
+
+    // For DasomLPF
+    DasomLPF ds_lpf_(8);
+    DasomLPF ds_lpf_2(8);
 
     // For DasomRealSense
-    DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
+    // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
 
     // For DasomCam
-    DasomCam ds_cam_(pub, 0);
+    // DasomCam ds_cam_(pub, 0);
 
-    // For DasomTF2
-    DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
-
+    // // For DasomTF2
+    // DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
+    double law_data = 0;
+    double raw_data = 0;
     while (ros::ok())
     {   
+        // For DasomLPF
+        geometry_msgs::Twist msg;
+        law_data = 0.1*sin(50 * i * i - i) + 10 * sin(0.005 * 3.14 * 2 / 4 * i);
+
+        raw_data = 0.1*cos(50 * i * i - i) + 10 * cos(0.005 * 3.14 * 2 / 4 * i);
+        // msg.header.stamp = ros::Time::now();
+        msg.linear.x = ds_lpf_.updateLPF(0.005, law_data);
+        msg.linear.y = law_data;
+
+        msg.angular.x = ds_lpf_2.updateLPF(0.005, raw_data);
+        msg.angular.y = raw_data;
+
+        joint_pub.publish(msg);
+
         // For DasomRealSense
         // ds_rs_.test();
-        ds_rs_.updateCamera();
+        // ds_rs_.updateCamera();
 
         // For DasomCam
         // ds_cam_.UpdateCamera(0, 0, 0);
         
         //update joint_state
-        joint_states.header.stamp = ros::Time::now();
-        joint_states.name.resize(9);
-        joint_states.position.resize(9);
-        joint_states.name[0] = "id_1";
-        joint_states.position[0] = joint1;
-        joint_states.name[1] = "id_2";
-        joint_states.position[1] = joint2;
-        joint_states.name[2] = "id_3";
-        joint_states.position[2] = joint3;
-        joint_states.name[3] = "id_4";
-        joint_states.position[3] = joint4;
-        joint_states.name[4] = "id_5";
-        joint_states.position[4] = joint5;
-        joint_states.name[5] = "id_6";
-        joint_states.position[5] = joint6;
-        joint_states.name[6] = "base_joint_X";
-        joint_states.position[6] = base_joint_X;
-        joint_states.name[7] = "base_joint_Y";
-        joint_states.position[7] = base_joint_Y;
-        joint_states.name[8] = "base_joint_Z";
-        joint_states.position[8] = base_joint_Z;
+        // joint_states.header.stamp = ros::Time::now();
+        // joint_states.name.resize(9);
+        // joint_states.position.resize(9);
+        // joint_states.name[0] = "id_1";
+        // joint_states.position[0] = joint1;
+        // joint_states.name[1] = "id_2";
+        // joint_states.position[1] = joint2;
+        // joint_states.name[2] = "id_3";
+        // joint_states.position[2] = joint3;
+        // joint_states.name[3] = "id_4";
+        // joint_states.position[3] = joint4;
+        // joint_states.name[4] = "id_5";
+        // joint_states.position[4] = joint5;
+        // joint_states.name[5] = "id_6";
+        // joint_states.position[5] = joint6;
+        // joint_states.name[6] = "base_joint_X";
+        // joint_states.position[6] = base_joint_X;
+        // joint_states.name[7] = "base_joint_Y";
+        // joint_states.position[7] = base_joint_Y;
+        // joint_states.name[8] = "base_joint_Z";
+        // joint_states.position[8] = base_joint_Z;
 
-        t = i / 100;
-        joint1 = t;
-        joint2 = 1 + t;
-        joint3 = -t;
-        joint4 = t;
-        joint5 = 0;
-        joint6 = 0;
-        base_joint_X = sin(4*t-PI);
-        base_joint_Y = sin(4*t-PI);
-        base_joint_Z = sin(2*t);
+        // t = i / 100;
+        // joint1 = t;
+        // joint2 = 1 + t;
+        // joint3 = -t;
+        // joint4 = t;
+        // joint5 = 0;
+        // joint6 = 0;
+        // base_joint_X = sin(4*t-PI);
+        // base_joint_Y = sin(4*t-PI);
+        // base_joint_Z = sin(2*t);
 
-        joint_pub.publish(joint_states);
+        // joint_pub.publish(joint_states);
 
         i++;
 
         // ROS_ERROR("i: %lf", i);
-        if(i > 157) break;
+        // if(i > 157) break;
 
         // ROS_INFO("joint1: %lf", joint1);
         // ROS_INFO("joint2: %lf", joint2);

@@ -8,10 +8,10 @@
   <arg name="profile_velocity"           default="200"/>
   <arg name="profile_acceleration"       default="50"/>
 
-  <arg name="position_p_gain"		 default="800"/>
+  <arg name="position_p_gain"		 default="0"/>
   <arg name="position_i_gain"		 default="0"/>
   <arg name="position_d_gain"		 default="0"/>
-  <arg name="feedforward_1st_gain"	 default="200"/>
+  <arg name="feedforward_1st_gain"	 default="0"/>
   <arg name="feedforward_2nd_gain"	 default="0"/>
 
   <param name="robot_name"               value="$(arg robot_name)"/>
