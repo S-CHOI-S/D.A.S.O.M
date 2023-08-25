@@ -62,12 +62,16 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 
   gimbalcommand_safe = false;
 
+  DetectLightBulb();
+
   // circle(frame, core, radius, color, thickness, line type, shift);
   circle(frame, cv::Point(250 - core[0], 250 - core[2]), 150 - core[1], cv::Scalar(255,0,0), 3, 4, 0);
   
   // line(frame, point1, point2, color, thickness, line type, shift);
   line(frame, cv::Point(230 - core[0], 250 - core[2]), cv::Point(270 - core[0], 250 - core[2]), cv::Scalar::all(255), 3, 4, 0);
   line(frame, cv::Point(250 - core[0], 230 - core[2]), cv::Point(250 - core[0], 270 - core[2]), cv::Scalar::all(255), 3, 4, 0);
+
+  imshow("detect",frame);
 
   if(!frame.empty())
   {
@@ -168,7 +172,7 @@ void DasomCam::DetectLightBulb()
 
   cv::Mat lightbulb_mask, lightbulb_frame;
 
-  cv::Scalar lower_lightbulb = cv::Scalar(15,30,85);
+  cv::Scalar lower_lightbulb = cv::Scalar(15,30,100);
   cv::Scalar upper_lightbulb = cv::Scalar(75,255,255);
 
   cv::inRange(frame_hsv, lower_lightbulb, upper_lightbulb, lightbulb_mask);
@@ -177,7 +181,30 @@ void DasomCam::DetectLightBulb()
   cv::erode(lightbulb_mask, frame_erode, cv::Mat(), cv::Point(-1,-1), 5);
   cv::dilate(frame_erode, frame_dilate, cv::Mat(), cv::Point(-1,-1), 2);
 
-  // ROS_WARN("Detect!");
+  std::vector<std::vector<cv::Point>> contours;
+            std::vector<cv::Vec4i> hierarchy;
+            cv::findContours(frame_dilate, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+
+            if (!contours.empty()) {
+                for (size_t i = 0; i < contours.size(); ++i) {
+                    double area = cv::contourArea(contours[i]);
+                    if (area > 3000) {
+                        cv::RotatedRect rect = cv::minAreaRect(contours[i]);
+                        cv::Point2f boxPoints[4];
+                        rect.points(boxPoints);
+                        // cv::Point pointb(boxPoints[0], boxPoints[1]);
+                        for (int j = 0; j < 4; ++j) {
+                            cv::line(frame, boxPoints[j], boxPoints[(j + 1) % 4], cv::Scalar(0, 0, 255), 2);
+                            // cv::putText(frame, "light bulb",pointb, 3, 0.7, red, 1, 8);
+                        }
+
+                        // 중심 좌표를 이용하여 텍스트 위치 계산
+                        cv::Point2f center = rect.center;
+                        cv::putText(frame, "light bulb", cv::Point(center.x - 40, center.y), cv::FONT_HERSHEY_SIMPLEX, 0.5, red, 2);
+                    }
+                }
+            }
+  ROS_WARN("Detect!");
   // imshow("yellow", lightbulb_frame);
   // imshow("detect",frame_dilate);
 }

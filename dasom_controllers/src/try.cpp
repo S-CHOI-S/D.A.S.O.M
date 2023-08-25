@@ -152,7 +152,7 @@ int main(int argc, char **argv)
         // ROS_INFO("joint2: %lf", joint2);
         // ROS_INFO("joint3: %lf", joint3);
         // ROS_INFO("joint4: %lf", joint4);
-        ROS_WARN("==========================");
+        // ROS_WARN("==========================");
 
         // ros::spinOnce();
         // loop_rate.sleep();
