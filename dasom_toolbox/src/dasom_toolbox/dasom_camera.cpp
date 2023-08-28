@@ -62,7 +62,7 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 
   gimbalcommand_safe = false;
 
-  DetectLightBulb();
+  // DetectLightBulb();
 
   // circle(frame, core, radius, color, thickness, line type, shift);
   circle(frame, cv::Point(250 - core[0], 250 - core[2]), 150 - core[1], cv::Scalar(255,0,0), 3, 4, 0);
