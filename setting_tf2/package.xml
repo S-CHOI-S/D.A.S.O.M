@@ -61,6 +61,7 @@
   <exec_depend>tf2</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>omni_common</exec_depend>
+  <depend>dasom_toolbox</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

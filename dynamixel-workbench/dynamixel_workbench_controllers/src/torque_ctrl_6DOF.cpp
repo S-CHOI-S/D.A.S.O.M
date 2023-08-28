@@ -19,7 +19,7 @@
 #include "dynamixel_workbench_controllers/torque_ctrl_6DOF.h"
 
 TorqueControl::TorqueControl()
-    :node_handle_("")
+:node_handle_("")
 {
   std::string device_name   = node_handle_.param<std::string>("device_name", "/dev/ttyUSB0");
   uint32_t dxl_baud_rate    = node_handle_.param<int>("baud_rate", 3000000);
@@ -30,7 +30,12 @@ TorqueControl::TorqueControl()
   double position_i_gain	= node_handle_.param<double>("position_i_gain", 0);
   double position_d_gain	= node_handle_.param<double>("position_d_gain", 0);
 
+  double position_p_gain_2nd	= node_handle_.param<double>("position_p_gain_2nd", 800);
+  double position_i_gain_2nd	= node_handle_.param<double>("position_i_gain_2nd", 0);
+  double position_d_gain_2nd	= node_handle_.param<double>("position_d_gain_2nd", 0);  
+
   dxl_wb_ = new DynamixelWorkbench;
+  initpose(); // ADD 이거 실행되면 true로 바뀜
 
   dxl_wb_->begin(device_name.c_str(), dxl_baud_rate);
   
@@ -43,12 +48,12 @@ TorqueControl::TorqueControl()
 
   initMsg();
 
-  // for (int index = 0; index < dxl_cnt_; index++)
-  // {
-  //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
-  //   dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
-  //   dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
-  // }
+  for (int index = 0; index < dxl_cnt_; index++)
+  {
+    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
+    dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
+    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
+  }
 
   dxl_wb_->addSyncWrite("Goal_Position");
   dxl_wb_->addSyncRead("Present_Position");
@@ -60,6 +65,16 @@ TorqueControl::TorqueControl()
     dxl_wb_->itemWrite(dxl_id_[index], "Position_I_Gain", position_i_gain);
     dxl_wb_->itemWrite(dxl_id_[index], "Position_D_Gain", position_d_gain);
   }
+
+
+    dxl_wb_->itemWrite(dxl_id_[1], "Position_P_Gain", position_p_gain_2nd);
+    dxl_wb_->itemWrite(dxl_id_[1], "Position_I_Gain", position_i_gain_2nd);
+    dxl_wb_->itemWrite(dxl_id_[1], "Position_D_Gain", position_d_gain_2nd);
+
+    dxl_wb_->itemWrite(dxl_id_[2], "Position_P_Gain", position_p_gain_2nd);
+    dxl_wb_->itemWrite(dxl_id_[2], "Position_I_Gain", position_i_gain_2nd);
+    dxl_wb_->itemWrite(dxl_id_[2], "Position_D_Gain", position_d_gain_2nd);
+
 
   initPublisher();
   initSubscriber();
@@ -94,9 +109,6 @@ void TorqueControl::initMsg()
 void TorqueControl::initPublisher()
 {
   joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/joint_states", 10);
-  forwardkinematics_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/EE_pose", 10);
-
-  test_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/test", 10);
 }
 
 void TorqueControl::initSubscriber()
@@ -168,12 +180,12 @@ void TorqueControl::jointStatePublish()
   dynamixel_.effort.push_back(0);
 
   joint_states_pub_.publish(dynamixel_);
-  ROS_INFO("X = %lf", base_joint_X);
-  ROS_INFO("Y = %lf", base_joint_Y);
-  ROS_INFO("Z = %lf", base_joint_Z);
-  ROS_INFO("r = %lf", base_joint_r);
-  ROS_INFO("p = %lf", base_joint_p);
-  ROS_INFO("y = %lf", base_joint_y);
+  // ROS_INFO("X = %lf", base_joint_X);
+  // ROS_INFO("Y = %lf", base_joint_Y);
+  // ROS_INFO("Z = %lf", base_joint_Z);
+  // ROS_INFO("r = %lf", base_joint_r);
+  // ROS_INFO("p = %lf", base_joint_p);
+  // ROS_INFO("y = %lf", base_joint_y);
 
 }
 
@@ -202,11 +214,9 @@ void TorqueControl::paletroneCallback(const geometry_msgs::PoseStamped &msg)
   tf::Matrix3x3(quat).getRPY(base_joint_r, base_joint_p, base_joint_y);
 }
 
-void TorqueControl::Test()
-// 필요할 때 잠깐 쓸 수 있게 만들어 놓음(현재 사용하는 용도 없음)
+void TorqueControl::initpose()
 {
-  
-  
+  node_handle_.setParam("/init", true); // ADD 이것도 이름 바꾸셔요
 }
 
 int main(int argc, char **argv)
@@ -215,7 +225,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "torque_ctrl_6DOF");
   TorqueControl torque_ctrl;
 
-  ros::Rate loop_rate(250);
+  ros::Rate loop_rate(100);
 
   while (ros::ok())
   {

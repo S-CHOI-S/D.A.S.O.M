@@ -9,6 +9,8 @@
   <arg name="pan_id"                   default="1"/>
   <arg name="tilt_id"                  default="2"/>
 
+<arg name="init"                  default="false"/>
+
 <!--ADD-->
   <arg name="position_p_gain"	       default="1000"/>
   <arg name="position_i_gain" 	       default="0"/>
@@ -24,6 +26,8 @@
 
   <param name="scan_range"             value="$(arg scan_range)"/>
 
+  <param name="init"             value="$(arg init)"/>
+
   <param name="position_p_gain"	       value="$(arg position_p_gain)"/>
   <param name="position_i_gain"	       value="$(arg position_i_gain)"/>
   <param name="position_d_gain"	       value="$(arg position_d_gain)"/>
@@ -34,4 +38,7 @@
 
 
   <node name="torque_ctrl_6DOF" pkg="dynamixel_workbench_controllers" type="torque_ctrl_6DOF" required="true" output="screen"/>
+
+
+ <node if="$(eval init=='true')" name="torque_jacobian" pkg="dasom_controllers" type="torque_jacobian" required="true" />
 </launch>

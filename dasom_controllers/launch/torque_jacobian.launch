@@ -7,6 +7,11 @@
   <arg name="position_i_gain"          default="0"/>
   <arg name="position_d_gain"          default="400"/>
 
+  <arg name="dob_p_gain"              default="0"/>
+  <arg name="dob_i_gain"              default="0"/>
+  <arg name="dob_d_gain"              default="0"/>
+  <arg name="dob_polar_moment"        default="0"/>
+
   <arg name="polar_moment_1"             default="0.0027"/>
   <arg name="polar_moment_2"             default="0.0027"/>
   <arg name="Cut_Off_Freq"             default="5"/>
@@ -54,6 +59,11 @@
   <param name="cut_off_freq_current"           value="$(arg cut_off_freq_current)"/>
 
 
-  <node name="torque_jacobian" pkg="dasom_controllers" type="torque_jacobian" required="true" output="screen"/>
+  <node name="torque_jacobian" pkg="dasom_controllers" type="torque_jacobian" required="true" output="screen"> 
+    <param name="dob_p_gain"              value="$(arg dob_p_gain)"/>
+    <param name="dob_i_gain"              value="$(arg dob_i_gain)"/>
+    <param name="dob_d_gain"              value="$(arg dob_d_gain)"/>
+    <param name="dob_polar_moment"        value="$(arg dob_polar_moment)"/>
+  </node>
 
 </launch>

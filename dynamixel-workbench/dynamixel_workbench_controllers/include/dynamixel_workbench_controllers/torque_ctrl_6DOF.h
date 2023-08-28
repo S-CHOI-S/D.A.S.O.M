@@ -92,6 +92,7 @@ class TorqueControl
   double time_loop = 0;
   double time_i = 0;
   double time_f = 0;
+  void initpose(); //이름은 알아서 바꾸셔요!
 
  private:
   void initMsg();
@@ -105,6 +106,8 @@ class TorqueControl
   void goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg);
 
   void paletroneCallback(const geometry_msgs::PoseStamped &msg);
+
+
 
 };
 

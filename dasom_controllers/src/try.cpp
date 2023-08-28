@@ -18,7 +18,7 @@
 #include "sensor_msgs/JointState.h"
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
-#include <dasom_toolbox/dasom_lpf.h>
+#include <dasom_toolbox/dasom_joint.h>
 #include <dasom_toolbox/dasom_realsense_d435i.h>
 #include <dasom_toolbox/dasom_camera.h>
 #include <dasom_toolbox/dasom_tf2.h>
@@ -31,6 +31,7 @@
 double joint = 0;
 double joint2 = 0;
 double i = 0;
+
 void Callback(const sensor_msgs::JointState &msg)
 {
     joint = msg.effort[0];
@@ -70,10 +71,10 @@ int main(int argc, char **argv)
     point << 0, 0, 0;
 
     // For DasomLPF
-    // DasomLPF ds_lpf_(8);
+    DasomJoint ds_joint_(8, 8);
     // DasomLPF ds_lpf_2(8);
 
-    //For DasomRealSense
+    // For DasomRealSense
     // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
 
     // For DasomCam

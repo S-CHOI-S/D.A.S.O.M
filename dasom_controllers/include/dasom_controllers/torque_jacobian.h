@@ -22,6 +22,7 @@
 #include <dasom_toolbox/dasom_workbench.h>
 #include <dasom_toolbox/dasom_camera.h>
 #include <dasom_toolbox/dasom_tf2.h>
+#include <dasom_toolbox/dasom_joint.h>
 
 
 
@@ -34,6 +35,7 @@ class TorqJ
   ~TorqJ();
 
   DasomWorkbench *ds_wb_;
+  DasomJoint *ds_jnt2_;
 
   // Eigen::Vector3d Wrist_Position;
   Eigen::Vector3d Orientation_ref;
@@ -43,6 +45,7 @@ class TorqJ
   Eigen::Vector3d V_measured;
   Eigen::VectorXd angle_measured;
   Eigen::VectorXd EE_command;
+  Eigen::VectorXd EE_command_vel_limit;
 
   Eigen::VectorXd haptic_command;
   Eigen::VectorXd haptic_initPose;
@@ -72,6 +75,10 @@ class TorqJ
   double position_p_gain;
   double position_i_gain;
   double position_d_gain;
+
+  double position_p_gain_2nd;
+  double position_i_gain_2nd;
+  double position_d_gain_2nd;
 
   double polar_moment_1;
   double polar_moment_2;
@@ -203,6 +210,7 @@ class TorqJ
   // Haptic Joystick Button
   bool grey_button;
   bool white_button;
+  double gripper_cmd;
 
   void PublishCmdNMeasured();
   void DoB();
@@ -211,6 +219,7 @@ class TorqJ
   void angle_safe_func();
   void second_order_butterworth();
   void CommandGenerator();
+  void CommandVelocityLimit();
   void solveInverseKinematics();
   bool movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
                              dasom_controllers::movingFlag::Response &res);
@@ -241,6 +250,8 @@ class TorqJ
   *****************************************************************************/
   ros::Publisher joint_command_pub_;
   ros::Publisher joint_measured_pub_;
+  ros::Publisher test_Pub;
+  ros::Publisher test_Pub2;
   ros::Publisher dasom_EE_pos_pub_;
   ros::Publisher dasom_EE_cmd_pub_;
   ros::Publisher gimbal_pub;

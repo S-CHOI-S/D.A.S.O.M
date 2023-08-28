@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf2_ros
   omni_common
+  dasom_toolbox
 )
 
 ## System dependencies are found with CMake's conventions
@@ -47,7 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 catkin_package(
-  CATKIN_DEPENDS omni_common
+  CATKIN_DEPENDS omni_common dasom_toolbox
 #  DEPENDS system_lib
 )
 ## Generate messages in the 'msg' folder
