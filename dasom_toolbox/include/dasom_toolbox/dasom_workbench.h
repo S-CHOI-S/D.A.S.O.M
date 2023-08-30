@@ -31,7 +31,7 @@ class DasomWorkbench
   ~DasomWorkbench();
 
   void test();  
-  void run();
+  void KDLrun();
   void initializeRobotLinks();
   void computeMCGDynamics();
 

@@ -19,7 +19,7 @@
 DasomWorkbench::DasomWorkbench()
 : nh_(""), loop_rate_(200)
 {
-
+  initializeRobotLinks();
 }
 
 DasomWorkbench::~DasomWorkbench()
@@ -29,16 +29,12 @@ DasomWorkbench::~DasomWorkbench()
 
 void DasomWorkbench::test()
 {
-  while(ros::ok())
-  {
-    ROS_INFO("HI! Here is DasomWorkbench!");
-  }
-  
-  int i = 0;
-  i++;
+  ROS_INFO("HI! Here is DasomWorkbench!");
+  // int i = 0;
+  // i++;
 }
 
-void DasomWorkbench::run()
+void DasomWorkbench::KDLrun()
 {
   // 관절 상태 초기화 및 MCG 다이나믹스 행렬 계산 등의 작업 수행
 
@@ -55,9 +51,9 @@ void DasomWorkbench::run()
   ros::spinOnce();
   loop_rate_.sleep();
 
-  cnt__++;
-  sec = cnt__ / 100;
-  ROS_INFO("SEC:%lf", sec);
+  // cnt__++;
+  // sec = cnt__ / 100;
+  // ROS_INFO("SEC:%lf", sec);
 }
 
 void DasomWorkbench::initializeRobotLinks()

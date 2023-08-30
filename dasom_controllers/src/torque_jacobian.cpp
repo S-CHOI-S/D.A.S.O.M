@@ -162,7 +162,6 @@ TorqJ::TorqJ()
 
   D_z << 0, 0;
 
-
   X_from_model_matrix << 0, 0;
   X_dot_from_model_matrix << 0, 0;
 
@@ -174,9 +173,6 @@ TorqJ::TorqJ()
 
   grey_button = true;
   white_button = true;
-
-
-
 
   //------------------//
   // Tuning parameter //
@@ -199,8 +195,6 @@ TorqJ::TorqJ()
 
   initPose << 0, 0.23, 0.30, M_PI/2, 0, 0;
   // haptic_initPose << 0.000000, 0.085595, -0.097945, -0.075244, 1.204268, -1.673111;
-
-
 
   // -- 초기값 퍽 튀기 방지용 -- //
   // geometry_msgs::PoseStamped gimbal_tf_msg;
@@ -277,7 +271,6 @@ void TorqJ::joystickCallback(const geometry_msgs::Twist &msg)
   haptic_command[2] = msg.linear.z;
 }
 
-
 void TorqJ::gimbalCallback(const geometry_msgs::PoseStamped &msg)
 // global_EE_pose 받아오기
 {
@@ -293,7 +286,6 @@ void TorqJ::gimbalCallback(const geometry_msgs::PoseStamped &msg)
 
 }
 
-
 void TorqJ::gimbal_cmdCallback(const geometry_msgs::PoseStamped &msg)
 {
 
@@ -308,7 +300,6 @@ void TorqJ::gimbal_cmdCallback(const geometry_msgs::PoseStamped &msg)
 
 }
 
-
 void TorqJ::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
 {
   if(msg.grey_button == 1) 
@@ -321,7 +312,6 @@ void TorqJ::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       gimbal_tf = global_EE_tf;
 
       geometry_msgs::PoseStamped gimbal_tf_msg;
-
 
       gimbal_tf_msg.pose.position.x = gimbal_tf[0];
       gimbal_tf_msg.pose.position.y = gimbal_tf[1];
@@ -421,9 +411,9 @@ void TorqJ::second_order_butterworth()
 void TorqJ::Calc_Ext_Force()
 {
 
-  J = Jacobian(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]); //나바
+  J = Jacobian(angle_measured);
   JT = J.transpose();
-  JTI = JT.completeOrthogonalDecomposition().pseudoInverse();
+  JTI = JT.inverse(); // completeOrthogonalDecomposition().pseudoInverse();
 
   //---Calc Force_ext---//
   tau_ext = tau_measured - tau_gravity;
@@ -515,67 +505,65 @@ void TorqJ::DoB()
 
 void TorqJ::angle_safe_func()
 {
+  //DOB 켜기 싫으면 여기부터 주석처리하자
 
-
-    //DOB 켜기 싫으면 여기부터 주석처리하자
-
-    if(safety == 500) ROS_INFO("DOB start!!");
-     if (safety < 500) 
-    {
-      angle_command = angle_ref;
+  if(safety == 500) ROS_INFO("DOB start!!");
+    if (safety < 500) 
+  {
+    angle_command = angle_ref;
+  
+    Q_M << 0, 0, 0, 0;
+    Q_M_2 << 0, 0, 0, 0;
+    Q_angle_d << 0, 0;
+    Q_angle_d_2 << 0, 0;
     
-      Q_M << 0, 0, 0, 0;
-      Q_M_2 << 0, 0, 0, 0;
-      Q_angle_d << 0, 0;
-      Q_angle_d_2 << 0, 0;
-      
-    }
-     else angle_command = angle_d;
-    //   angle_command = angle_ref;
-    //DOB 켜기 싫으면 여기까지 주석처리하자
-    //DOB 켜기 싫으면 이거 주석 해제하자
+  }
+    else angle_command = angle_d;
+  //   angle_command = angle_ref;
+  //DOB 켜기 싫으면 여기까지 주석처리하자
+  //DOB 켜기 싫으면 이거 주석 해제하자
 
 
-    if (angle_command[0] > angle_max[0] || angle_command[0] < angle_min[0]) ROS_ERROR("angle 1 LIMIT");
+  if (angle_command[0] > angle_max[0] || angle_command[0] < angle_min[0]) ROS_ERROR("angle 1 LIMIT");
 
-    if (angle_command[1] > angle_max[1] || angle_command[1] < angle_min[1]) ROS_ERROR("angle 2 LIMIT");
+  if (angle_command[1] > angle_max[1] || angle_command[1] < angle_min[1]) ROS_ERROR("angle 2 LIMIT");
 
-    if (angle_command[2] > angle_max[2] || angle_command[2] < angle_min[2]) ROS_ERROR("angle 3 LIMIT");
+  if (angle_command[2] > angle_max[2] || angle_command[2] < angle_min[2]) ROS_ERROR("angle 3 LIMIT");
 
-    if (angle_command[3] > angle_max[3] || angle_command[3] < angle_min[3]) ROS_ERROR("angle 4 LIMIT");
+  if (angle_command[3] > angle_max[3] || angle_command[3] < angle_min[3]) ROS_ERROR("angle 4 LIMIT");
 
-    if (angle_command[4] > angle_max[4] || angle_command[4] < angle_min[4]) ROS_ERROR("angle 5 LIMIT");
+  if (angle_command[4] > angle_max[4] || angle_command[4] < angle_min[4]) ROS_ERROR("angle 5 LIMIT");
 
-    if (angle_command[5] > angle_max[5] || angle_command[5] < angle_min[5]) ROS_ERROR("angle 6 LIMIT");
+  if (angle_command[5] > angle_max[5] || angle_command[5] < angle_min[5]) ROS_ERROR("angle 6 LIMIT");
 
-    if (std::isnan(angle_command[0]) || std::isnan(angle_command[1]) || std::isnan(angle_command[2]) ||
-        std::isnan(angle_command[3]) || std::isnan(angle_command[4]) || std::isnan(angle_command[5]))
-      ROS_WARN("Out of Workspace");
+  if (std::isnan(angle_command[0]) || std::isnan(angle_command[1]) || std::isnan(angle_command[2]) ||
+      std::isnan(angle_command[3]) || std::isnan(angle_command[4]) || std::isnan(angle_command[5]))
+    ROS_WARN("Out of Workspace");
 
 
-    //for constraint--//
-    if (
-        (angle_command[0] > angle_max[0] || angle_command[0] < angle_min[0]) ||
-        (angle_command[1] > angle_max[1] || angle_command[1] < angle_min[1]) ||
-        (angle_command[2] > angle_max[2] || angle_command[2] < angle_min[2]) ||
-        (angle_command[3] > angle_max[3] || angle_command[3] < angle_min[3]) ||
-        (angle_command[4] > angle_max[4] || angle_command[4] < angle_min[4]) ||
-        (angle_command[5] > angle_max[5] || angle_command[5] < angle_min[5]) ||
-        std::isnan(angle_command[0]) || std::isnan(angle_command[1]) || std::isnan(angle_command[2]) ||
-        std::isnan(angle_command[3]) || std::isnan(angle_command[4]) || std::isnan(angle_command[5])
-        )
-    {
-      ROS_INFO("IK error");
-    }
-    else
-    {
-      angle_safe[0] = angle_command[0];
-      angle_safe[1] = angle_command[1];
-      angle_safe[2] = angle_command[2];
-      angle_safe[3] = angle_command[3];
-      angle_safe[4] = angle_command[4];
-      angle_safe[5] = angle_command[5];
-    }
+  //for constraint--//
+  if (
+      (angle_command[0] > angle_max[0] || angle_command[0] < angle_min[0]) ||
+      (angle_command[1] > angle_max[1] || angle_command[1] < angle_min[1]) ||
+      (angle_command[2] > angle_max[2] || angle_command[2] < angle_min[2]) ||
+      (angle_command[3] > angle_max[3] || angle_command[3] < angle_min[3]) ||
+      (angle_command[4] > angle_max[4] || angle_command[4] < angle_min[4]) ||
+      (angle_command[5] > angle_max[5] || angle_command[5] < angle_min[5]) ||
+      std::isnan(angle_command[0]) || std::isnan(angle_command[1]) || std::isnan(angle_command[2]) ||
+      std::isnan(angle_command[3]) || std::isnan(angle_command[4]) || std::isnan(angle_command[5])
+      )
+  {
+    ROS_INFO("IK error");
+  }
+  else
+  {
+    angle_safe[0] = angle_command[0];
+    angle_safe[1] = angle_command[1];
+    angle_safe[2] = angle_command[2];
+    angle_safe[3] = angle_command[3];
+    angle_safe[4] = angle_command[4];
+    angle_safe[5] = angle_command[5];
+  }
 
 }
 
@@ -597,9 +585,8 @@ bool TorqJ::movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
 
 
 bool TorqJ::AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
-                                dasom_controllers::admittanceTest::Response &res)
+                               dasom_controllers::admittanceTest::Response &res)
 {
-
   virtual_mass[0] = req.x_m;
   virtual_damper[0] = req.x_d;
   virtual_spring[0] = req.x_k;
@@ -748,8 +735,7 @@ void TorqJ::solveInverseKinematics()
 
   // ROS_ERROR("EE_command: %lf %lf %lf %lf %lf %lf ", EE_command[0], EE_command[1], EE_command[2], EE_command[3], EE_command[4], EE_command[5]);
 
-  angle_ref = InverseKinematics(EE_command[0], EE_command[1], EE_command[2],
-                                EE_command[3], EE_command[4], EE_command[5]);
+  angle_ref = InverseKinematics(EE_command);
 
   for(int i = 0; i < 6; i++)
   {
@@ -768,7 +754,7 @@ void TorqJ::solveInverseKinematics()
     }
   }
 
-  FK_pose = EE_pose(angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
+  FK_pose = EE_pose(angle_measured);
 
   msg.linear.x = FK_pose[0];
   msg.linear.y = FK_pose[1];
@@ -787,10 +773,6 @@ int main(int argc, char **argv)
   // Init ROS node
   ros::init(argc, argv, "TorqJ");
   TorqJ torqJ;
-
-  bool getparam_init;
-  nh.param("init", getparam_init, false); // Default to false if parameter is not set
-
 
   checkFirstPoseFlag = 0;
 

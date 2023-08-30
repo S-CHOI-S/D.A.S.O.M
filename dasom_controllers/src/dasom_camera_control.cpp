@@ -27,7 +27,7 @@ DasomCamControl::DasomCamControl()
   initPublisher();
   initSubscriber();
 
-  ds_cam_ = new DasomCam(pub, 0);
+  ds_cam_ = new DasomCam(pub, 2); // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
 
   haptic_pose.resize(6);
   gimbal_tf.resize(7);

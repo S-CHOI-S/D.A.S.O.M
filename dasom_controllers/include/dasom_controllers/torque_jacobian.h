@@ -381,27 +381,25 @@ class TorqJ
   }
 
 
-  //////////////////////////////////////////////////////
-  //////////////--- Forward Kinematics ---//////////////
-  //////////////////////////////////////////////////////
 
-  static Eigen::MatrixXd EE_pose(double theta_1,double theta_2,double theta_3,
-			                           double theta_4,double theta_5,double theta_6)
+// Forward Kinematics
+
+  static Eigen::MatrixXd EE_pose(Eigen::VectorXd measured_angle)
   {
-    double cos1 = cos(theta_1), sin1 = sin(theta_1);
-    double cos2 = cos(theta_2), sin2 = sin(theta_2);
-    double cos3 = cos(theta_3), sin3 = sin(theta_3);
-    double cos4 = cos(theta_4), sin4 = sin(theta_4);
-    double cos5 = cos(theta_5), sin5 = sin(theta_5);
-    double cos6 = cos(theta_6), sin6 = sin(theta_6);
+    double cos1 = cos(measured_angle[0]), sin1 = sin(measured_angle[0]);
+    double cos2 = cos(measured_angle[1]), sin2 = sin(measured_angle[1]);
+    double cos3 = cos(measured_angle[2]), sin3 = sin(measured_angle[2]);
+    double cos4 = cos(measured_angle[3]), sin4 = sin(measured_angle[3]);
+    double cos5 = cos(measured_angle[4]), sin5 = sin(measured_angle[4]);
+    double cos6 = cos(measured_angle[5]), sin6 = sin(measured_angle[5]);
 
-    double r11 = cos(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + sin(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1));
-    double r12 = sin(theta_6)*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_6)*(sin(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1)));
-    double r13 = cos(theta_6)*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + sin(theta_6)*(sin(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1)));
-    double r21 = cos(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - sin(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3));
-    double r22 = sin(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - cos(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)));
-    double r23 = cos(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + sin(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)));
-    double r31 = sin(theta_5)*(cos(theta_2)*sin(theta_3) + cos(theta_3)*sin(theta_2)) - cos(theta_5)*sin(theta_4)*(cos(theta_2)*cos(theta_3) - sin(theta_2)*sin(theta_3));
+    double r11 = cos(measured_angle[4])*(cos(measured_angle[0])*cos(measured_angle[3]) - sin(measured_angle[3])*(cos(measured_angle[1])*sin(measured_angle[0])*sin(measured_angle[2]) + cos(measured_angle[2])*sin(measured_angle[0])*sin(measured_angle[1]))) + sin(measured_angle[4])*(sin(measured_angle[0])*sin(measured_angle[1])*sin(measured_angle[2]) - cos(measured_angle[1])*cos(measured_angle[2])*sin(measured_angle[0]));
+    double r12 = sin(measured_angle[5])*(cos(measured_angle[0])*sin(measured_angle[3]) + cos(measured_angle[3])*(cos(measured_angle[1])*sin(measured_angle[0])*sin(measured_angle[2]) + cos(measured_angle[2])*sin(measured_angle[0])*sin(measured_angle[1]))) - cos(measured_angle[5])*(sin(measured_angle[4])*(cos(measured_angle[0])*cos(measured_angle[3]) - sin(measured_angle[3])*(cos(measured_angle[1])*sin(measured_angle[0])*sin(measured_angle[2]) + cos(measured_angle[2])*sin(measured_angle[0])*sin(measured_angle[1]))) - cos(measured_angle[4])*(sin(measured_angle[0])*sin(measured_angle[1])*sin(measured_angle[2]) - cos(measured_angle[1])*cos(measured_angle[2])*sin(measured_angle[0])));
+    double r13 = cos(measured_angle[5])*(cos(measured_angle[0])*sin(measured_angle[3]) + cos(measured_angle[3])*(cos(measured_angle[1])*sin(measured_angle[0])*sin(measured_angle[2]) + cos(measured_angle[2])*sin(measured_angle[0])*sin(measured_angle[1]))) + sin(measured_angle[5])*(sin(measured_angle[4])*(cos(measured_angle[0])*cos(measured_angle[3]) - sin(measured_angle[3])*(cos(measured_angle[1])*sin(measured_angle[0])*sin(measured_angle[2]) + cos(measured_angle[2])*sin(measured_angle[0])*sin(measured_angle[1]))) - cos(measured_angle[4])*(sin(measured_angle[0])*sin(measured_angle[1])*sin(measured_angle[2]) - cos(measured_angle[1])*cos(measured_angle[2])*sin(measured_angle[0])));
+    double r21 = cos(measured_angle[4])*(cos(measured_angle[3])*sin(measured_angle[0]) + sin(measured_angle[3])*(cos(measured_angle[0])*cos(measured_angle[1])*sin(measured_angle[2]) + cos(measured_angle[0])*cos(measured_angle[2])*sin(measured_angle[1]))) - sin(measured_angle[4])*(cos(measured_angle[0])*sin(measured_angle[1])*sin(measured_angle[2]) - cos(measured_angle[0])*cos(measured_angle[1])*cos(measured_angle[2]));
+    double r22 = sin(measured_angle[5])*(sin(measured_angle[0])*sin(measured_angle[3]) - cos(measured_angle[3])*(cos(measured_angle[0])*cos(measured_angle[1])*sin(measured_angle[2]) + cos(measured_angle[0])*cos(measured_angle[2])*sin(measured_angle[1]))) - cos(measured_angle[5])*(sin(measured_angle[4])*(cos(measured_angle[3])*sin(measured_angle[0]) + sin(measured_angle[3])*(cos(measured_angle[0])*cos(measured_angle[1])*sin(measured_angle[2]) + cos(measured_angle[0])*cos(measured_angle[2])*sin(measured_angle[1]))) + cos(measured_angle[4])*(cos(measured_angle[0])*sin(measured_angle[1])*sin(measured_angle[2]) - cos(measured_angle[0])*cos(measured_angle[1])*cos(measured_angle[2])));
+    double r23 = cos(measured_angle[5])*(sin(measured_angle[0])*sin(measured_angle[3]) - cos(measured_angle[3])*(cos(measured_angle[0])*cos(measured_angle[1])*sin(measured_angle[2]) + cos(measured_angle[0])*cos(measured_angle[2])*sin(measured_angle[1]))) + sin(measured_angle[5])*(sin(measured_angle[4])*(cos(measured_angle[3])*sin(measured_angle[0]) + sin(measured_angle[3])*(cos(measured_angle[0])*cos(measured_angle[1])*sin(measured_angle[2]) + cos(measured_angle[0])*cos(measured_angle[2])*sin(measured_angle[1]))) + cos(measured_angle[4])*(cos(measured_angle[0])*sin(measured_angle[1])*sin(measured_angle[2]) - cos(measured_angle[0])*cos(measured_angle[1])*cos(measured_angle[2])));
+    double r31 = sin(measured_angle[4])*(cos(measured_angle[1])*sin(measured_angle[2]) + cos(measured_angle[2])*sin(measured_angle[1])) - cos(measured_angle[4])*sin(measured_angle[3])*(cos(measured_angle[1])*cos(measured_angle[2]) - sin(measured_angle[1])*sin(measured_angle[2]));
 
     double alpha = atan2(r21,r11);
 
@@ -439,21 +437,20 @@ class TorqJ
   }
 
   // 나바
-  static Eigen::MatrixXd Jacobian(double theta_1,double theta_2,double theta_3,
-                                  double theta_4,double theta_5,double theta_6)
+  static Eigen::MatrixXd Jacobian(Eigen::VectorXd measured_angle)
   {
-    double cos1 = cos(theta_1), sin1 = sin(theta_1);
-    double cos2 = cos(theta_2), sin2 = sin(theta_2);
-    double cos3 = cos(theta_3), sin3 = sin(theta_3);
-    double cos4 = cos(theta_4), sin4 = sin(theta_4);
-    double cos5 = cos(theta_5), sin5 = sin(theta_5);
-    double cos6 = cos(theta_6), sin6 = sin(theta_6);
-    double sin23 = sin(theta_2 + theta_3);
-    double cos23 = cos(theta_2 + theta_3);
-    double cos45 = cos(theta_4 + theta_5);
-    double sin46 = sin(theta_4 + theta_6);
-    double cos4m5 = cos(theta_4 - theta_5);
-    double sin4m6 = sin(theta_4 - theta_6);
+    double cos1 = cos(measured_angle[0]), sin1 = sin(measured_angle[0]);
+    double cos2 = cos(measured_angle[1]), sin2 = sin(measured_angle[1]);
+    double cos3 = cos(measured_angle[2]), sin3 = sin(measured_angle[2]);
+    double cos4 = cos(measured_angle[3]), sin4 = sin(measured_angle[3]);
+    double cos5 = cos(measured_angle[4]), sin5 = sin(measured_angle[4]);
+    double cos6 = cos(measured_angle[5]), sin6 = sin(measured_angle[5]);
+    double sin23 = sin(measured_angle[1] + measured_angle[2]);
+    double cos23 = cos(measured_angle[1] + measured_angle[2]);
+    double cos45 = cos(measured_angle[3] + measured_angle[4]);
+    double sin46 = sin(measured_angle[3] + measured_angle[5]);
+    double cos4m5 = cos(measured_angle[3] - measured_angle[4]);
+    double sin4m6 = sin(measured_angle[3] - measured_angle[5]);
 
     Eigen::MatrixXd J(6,6);
 
@@ -560,8 +557,14 @@ class TorqJ
     return R;
   }
 
-  static Eigen::VectorXd InverseKinematics(double X, double Y, double Z, double r, double p, double y)
+  static Eigen::VectorXd InverseKinematics(Eigen::VectorXd EndEffector_cmd)
   {
+    double X = EndEffector_cmd[0];
+    double Y = EndEffector_cmd[1];
+    double Z = EndEffector_cmd[2];
+    double r = EndEffector_cmd[3];
+    double p = EndEffector_cmd[4];
+    double y = EndEffector_cmd[5];
     double theta1;
     double theta2;
     double D_theta2;
