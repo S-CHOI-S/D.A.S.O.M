@@ -436,7 +436,6 @@ class TorqJ
     return EE_pose;
   }
 
-  // 나바
   static Eigen::MatrixXd Jacobian(Eigen::VectorXd measured_angle)
   {
     double cos1 = cos(measured_angle[0]), sin1 = sin(measured_angle[0]);
@@ -456,89 +455,77 @@ class TorqJ
 
     J <<
     // 1X1
-    l5*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)) - l6*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - l2*cos(theta_1)*cos(theta_2) + l4*sin(theta_1)*sin(theta_4) - l7*sin(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + l7*cos(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3))) - l4*cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2)) - l3*cos(theta_1)*cos(theta_2)*cos(theta_3) + l3*cos(theta_1)*sin(theta_2)*sin(theta_3),
- 
+    l5*(cos1*sin2*sin3 - cos1*cos2*cos3) - l6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l2*cos1*cos2 + l4*sin1*sin4 - l7*sin6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + l7*cos6*(sin5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + cos5*(cos1*sin2*sin3 - cos1*cos2*cos3)) - l4*cos4*(cos1*cos2*sin3 + cos1*cos3*sin2) - l3*cos1*cos2*cos3 + l3*cos1*sin2*sin3,
     // 1X2
-    sin(theta_1)*(l5*sin(theta_2 + theta_3) + l2*sin(theta_2) - l4*cos(theta_2 + theta_3)*cos(theta_4) + l6*cos(theta_2 + theta_3)*cos(theta_4) + l3*cos(theta_2)*sin(theta_3) + l3*cos(theta_3)*sin(theta_2) + l7*cos(theta_2 + theta_3)*cos(theta_4)*sin(theta_6) + l7*sin(theta_2 + theta_3)*cos(theta_5)*cos(theta_6) + l7*cos(theta_2 + theta_3)*cos(theta_6)*sin(theta_4)*sin(theta_5)),
- 
+    sin1*(l5*sin23 + l2*sin2 - l4*cos23*cos4 + l6*cos23*cos4 + l3*cos2*sin3 + l3*cos3*sin2 + l7*cos23*cos4*sin6 + l7*sin23*cos5*cos6 + l7*cos23*cos6*sin4*sin5),
     // 1X3
-    sin(theta_1)*(l5*sin(theta_2 + theta_3) - l4*cos(theta_2 + theta_3)*cos(theta_4) + l6*cos(theta_2 + theta_3)*cos(theta_4) + l3*cos(theta_2)*sin(theta_3) + l3*cos(theta_3)*sin(theta_2) + l7*cos(theta_2 + theta_3)*cos(theta_4)*sin(theta_6) + l7*sin(theta_2 + theta_3)*cos(theta_5)*cos(theta_6) + l7*cos(theta_2 + theta_3)*cos(theta_6)*sin(theta_4)*sin(theta_5)),
- 
+    sin1*(l5*sin23 - l4*cos23*cos4 + l6*cos23*cos4 + l3*cos2*sin3 + l3*cos3*sin2 + l7*cos23*cos4*sin6 + l7*sin23*cos5*cos6 + l7*cos23*cos6*sin4*sin5),
     // 1X4
-    l6*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + l4*sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2)) - l4*cos(theta_1)*cos(theta_4) + l7*sin(theta_6)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + l7*cos(theta_6)*sin(theta_5)*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))),
- 
+    l6*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) + l4*sin4*(cos2*sin1*sin3 + cos3*sin1*sin2) - l4*cos1*cos4 + l7*sin6*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) + l7*cos6*sin5*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)),
     // 1X5
-    -l7*cos(theta_6)*(cos(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + sin(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1))),
-
+    -l7*cos6*(cos5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) + sin5*(sin1*sin2*sin3 - cos2*cos3*sin1)),
     // 1X6
-    l7*sin(theta_6)*(sin(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1))) + l7*cos(theta_6)*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))),
-    
+    l7*sin6*(sin5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - cos5*(sin1*sin2*sin3 - cos2*cos3*sin1)) + l7*cos6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)),
     // 2X1
-    l5*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1)) + l6*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - l4*cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2)) - l7*cos(theta_6)*(sin(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - cos(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1))) - l2*cos(theta_2)*sin(theta_1) - l4*cos(theta_1)*sin(theta_4) + l7*sin(theta_6)*(cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) - l3*cos(theta_2)*cos(theta_3)*sin(theta_1) + l3*sin(theta_1)*sin(theta_2)*sin(theta_3),
- 
+    l5*(sin1*sin2*sin3 - cos2*cos3*sin1) + l6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l4*cos4*(cos2*sin1*sin3 + cos3*sin1*sin2) - l7*cos6*(sin5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - cos5*(sin1*sin2*sin3 - cos2*cos3*sin1)) - l2*cos2*sin1 - l4*cos1*sin4 + l7*sin6*(cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2)) - l3*cos2*cos3*sin1 + l3*sin1*sin2*sin3,
     // 2X2
-    -cos(theta_1)*(l5*sin(theta_2 + theta_3) + l2*sin(theta_2) - l4*cos(theta_2 + theta_3)*cos(theta_4) + l6*cos(theta_2 + theta_3)*cos(theta_4) + l3*cos(theta_2)*sin(theta_3) + l3*cos(theta_3)*sin(theta_2) + l7*cos(theta_2 + theta_3)*cos(theta_4)*sin(theta_6) + l7*sin(theta_2 + theta_3)*cos(theta_5)*cos(theta_6) + l7*cos(theta_2 + theta_3)*cos(theta_6)*sin(theta_4)*sin(theta_5)),
- 
+    -cos1*(l5*sin23 + l2*sin2 - l4*cos23*cos4 + l6*cos23*cos4 + l3*cos2*sin3 + l3*cos3*sin2 + l7*cos23*cos4*sin6 + l7*sin23*cos5*cos6 + l7*cos23*cos6*sin4*sin5),
     // 2X3
-    -cos(theta_1)*(l5*sin(theta_2 + theta_3) - l4*cos(theta_2 + theta_3)*cos(theta_4) + l6*cos(theta_2 + theta_3)*cos(theta_4) + l3*cos(theta_2)*sin(theta_3) + l3*cos(theta_3)*sin(theta_2) + l7*cos(theta_2 + theta_3)*cos(theta_4)*sin(theta_6) + l7*sin(theta_2 + theta_3)*cos(theta_5)*cos(theta_6) + l7*cos(theta_2 + theta_3)*cos(theta_6)*sin(theta_4)*sin(theta_5)),
- 
+    -cos1*(l5*sin23 - l4*cos23*cos4 + l6*cos23*cos4 + l3*cos2*sin3 + l3*cos3*sin2 + l7*cos23*cos4*sin6 + l7*sin23*cos5*cos6 + l7*cos23*cos6*sin4*sin5),
     // 2X4
-    l6*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - l4*sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2)) - l4*cos(theta_4)*sin(theta_1) + l7*sin(theta_6)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + l7*cos(theta_6)*sin(theta_5)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))),
- 
+    l6*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - l4*sin4*(cos1*cos2*sin3 + cos1*cos3*sin2) - l4*cos4*sin1 + l7*sin6*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + l7*cos6*sin5*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)),
     // 2X5
+    -l7*cos6*(cos5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - sin5*(cos1*sin2*sin3 - cos1*cos2*cos3)),
     // 2X6
+    l7*cos6*(sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + l7*sin6*(sin5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) + cos5*(cos1*sin2*sin3 - cos1*cos2*cos3)),
     // 3X1
+    0,
     // 3X2
+    l3*cos23 + l5*cos23 + l2*cos2 - (l7*sin23*sin46)/2 + l4*sin23*cos4 - l6*sin23*cos4 + (l7*sin4m6*sin23)/2 + l7*cos6*((cos45*sin23)/2 - (cos4m5*sin23)/2 + cos23*cos5),
     // 3X3
+    l3*cos23 + l5*cos23 + l4*sin23*cos4 - l6*sin23*cos4 + l7*cos23*cos5*cos6 - l7*sin23*cos4*sin6 - l7*sin23*cos6*sin4*sin5,
     // 3X4
+    cos23*(l4*sin4 - l6*sin4 - l7*sin4*sin6 + l7*cos4*cos6*sin5),
     // 3X5
+    -l7*cos6*(sin23*sin5 - cos23*cos5*sin4),
     // 3X6
+    l7*cos23*cos4*cos6 - l7*sin23*cos5*sin6 - l7*cos23*sin4*sin5*sin6,
     // 4X1
+    0,
     // 4X2
+    cos1,
     // 4X3
+    cos1,
     // 4X4
+    -cos23*sin1,
     // 4X5
+    cos1*sin4 + cos4*(cos2*sin1*sin3 + cos3*sin1*sin2),
     // 4X6
+    cos5*(cos1*cos4 - sin4*(cos2*sin1*sin3 + cos3*sin1*sin2)) + sin5*(sin1*sin2*sin3 - cos2*cos3*sin1),
     // 5X1
+    0,
     // 5X2
+    sin1,
     // 5X3
+    sin1,
     // 5X4
+    cos23*cos1,
     // 5X5
+    sin1*sin4 - cos4*(cos1*cos2*sin3 + cos1*cos3*sin2),
     // 5X6
+    cos5*(cos4*sin1 + sin4*(cos1*cos2*sin3 + cos1*cos3*sin2)) - sin5*(cos1*sin2*sin3 - cos1*cos2*cos3),
     // 6X1
+    1,
     // 6X2
+    0,
     // 6X3
+    0,
     // 6X4
+    sin23,
     // 6X5
+    cos23*cos4,
     // 6X6
-
-
-[-l7*cos(theta_6)*(cos(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - sin(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3))),
- l7*cos(theta_6)*(sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + l7*sin(theta_6)*(sin(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) + cos(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3)))]
-[0,
- l3*cos(theta_2 + theta_3) + l5*cos(theta_2 + theta_3) + l2*cos(theta_2) - (l7*sin(theta_2 + theta_3)*sin(theta_4 + theta_6))/2 + l4*sin(theta_2 + theta_3)*cos(theta_4) - l6*sin(theta_2 + theta_3)*cos(theta_4) + (l7*sin(theta_4 - theta_6)*sin(theta_2 + theta_3))/2 + l7*cos(theta_6)*((cos(theta_4 + theta_5)*sin(theta_2 + theta_3))/2 - (cos(theta_4 - theta_5)*sin(theta_2 + theta_3))/2 + cos(theta_2 + theta_3)*cos(theta_5)),
- l3*cos(theta_2 + theta_3) + l5*cos(theta_2 + theta_3) + l4*sin(theta_2 + theta_3)*cos(theta_4) - l6*sin(theta_2 + theta_3)*cos(theta_4) + l7*cos(theta_2 + theta_3)*cos(theta_5)*cos(theta_6) - l7*sin(theta_2 + theta_3)*cos(theta_4)*sin(theta_6) - l7*sin(theta_2 + theta_3)*cos(theta_6)*sin(theta_4)*sin(theta_5),
- cos(theta_2 + theta_3)*(l4*sin(theta_4) - l6*sin(theta_4) - l7*sin(theta_4)*sin(theta_6) + l7*cos(theta_4)*cos(theta_6)*sin(theta_5)),
- -l7*cos(theta_6)*(sin(theta_2 + theta_3)*sin(theta_5) - cos(theta_2 + theta_3)*cos(theta_5)*sin(theta_4)),
- l7*cos(theta_2 + theta_3)*cos(theta_4)*cos(theta_6) - l7*sin(theta_2 + theta_3)*cos(theta_5)*sin(theta_6) - l7*cos(theta_2 + theta_3)*sin(theta_4)*sin(theta_5)*sin(theta_6)]
-[0,
- cos(theta_1),
- cos(theta_1),
- -cos(theta_2 + theta_3)*sin(theta_1),
- cos(theta_1)*sin(theta_4) + cos(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2)),
- cos(theta_5)*(cos(theta_1)*cos(theta_4) - sin(theta_4)*(cos(theta_2)*sin(theta_1)*sin(theta_3) + cos(theta_3)*sin(theta_1)*sin(theta_2))) + sin(theta_5)*(sin(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_2)*cos(theta_3)*sin(theta_1))]
-[0,
- sin(theta_1),
- sin(theta_1),
- cos(theta_2 + theta_3)*cos(theta_1),
- sin(theta_1)*sin(theta_4) - cos(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2)),
- cos(theta_5)*(cos(theta_4)*sin(theta_1) + sin(theta_4)*(cos(theta_1)*cos(theta_2)*sin(theta_3) + cos(theta_1)*cos(theta_3)*sin(theta_2))) - sin(theta_5)*(cos(theta_1)*sin(theta_2)*sin(theta_3) - cos(theta_1)*cos(theta_2)*cos(theta_3))]
-[1,
- 0,
- 0,
- sin(theta_2 + theta_3),
- cos(theta_2 + theta_3)*cos(theta_4),
- sin(theta_2 + theta_3)*sin(theta_5) - cos(theta_2 + theta_3)*cos(theta_5)*sin(theta_4)]
+    sin23*sin5 - cos23*cos5*sin4;
 
     return J;
   }
