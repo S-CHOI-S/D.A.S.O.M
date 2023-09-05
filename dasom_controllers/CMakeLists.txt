@@ -95,3 +95,6 @@ add_executable(dasom_camera_control src/dasom_camera_control.cpp)
 add_dependencies(dasom_camera_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dasom_camera_control dasom_toolbox ${catkin_LIBRARIES})
 
+add_executable(dasom_manipulator_control src/dasom_manipulator_control.cpp)
+add_dependencies(dasom_manipulator_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dasom_manipulator_control dasom_toolbox ${catkin_LIBRARIES})

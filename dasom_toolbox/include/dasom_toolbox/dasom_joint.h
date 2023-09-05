@@ -31,6 +31,7 @@ class DasomJoint
 
   void test();
   double updateLPF(double time_loop, double input_data);
+  void initDOB();
   double updateDOB(double time_loop, double angle_ref, double angle_measured);
 
  private:
@@ -73,9 +74,6 @@ class DasomJoint
   Eigen::Matrix2d Q_angle_d_A;
   Eigen::Vector2d Q_angle_d_B;
   Eigen::Vector2d Q_angle_d_C;
-
-  void initDOB();
-
 };
 
 #endif /*DASOM_JOINT_H_*/

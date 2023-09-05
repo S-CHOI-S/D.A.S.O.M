@@ -25,7 +25,6 @@
 #include <dasom_toolbox/dasom_joint.h>
 
 
-
 #define PI 3.14159256359
 
 class TorqJ
@@ -37,6 +36,7 @@ class TorqJ
   DasomWorkbench *ds_wb_;
   DasomJoint *ds_jnt2_;
 
+
   // Eigen::Vector3d Wrist_Position;
   Eigen::Vector3d Orientation_ref;
   Eigen::VectorXd X_test;
@@ -45,7 +45,12 @@ class TorqJ
   Eigen::Vector3d V_measured;
   Eigen::VectorXd angle_measured;
   Eigen::VectorXd EE_command;
+  Eigen::VectorXd EE_command_i;
   Eigen::VectorXd EE_command_vel_limit;
+
+  Eigen::VectorXd angle_init;
+
+
 
   Eigen::VectorXd haptic_command;
   Eigen::VectorXd haptic_initPose;
@@ -221,6 +226,7 @@ class TorqJ
   void CommandGenerator();
   void CommandVelocityLimit();
   void solveInverseKinematics();
+  void initPoseFunc();
   bool movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
                              dasom_controllers::movingFlag::Response &res);
   bool AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
@@ -253,7 +259,7 @@ class TorqJ
   ros::Publisher test_Pub;
   ros::Publisher test_Pub2;
   ros::Publisher dasom_EE_pos_pub_;
-  ros::Publisher dasom_EE_cmd_pub_;
+  ros::Publisher EE_command_pub_;
   ros::Publisher gimbal_pub;
   ros::Subscriber joint_states_sub_;
   ros::Subscriber joystick_sub_;
@@ -381,8 +387,9 @@ class TorqJ
   }
 
 
-
-// Forward Kinematics
+  //////////////////////////////////////////////////////
+  //////////////--- Forward Kinematics ---//////////////
+  //////////////////////////////////////////////////////
 
   static Eigen::MatrixXd EE_pose(Eigen::VectorXd measured_angle)
   {
@@ -402,6 +409,7 @@ class TorqJ
     double r31 = sin(measured_angle[4])*(cos(measured_angle[1])*sin(measured_angle[2]) + cos(measured_angle[2])*sin(measured_angle[1])) - cos(measured_angle[4])*sin(measured_angle[3])*(cos(measured_angle[1])*cos(measured_angle[2]) - sin(measured_angle[1])*sin(measured_angle[2]));
 
     double alpha = atan2(r21,r11);
+
 
     Eigen::MatrixXd EE_position(3,1);
 
@@ -450,6 +458,7 @@ class TorqJ
     double sin46 = sin(measured_angle[3] + measured_angle[5]);
     double cos4m5 = cos(measured_angle[3] - measured_angle[4]);
     double sin4m6 = sin(measured_angle[3] - measured_angle[5]);
+
 
     Eigen::MatrixXd J(6,6);
 
@@ -564,6 +573,8 @@ class TorqJ
     double r = EndEffector_cmd[3];
     double p = EndEffector_cmd[4];
     double y = EndEffector_cmd[5];
+
+
     double theta1;
     double theta2;
     double D_theta2;

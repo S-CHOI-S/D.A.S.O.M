@@ -42,7 +42,8 @@ DasomJoint::DasomJoint(double cut_off_freq_current, double cut_off_freq_qfilter)
 
 DasomJoint::~DasomJoint()
 {
-  
+  ROS_INFO("Bye DasomJoint!");
+  ros::shutdown();
 }
 
 void DasomJoint::test()
@@ -125,7 +126,5 @@ double DasomJoint::updateDOB(double time_loop, double angle_ref, double angle_me
 
   d_hat = angle_d_hat - angle_d_lpf; // d_hat: estimated dist
 
-  angle_d = angle_ref - d_hat;
-
-  return angle_d;
+  return d_hat;
 }

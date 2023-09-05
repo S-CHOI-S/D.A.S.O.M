@@ -1,4 +1,3 @@
-
 #include <ros/ros.h>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -26,6 +25,32 @@ double yaw;
 
 Eigen::VectorXd optitrackQuat;
 Eigen::VectorXd optitrackQuat_lpf;
+
+
+void joystickCallback(const geometry_msgs::Twist& msg)
+{
+
+    static tf2_ros::StaticTransformBroadcaster br_pose;
+    geometry_msgs::TransformStamped transformStamped_pose;
+
+    transformStamped_pose.header.stamp = ros::Time::now();
+    transformStamped_pose.header.frame_id = "world";
+    transformStamped_pose.child_frame_id = "joystick_command";
+    transformStamped_pose.transform.translation.x = msg.linear.x;
+    transformStamped_pose.transform.translation.y = msg.linear.y;
+    transformStamped_pose.transform.translation.z = msg.linear.z;
+
+    tf::Quaternion quat;
+    quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
+
+    transformStamped_pose.transform.rotation.x = quat.x();
+    transformStamped_pose.transform.rotation.y = quat.y();
+    transformStamped_pose.transform.rotation.z = quat.z();
+    transformStamped_pose.transform.rotation.w = quat.w();
+    
+    br_pose.sendTransform(transformStamped_pose);
+}
+
 
 
 void optitrackCallback(const geometry_msgs::PoseStamped& msg)
@@ -120,6 +145,9 @@ int main(int argc, char **argv)
 {
     ros::init(argc,argv,"setting_joystickCMD_tf");
     ros::NodeHandle nh;
+
+
+    ros::Subscriber joystick_pose_sub_ = nh.subscribe("/dasom/EE_command", 1, joystickCallback, ros::TransportHints().tcpNoDelay());
 
     ros::Subscriber sub_EEpose = nh.subscribe("/dasom/EE_pose", 10, &PoseCallback); 
     ros::Subscriber sub_gimbal_tf = nh.subscribe("/dasom/gimbal_tf", 10, &gimbalCallback);

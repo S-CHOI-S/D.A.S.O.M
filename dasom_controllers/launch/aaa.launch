@@ -1,5 +1,6 @@
 <launch>
   <rosparam command="load" file="$(find dasom_controllers)/config/link.yaml"/>
+<rosparam command="load" file="$(find dasom_controllers)/config/admittance.yaml"/>
 
 <!--For DoB&Current based position control-->
   <arg name="robot_name"      default="dasom"/>
@@ -17,22 +18,9 @@
   <arg name="polar_moment_2"             default="0.0027"/>
   <arg name="Cut_Off_Freq"             default="5"/>
 
-  <arg name="virtual_mass_x"              default="200.0"/>
-  <arg name="virtual_damper_x"            default="10.0"/>
-  <arg name="virtual_spring_x"            default="100.0"/>
-
-  <arg name="virtual_mass_y"              default="200.0"/>
-  <arg name="virtual_damper_y"            default="10.0"/>
-  <arg name="virtual_spring_y"            default="300.0"/>
-  
-  <arg name="virtual_mass_z"              default="200.0"/>
-  <arg name="virtual_damper_z"            default="10.0"/>
-  <arg name="virtual_spring_z"            default="300.0"/>
   <arg name="cut_off_freq_current"       default="5"/>
 
 <!--end-->
-
-
 
   <param name="robot_name"    value="$(arg robot_name)"/>
 
@@ -44,22 +32,11 @@
   <param name="polar_moment_2"        value="$(arg polar_moment_2)"/>
   <param name="Cut_Off_Freq"           value="$(arg Cut_Off_Freq)"/>
 
-  <param name="virtual_mass_x"           value="$(arg virtual_mass_x)"/>
-  <param name="virtual_damper_x"           value="$(arg virtual_damper_x)"/>
-  <param name="virtual_spring_x"           value="$(arg virtual_spring_x)"/>
-
-  <param name="virtual_mass_y"           value="$(arg virtual_mass_y)"/>
-  <param name="virtual_damper_y"           value="$(arg virtual_damper_y)"/>
-  <param name="virtual_spring_y"           value="$(arg virtual_spring_y)"/>
-
-  <param name="virtual_mass_z"           value="$(arg virtual_mass_z)"/>
-  <param name="virtual_damper_z"           value="$(arg virtual_damper_z)"/>
-  <param name="virtual_spring_z"           value="$(arg virtual_spring_z)"/>
 
   <param name="cut_off_freq_current"           value="$(arg cut_off_freq_current)"/>
 
 
-  <node name="torque_jacobian" pkg="dasom_controllers" type="torque_jacobian" required="true" output="screen"> 
+  <node name="dasom_manipulator_control" pkg="dasom_controllers" type="dasom_manipulator_control" required="true" output="screen"> 
     <param name="dob_p_gain"              value="$(arg dob_p_gain)"/>
     <param name="dob_i_gain"              value="$(arg dob_i_gain)"/>
     <param name="dob_d_gain"              value="$(arg dob_d_gain)"/>

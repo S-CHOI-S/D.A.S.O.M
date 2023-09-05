@@ -1,0 +1,11 @@
+virtual_mass_x: 200
+virtual_damper_x: 10
+virtual_spring_x: 100
+
+virtual_mass_y: 200
+virtual_damper_y: 10
+virtual_spring_y: 300
+
+virtual_mass_z: 200
+virtual_damper_z: 10
+virtual_spring_z: 300
