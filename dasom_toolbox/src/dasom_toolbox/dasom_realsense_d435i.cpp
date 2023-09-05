@@ -16,12 +16,13 @@
 
 #include "../../include/dasom_toolbox/dasom_realsense_d435i.h"
 
-DasomRealSense::DasomRealSense(Eigen::Vector2d depth_point, ros::Publisher& c_pub, ros::Publisher& d_pub)
+using namespace dasom;
+
+DasomRealSense::DasomRealSense(ros::Publisher& c_pub, ros::Publisher& d_pub)
 : nh_("")
 {
   ROS_INFO("Dasom D435I Camera Node Start!");
 
-  point = depth_point;
   color_pub = c_pub;
   depth_pub = d_pub;
 
@@ -42,6 +43,9 @@ DasomRealSense::~DasomRealSense()
 {
   color_pub.shutdown();
   depth_pub.shutdown();
+
+  ROS_INFO("Bye DasomRealSense!");
+  ros::shutdown();
 }
 
 void DasomRealSense::test()
@@ -160,6 +164,9 @@ void DasomRealSense::Point2Distance(rs2::depth_frame frame, Eigen::Vector2d poin
 
 void DasomRealSense::DrawPoint2ColorFrame(rs2::video_frame frame)
 {
+  double distance_x;
+  double distance_y;
+  
   // Convert rs2::video_frame to OpenCV Mat
   cv::Mat color_mat(cv::Size(frame.get_width(), frame.get_height()), CV_8UC3, (void*)frame.get_data(), cv::Mat::AUTO_STEP);
 

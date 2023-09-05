@@ -31,44 +31,60 @@
 #define green cv::Scalar(0,255,0)
 #define red cv::Scalar(0,0,255)
 
-class DasomRealSense
+namespace dasom
 {
- public:
-  DasomRealSense(Eigen::Vector2d depth_point, ros::Publisher& c_pub, ros::Publisher& d_pub);
-  ~DasomRealSense();
-
-  Eigen::Vector2d point;
-
-  void test();
-  void initCamera();
-  void updateCamera();
-
- private:
-  ros::NodeHandle nh_;
-  ros::Publisher color_pub;
-  ros::Publisher depth_pub;
-
-  // Create a RealSense pipeline and configuration
-  rs2::pipeline pipe;
-  rs2::config cfg;
-  rs2::frameset frames;
-
-  Eigen::Vector2d distance_point;
-
-  double map(double input_data, double input_min, double input_max, double output_min, double output_max)
+  class DasomRealSense
   {
-    return (input_data - input_min) * (output_max - output_min) / (input_max - input_min) + output_min;
-  }
+  public:
+    DasomRealSense(ros::Publisher& c_pub, ros::Publisher& d_pub);
+    ~DasomRealSense();
 
-  double distance_x;
-  double distance_y;
+    /*****************************************************************************
+    ** Define functions
+    *****************************************************************************/
+    void test();
+    void updateCamera();
 
-  void ColorFrame();
-  void DepthFrame();
-  void Point2Distance(rs2::depth_frame frame, Eigen::Vector2d point);
-  void DrawPoint2ColorFrame(rs2::video_frame frame);
-  void DrawPoint2DepthFrame(rs2::depth_frame frame);
+  private:
+    /*****************************************************************************
+    ** ROS NodeHandle
+    *****************************************************************************/
+    ros::NodeHandle nh_;
 
-};
+    /*****************************************************************************
+    ** ROS Publishers
+    *****************************************************************************/
+    ros::Publisher color_pub;
+    ros::Publisher depth_pub;
+    
+    /*****************************************************************************
+    ** Define variables
+    *****************************************************************************/
+    // For camera
+    // Create a RealSense pipeline and configuration
+    rs2::pipeline pipe;
+    rs2::config cfg;
+    rs2::frameset frames;
+    
+    // For distance
+    Eigen::Vector2d point;
+    Eigen::Vector2d distance_point;
+
+    /*****************************************************************************
+    ** Define functions
+    *****************************************************************************/
+    void initCamera();
+    void ColorFrame();
+    void DepthFrame();
+    void Point2Distance(rs2::depth_frame frame, Eigen::Vector2d point);
+    void DrawPoint2ColorFrame(rs2::video_frame frame);
+    void DrawPoint2DepthFrame(rs2::depth_frame frame);
+
+    double map(double input_data, double input_min, double input_max, double output_min, double output_max)
+    {
+      return (input_data - input_min) * (output_max - output_min) / (input_max - input_min) + output_min;
+    }
+  };
+} // namespace DASOM
 
 #endif /*DASOM_REALSENSE_D435I_H_*/

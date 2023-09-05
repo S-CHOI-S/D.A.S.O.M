@@ -19,24 +19,22 @@
 DasomJoint::DasomJoint(double cut_off_freq_current, double cut_off_freq_qfilter)
 : nh_(""), priv_nh_("~")
 {
-  ROS_INFO("Dasom LPF Node Start!");
-
+  // For lpf
   cof_current = cut_off_freq_current;
   cof_qfilter = cut_off_freq_qfilter;
-
   cof_qfilter2 = cof_qfilter * cof_qfilter;
+  
+  bw2_filtered_input.resize(3);
+  bw2_filtered_output.resize(3);
+  bw2_filtered_input << 0, 0, 0;
+  bw2_filtered_output << 0, 0, 0;
 
+  // For DOB
   P_gain = priv_nh_.param<double>("dob_p_gain",800);
   I_gain = priv_nh_.param<double>("dob_i_gain",0);
   D_gain = priv_nh_.param<double>("dob_d_gain",0);
   polar_moment = priv_nh_.param<double>("dob_polar_moment",0);
   
-  bw2_filtered_input.resize(3);
-  bw2_filtered_output.resize(3);
-
-  bw2_filtered_input << 0, 0, 0;
-  bw2_filtered_output << 0, 0, 0;
-
   initDOB();
 }
 

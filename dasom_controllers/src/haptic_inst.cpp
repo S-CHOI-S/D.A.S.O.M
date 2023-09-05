@@ -28,7 +28,7 @@ HI::HI()
   priv_node_handle_("~")
 {
 
-    ds_wb_ = new DasomWorkbench;
+    ds_wb_ = new dasom::DasomWorkbench;
 
   // ds_wb_->run();
 

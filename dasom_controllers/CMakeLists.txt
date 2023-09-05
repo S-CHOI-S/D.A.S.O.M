@@ -75,13 +75,9 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
-add_executable(Admittance_TwoLink src/Admittance_TwoLink.cpp)  # 수정
-add_dependencies(Admittance_TwoLink ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(Admittance_TwoLink ${catkin_LIBRARIES})
-
-add_executable(torque_jacobian src/torque_jacobian.cpp)
-add_dependencies(torque_jacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(torque_jacobian dasom_toolbox ${catkin_LIBRARIES})
+#add_executable(torque_jacobian src/torque_jacobian.cpp)
+#add_dependencies(torque_jacobian ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(torque_jacobian dasom_toolbox ${catkin_LIBRARIES})
 
 add_executable(try src/try.cpp)
 add_dependencies(try ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

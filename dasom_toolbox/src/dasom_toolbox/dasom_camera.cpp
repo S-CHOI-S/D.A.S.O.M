@@ -16,6 +16,8 @@
 
 #include "../../include/dasom_toolbox/dasom_camera.h"
 
+using namespace dasom;
+
 DasomCam::DasomCam(image_transport::Publisher& publisher, int cam_num_)
 : nh_(""), it_(nh_)
 {
@@ -27,11 +29,13 @@ DasomCam::DasomCam(image_transport::Publisher& publisher, int cam_num_)
 DasomCam::~DasomCam()
 {
   cam_pub_.shutdown();
+
+  ROS_INFO("Bye DasomCam!");
+  ros::shutdown();
 }
 
 void DasomCam::test()
 {
-  while(ros::ok())
   ROS_INFO("THIS IS DASOM CAMERA!");
 }
 
@@ -124,7 +128,7 @@ void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
 void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal)
 {
   cap >> frame;
-  ROS_ERROR("%lf, %lf", core[0] - gimbal[0], core[2] - gimbal[2]);
+  // ROS_ERROR("%lf, %lf", core[0] - gimbal[0], core[2] - gimbal[2]);
 
   // circle(frame, core, radius, color, thickness, line type, shift);
   circle(frame, cv::Point(250 - core[0], 250 - core[2]), 150 - core[1], cv::Scalar(255,0,0), 3, 4, 0);
@@ -182,29 +186,30 @@ void DasomCam::DetectLightBulb()
   cv::dilate(frame_erode, frame_dilate, cv::Mat(), cv::Point(-1,-1), 2);
 
   std::vector<std::vector<cv::Point>> contours;
-            std::vector<cv::Vec4i> hierarchy;
-            cv::findContours(frame_dilate, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+  std::vector<cv::Vec4i> hierarchy;
+  cv::findContours(frame_dilate, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
-            if (!contours.empty()) {
-                for (size_t i = 0; i < contours.size(); ++i) {
-                    double area = cv::contourArea(contours[i]);
-                    if (area > 3000) {
-                        cv::RotatedRect rect = cv::minAreaRect(contours[i]);
-                        cv::Point2f boxPoints[4];
-                        rect.points(boxPoints);
-                        // cv::Point pointb(boxPoints[0], boxPoints[1]);
-                        for (int j = 0; j < 4; ++j) {
-                            cv::line(frame, boxPoints[j], boxPoints[(j + 1) % 4], cv::Scalar(0, 0, 255), 2);
-                            // cv::putText(frame, "light bulb",pointb, 3, 0.7, red, 1, 8);
-                        }
+  if (!contours.empty()) 
+  {
+    for (size_t i = 0; i < contours.size(); ++i) 
+    {
+      double area = cv::contourArea(contours[i]);
+      if (area > 3000) 
+      {
+        cv::RotatedRect rect = cv::minAreaRect(contours[i]);
+        cv::Point2f boxPoints[4];
+        rect.points(boxPoints);
+        for (int j = 0; j < 4; ++j) 
+        {
+          cv::line(frame, boxPoints[j], boxPoints[(j + 1) % 4], cv::Scalar(0, 0, 255), 2);
+        }
 
-                        // 중심 좌표를 이용하여 텍스트 위치 계산
-                        cv::Point2f center = rect.center;
-                        cv::putText(frame, "light bulb", cv::Point(center.x - 40, center.y), cv::FONT_HERSHEY_SIMPLEX, 0.5, red, 2);
-                    }
-                }
-            }
+        // 중심 좌표를 이용하여 텍스트 위치 계산
+        cv::Point2f center = rect.center;
+        cv::putText(frame, "light bulb", cv::Point(center.x - 40, center.y), cv::FONT_HERSHEY_SIMPLEX, 0.5, red, 2);
+      }
+    }
+  }
+
   ROS_WARN("Detect!");
-  // imshow("yellow", lightbulb_frame);
-  // imshow("detect",frame_dilate);
 }

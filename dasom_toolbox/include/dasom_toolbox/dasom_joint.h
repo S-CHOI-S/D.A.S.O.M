@@ -14,14 +14,14 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
-#ifndef DASOM_Joint_H_
-#define DASOM_Joint_H_
+#ifndef DASOM_JOINT_H_
+#define DASOM_JOINT_H_
 
 #include <ros/ros.h>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 
-#define PI 3.141592
+#define PI 3.14159256359
 
 class DasomJoint
 {
@@ -29,20 +29,29 @@ class DasomJoint
   DasomJoint(double cut_off_freq_current, double cut_off_freq_qfilter);
   ~DasomJoint();
 
+  /*****************************************************************************
+  ** Define functions
+  *****************************************************************************/
   void test();
   double updateLPF(double time_loop, double input_data);
   void initDOB();
   double updateDOB(double time_loop, double angle_ref, double angle_measured);
 
  private:
+  /*****************************************************************************
+  ** ROS NodeHandle
+  *****************************************************************************/
   ros::NodeHandle nh_;
   ros::NodeHandle priv_nh_;
 
+  /*****************************************************************************
+  ** Define variables
+  *****************************************************************************/
+  // For lpf
   double cof_current;
-  double cof_qfilter;
-  double cof_qfilter2;
   double wc;
   double wc2;
+
   double a0_2nd;
   double a1_2nd;
   double a2_2nd;
@@ -50,18 +59,20 @@ class DasomJoint
   double b1_2nd;
   double b2_2nd;
 
+  Eigen::VectorXd bw2_filtered_input;
+  Eigen::VectorXd bw2_filtered_output;
+
+  // For DOB
+  double cof_qfilter;
+  double cof_qfilter2;
   double P_gain;
   double I_gain;
   double D_gain;
   double polar_moment;
-
   double angle_d;
   double angle_d_hat;
   double angle_d_lpf;
   double d_hat;
-  
-  Eigen::VectorXd bw2_filtered_input;
-  Eigen::VectorXd bw2_filtered_output;
 
   Eigen::Vector4d Q_M;
   Eigen::Vector4d Q_M_dot;

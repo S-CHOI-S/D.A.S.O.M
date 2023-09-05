@@ -21,7 +21,6 @@ DasomControl::DasomControl()
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
-  ds_wb_ = new DasomWorkbench;
   ds_jnt1_ = new DasomJoint(8,8);
   ds_jnt2_ = new DasomJoint(8,8);
   ds_jnt3_ = new DasomJoint(8,8);
@@ -49,7 +48,7 @@ DasomControl::DasomControl()
   initPose.resize(6,1);
   angle_init.resize(6);
   initPose << 0, 0.23, 0.30, M_PI/2, 0, 0;
-  angle_init = ds_wb_->InverseKinematics(initPose);
+  angle_init = InverseKinematics(initPose);
 
   // For angle control
   angle_ref.resize(6);
@@ -116,20 +115,22 @@ DasomControl::DasomControl()
 
 DasomControl::~DasomControl()
 {
+  deleteToolbox();
+
   ROS_INFO("Bye!");
   ros::shutdown();
 }
 
 void DasomControl::initPublisher()
 {
-  joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/goal_dynamixel_position", 10);
-  joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);  
-  dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_pose", 10); //use
-  gimbal_pub_ = node_handle_.advertise<geometry_msgs::PoseStamped>("/dasom/global_gimbal_pose", 10); //use
+  joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>(robot_name_ + "/goal_dynamixel_position", 10);
+  joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>(robot_name_ + "/measured_dynamixel_position", 10);  
+  dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_pose", 10); //use
+  gimbal_pub_ = node_handle_.advertise<geometry_msgs::PoseStamped>(robot_name_ + "/global_gimbal_pose", 10); //use
 
   // For Test
-  test_Pub = node_handle_.advertise<geometry_msgs::Twist>("/dasom/test_Pub", 10); //use
-  test_Pub2 = node_handle_.advertise<geometry_msgs::Twist>("/dasom/test_Pub2", 10); //use
+  test_Pub = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/test_Pub", 10); //use
+  test_Pub2 = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/test_Pub2", 10); //use
 }
 
 void DasomControl::initSubscriber()
@@ -137,7 +138,7 @@ void DasomControl::initSubscriber()
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &DasomControl::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &DasomControl::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   button_sub_ = node_handle_.subscribe("/phantom/button", 10, &DasomControl::buttonCallback, this, ros::TransportHints().tcpNoDelay());
-  gimbal_cmd_sub_ = node_handle_.subscribe("/dasom/gimbal_EE_cmd", 10, &DasomControl::gimbalCmdCallback, this, ros::TransportHints().tcpNoDelay()); //use
+  gimbal_cmd_sub_ = node_handle_.subscribe(robot_name_ + "/gimbal_EE_cmd", 10, &DasomControl::gimbalCmdCallback, this, ros::TransportHints().tcpNoDelay()); //use
 }
 
 void DasomControl::initServer()
@@ -231,7 +232,7 @@ void DasomControl::gimbalCmdCallback(const geometry_msgs::PoseStamped &msg)
 
 void DasomControl::CalcExternalForce()
 {
-  J = ds_wb_->Jacobian(angle_measured);
+  J = Jacobian(angle_measured);
   JT = J.transpose();
   JTI = JT.inverse(); // completeOrthogonalDecomposition().pseudoInverse();
 
@@ -240,11 +241,11 @@ void DasomControl::CalcExternalForce()
 
 void DasomControl::AdmittanceControl()
 {
-  X_cmd[0] = ds_wb_->admittanceControlX(time_loop, X_ref[0], F_ext[0]);
+  X_cmd[0] = admittanceControlX(time_loop, X_ref[0], F_ext[0]);
 
-  X_cmd[1] = ds_wb_->admittanceControlY(time_loop, X_ref[1], F_ext[1]);
+  X_cmd[1] = admittanceControlY(time_loop, X_ref[1], F_ext[1]);
 
-  X_cmd[2] = ds_wb_->admittanceControlZ(time_loop, X_ref[2], F_ext[2]);
+  X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], F_ext[2]);
 }
 
 void DasomControl::DOB()
@@ -366,9 +367,9 @@ void DasomControl::SolveInverseKinematics()
 {
   geometry_msgs::Twist msg;
 
-  angle_ref = ds_wb_->InverseKinematics(EE_command_vel_limit);
+  angle_ref = InverseKinematics(EE_command_vel_limit);
 
-  FK_pose = ds_wb_->EE_pose(angle_measured);
+  FK_pose = EE_pose(angle_measured);
 
   msg.linear.x = FK_pose[0];
   msg.linear.y = FK_pose[1];
@@ -470,6 +471,16 @@ void DasomControl::test()
 
   test_Pub.publish(first_publisher);
   test_Pub2.publish(second_publisher);
+}
+
+void DasomControl::deleteToolbox()
+{
+  delete ds_jnt1_;
+  delete ds_jnt2_;
+  delete ds_jnt3_;
+  delete ds_jnt4_;
+  delete ds_jnt5_;
+  delete ds_jnt6_;
 }
 
 int main(int argc, char **argv)

@@ -33,7 +33,7 @@ class TorqJ
   TorqJ(); // 직접 객체를 생성하여 초기화;
   ~TorqJ();
 
-  DasomWorkbench *ds_wb_;
+  dasom::DasomWorkbench *ds_wb_;
   DasomJoint *ds_jnt2_;
 
 

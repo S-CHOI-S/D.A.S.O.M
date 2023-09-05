@@ -1,3 +1,19 @@
+/*******************************************************************************
+* D.A.S.O.M
+*
+* Department of Aerial Manipulator System for Object Manipulation
+*
+*     https://github.com/S-CHOI-S/D.A.S.O.M.git
+*
+* Mobile Robotics Lab. (MRL)
+* 	  @ Seoul National University of Science and Technology
+*
+*	  https://mrl.seoultech.ac.kr/index.do
+*
+*******************************************************************************/
+
+/* Authors: Sol Choi (Jennifer) */
+
 #ifndef DASOM_MANIPULATOR_CONTROL_H_
 #define DASOM_MANIPULATOR_CONTROL_H_
 
@@ -19,7 +35,9 @@
 #include <dasom_toolbox/dasom_workbench.h>
 #include <dasom_toolbox/dasom_joint.h>
 
-class DasomControl
+using namespace dasom;
+
+class DasomControl : public dasom::DasomWorkbench
 {
  public:
   DasomControl();
@@ -65,14 +83,10 @@ class DasomControl
   ** ROS Parameters
   *****************************************************************************/
   std::string robot_name_;
-  sensor_msgs::JointState command_position;
 
   /*****************************************************************************
   ** D.A.S.O.M toolbox
   *****************************************************************************/
-  // DasomWorkbench
-  DasomWorkbench *ds_wb_;
-
   // DasomJoint
   DasomJoint *ds_jnt1_;
   DasomJoint *ds_jnt2_;
@@ -166,6 +180,7 @@ class DasomControl
   void joystickCallback(const geometry_msgs::Twist &msg);
   void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
   void gimbalCmdCallback(const geometry_msgs::PoseStamped &msg);
+  void deleteToolbox();
 };
 
 #endif //DASOM_MANIPULATOR_CONTROL_H_

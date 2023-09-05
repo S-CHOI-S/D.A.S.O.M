@@ -17,7 +17,8 @@
 #include "dasom_controllers/dasom_camera_control.h"
 
 DasomCamControl::DasomCamControl()
-: node_handle_(""), it_(node_handle_)
+: node_handle_(""), it_(node_handle_), 
+  DasomCam(pub, 0) // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
@@ -27,10 +28,6 @@ DasomCamControl::DasomCamControl()
   initPublisher();
   initSubscriber();
 
-  ds_cam_ = new DasomCam(pub, 2); // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
-
-  haptic_pose.resize(6);
-  gimbal_tf.resize(7);
   global_EE_tf.resize(7);
 }
 
@@ -42,7 +39,7 @@ DasomCamControl::~DasomCamControl()
 
 void DasomCamControl::initPublisher()
 {
-  pub = it_.advertise("/dasom/camera_image", 1);
+  pub = it_.advertise(robot_name_ + "/camera_image", 1);
 }
 
 void DasomCamControl::initSubscriber()
@@ -67,18 +64,9 @@ void DasomCamControl::gimbalCallback(const geometry_msgs::PoseStamped &msg)
 
 void DasomCamControl::joystickCallback(const geometry_msgs::Twist &msg)
 {
-  haptic_pose[0] = msg.linear.x;
-  haptic_pose[1] = msg.linear.y;
-  haptic_pose[2] = msg.linear.z;
-  haptic_pose[3] = msg.angular.x;
-  haptic_pose[4] = msg.angular.y;
-  haptic_pose[5] = msg.angular.z;
-
-  haptic_position[0] = haptic_pose[0];
-  haptic_position[1] = haptic_pose[1];
-  haptic_position[2] = haptic_pose[2];
-
-  // ROS_INFO("core_x = %lf, core_y = %lf, core_z = %lf", haptic_pose[0], haptic_pose[2], haptic_pose[1]);
+  haptic_position[0] = msg.linear.x;
+  haptic_position[1] = msg.linear.y;
+  haptic_position[2] = msg.linear.z;
 }
 
 void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
@@ -92,13 +80,9 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       grey_button++;
       ROS_INFO("Grey 0: Command mode");
 
-      // gimbal_tf = global_EE_tf;
-      // gimbal_tf = haptic_pose;
       gimbal_position_tf = haptic_position;
 
       grey = false;
-
-      // ROS_INFO("GIMBAL_TF = %lf, %lf, %lf, %lf, %lf, %lf", gimbal_tf[0], gimbal_tf[1], gimbal_tf[2], gimbal_tf[3], gimbal_tf[4], gimbal_tf[5]);
     }
     else if(grey_button == 1)
     {
@@ -111,33 +95,32 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       ROS_INFO("Grey 2: Gimbaling + Command mode");
     }
   }
-  // ROS_INFO("core_x = %lf, core_y = %lf, core_z = %lf", haptic_pose[0], haptic_pose[2], haptic_pose[1]);
 }
 
-void DasomCamControl::Update()
+void DasomCamControl::update()
 {
   if(grey_button == 0)
   {
     ROS_INFO("Grey 0: Command mode");
-    ds_cam_->UpdateCameraCommand(1000 * haptic_position);
+    UpdateCameraCommand(1000 * haptic_position);
   }
 
   else if(grey_button == 1) 
   {
     ROS_INFO("Grey 1: Gimbaling mode");
-    ds_cam_->UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf); 
+    UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf); 
   }
 
   else if(grey_button == 2) 
   {
     ROS_INFO("Grey 2: Gimbaling + Command mode");
-    if(ds_cam_->gimbalcommand_safe == false)
+    if(gimbalcommand_safe == false)
     {
-      ds_cam_->UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);
+      UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);
     }
     else 
     {
-      ds_cam_->UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf);
+      UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf);
     }
   }
 }
@@ -152,7 +135,7 @@ int main(int argc, char **argv)
 
   while (ros::ok())
   {
-    ds_cam_ctrl.Update();
+    ds_cam_ctrl.update();
 
     ros::spinOnce();
     loop_rate.sleep();

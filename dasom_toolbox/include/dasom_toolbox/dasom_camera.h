@@ -18,12 +18,12 @@
 #define DASOM_CAMERA_H_
 
 #include <ros/ros.h>
-#include <image_transport/image_transport.h>
-#include <opencv2/highgui/highgui.hpp>
-#include <cv_bridge/cv_bridge.h>
-#include <sstream>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
+#include <opencv2/highgui/highgui.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
+#include <sstream>
 
 #define black cv::Scalar::all(0)
 #define white cv::Scalar::all(255)
@@ -31,37 +31,58 @@
 #define green cv::Scalar(0,255,0)
 #define red cv::Scalar(0,0,255)
 
-class DasomCam
+namespace dasom
 {
- public:
-  DasomCam(image_transport::Publisher& publisher, int cam_num_);
-  ~DasomCam();
+  class DasomCam
+  {
+  public:
+    DasomCam(image_transport::Publisher& publisher, int cam_num_);
+    ~DasomCam();
 
-  image_transport::Publisher cam_pub_;
+    /*****************************************************************************
+    ** Define variables
+    *****************************************************************************/
+    // For gimaling
+    bool gimbalcommand_safe = false;
 
-  cv::Mat frame;
+    /*****************************************************************************
+    ** Define functions
+    *****************************************************************************/
+    void DetectLightBulb();
+    void UpdateCameraCommand(Eigen::Vector3d core);
+    void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
+    void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
+    void UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
+    void test();
 
-  bool gimbalcommand_safe = false;
-  
-  void DetectLightBulb();
-  void UpdateCameraCommand(Eigen::Vector3d core);
-  void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
-  void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
-  void UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
-  void test();
+  private:
+    /*****************************************************************************
+    ** ROS NodeHandle
+    *****************************************************************************/
+    ros::NodeHandle nh_;
+    image_transport::ImageTransport it_;
 
- private:
-  ros::NodeHandle nh_;
-  image_transport::ImageTransport it_;
+    /*****************************************************************************
+    ** ROS Publishers
+    *****************************************************************************/
+    image_transport::Publisher cam_pub_;
 
-  cv::VideoCapture cap;
-  sensor_msgs::ImagePtr msg;
+    /*****************************************************************************
+    ** Define variables
+    *****************************************************************************/
+    // For camera
+    cv::VideoCapture cap;
+    cv::Mat frame;
+    sensor_msgs::ImagePtr msg;
 
-  int i = 0;
+    // For gimaling
+    int i = 0;
 
-  void initCamera(int cam_num);
-  //void DetectLightBulb();
-
-};
+    /*****************************************************************************
+    ** Define functions
+    *****************************************************************************/
+    void initCamera(int cam_num);
+  };
+} // namespace DASOM
 
 #endif /*DASOM_CAMERA_H_*/

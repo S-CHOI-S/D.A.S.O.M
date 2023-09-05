@@ -64,7 +64,7 @@ TorqJ::TorqJ()
   //---Current low pass filter--//
   cut_off_freq_current = node_handle_.param<double>("cut_off_freq_current", 1);
 
-  ds_wb_ = new DasomWorkbench;
+  ds_wb_ = new dasom::DasomWorkbench;
   ds_jnt2_ = new DasomJoint(8,8);
 
   // ds_wb_->run();

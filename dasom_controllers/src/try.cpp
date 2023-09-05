@@ -28,6 +28,8 @@
 
 #define PI 3.141592
 
+using namespace dasom;
+
 double joint = 0;
 double joint2 = 0;
 double i = 0;
@@ -66,19 +68,19 @@ int main(int argc, char **argv)
 
     // sensor_msgs::JointState joint_states;
 
-    Eigen::Vector3d point;
+    // Eigen::Vector3d point;
 
-    point << 0, 0, 0;
+    // point << 0, 0, 0;
 
     // For DasomLPF
-    DasomJoint ds_joint_(8, 8);
+    // DasomJoint ds_joint_(8, 8);
     // DasomLPF ds_lpf_2(8);
 
     // For DasomRealSense
     // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
 
     // For DasomCam
-    DasomCam ds_cam_(pub, 0);
+    // DasomCam ds_cam_(pub, 0);
 
     // // For DasomTF2
     // DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
@@ -105,7 +107,7 @@ int main(int argc, char **argv)
         // ds_rs_.updateCamera();
 
         // For DasomCam
-        ds_cam_.UpdateCameraCommand(point);
+        // ds_cam_.UpdateCameraCommand(point);
         // ds_cam_.DetectLightBulb();
         
         //update joint_state

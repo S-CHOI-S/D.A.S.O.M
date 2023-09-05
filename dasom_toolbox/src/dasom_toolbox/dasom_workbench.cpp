@@ -16,10 +16,12 @@
 
 #include "../../include/dasom_toolbox/dasom_workbench.h"
 
+using namespace dasom;
+
 DasomWorkbench::DasomWorkbench()
 : nh_(""), priv_nh_("")
 {
-  // For Kinematics
+  // For kinematics
   l1 = priv_nh_.param<double>("l1", 0.05465);
   l2 = priv_nh_.param<double>("l2", 0.1585);
   l3 = priv_nh_.param<double>("l3", 0.099);
@@ -400,6 +402,7 @@ Eigen::MatrixXd DasomWorkbench::EE_pose(Eigen::VectorXd measured_angle)
   return EE_pose;
 }
 
+// Jacobian
 Eigen::MatrixXd DasomWorkbench::Jacobian(Eigen::VectorXd measured_angle)
 {
   double cos1 = cos(measured_angle[0]), sin1 = sin(measured_angle[0]);
@@ -494,6 +497,7 @@ Eigen::MatrixXd DasomWorkbench::Jacobian(Eigen::VectorXd measured_angle)
   return J;
 }
 
+// Inverse Kinematics
 Eigen::Matrix3d DasomWorkbench::CmdOrientation(double roll, double pitch, double yaw)
 {
   Eigen::Matrix3d R;

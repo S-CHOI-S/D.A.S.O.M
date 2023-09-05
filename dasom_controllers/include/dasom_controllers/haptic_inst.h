@@ -27,7 +27,7 @@ class HI
   HI(); // 직접 객체를 생성하여 초기화;
   ~HI();
 
-  DasomWorkbench *ds_wb_;
+  dasom::DasomWorkbench *ds_wb_;
 
   // Eigen::Vector3d Wrist_Position;
   Eigen::Vector3d Orientation_ref;
