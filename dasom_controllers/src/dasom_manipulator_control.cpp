@@ -270,8 +270,6 @@ void DasomControl::DOB()
   angle_ref[5] = angle_ref[5] - d_hat[5];
 
   ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0],angle_ref[1],angle_ref[2],angle_ref[3],angle_ref[4],angle_ref[5]);
-
-
 }
 
 void DasomControl::AngleSafeFunction()

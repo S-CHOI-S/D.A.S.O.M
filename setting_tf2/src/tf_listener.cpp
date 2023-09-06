@@ -46,24 +46,24 @@ int main(int argc, char** argv)
         }
 
         // For /dasom/global_EE_frame/world
-        global_frame.pose.position.x=transformStamped_globalEE.transform.translation.x;
-        global_frame.pose.position.y=transformStamped_globalEE.transform.translation.y;
-        global_frame.pose.position.z=transformStamped_globalEE.transform.translation.z;
+        global_frame.pose.position.x = transformStamped_globalEE.transform.translation.x;
+        global_frame.pose.position.y = transformStamped_globalEE.transform.translation.y;
+        global_frame.pose.position.z = transformStamped_globalEE.transform.translation.z;
 
-        global_frame.pose.orientation.x=transformStamped_globalEE.transform.rotation.x;
-        global_frame.pose.orientation.y=transformStamped_globalEE.transform.rotation.y;
-        global_frame.pose.orientation.z=transformStamped_globalEE.transform.rotation.z;
-        global_frame.pose.orientation.w=transformStamped_globalEE.transform.rotation.w;
+        global_frame.pose.orientation.x = transformStamped_globalEE.transform.rotation.x;
+        global_frame.pose.orientation.y = transformStamped_globalEE.transform.rotation.y;
+        global_frame.pose.orientation.z = transformStamped_globalEE.transform.rotation.z;
+        global_frame.pose.orientation.w = transformStamped_globalEE.transform.rotation.w;
 
         // For /dasom/gimbal_EE_cmd
-        gimbal_frame.pose.position.x=transformStamped_gimbalEE.transform.translation.x;
-        gimbal_frame.pose.position.y=transformStamped_gimbalEE.transform.translation.y;
-        gimbal_frame.pose.position.z=transformStamped_gimbalEE.transform.translation.z;
+        gimbal_frame.pose.position.x = transformStamped_gimbalEE.transform.translation.x;
+        gimbal_frame.pose.position.y = transformStamped_gimbalEE.transform.translation.y;
+        gimbal_frame.pose.position.z = transformStamped_gimbalEE.transform.translation.z;
 
-        gimbal_frame.pose.orientation.x=transformStamped_gimbalEE.transform.rotation.x;
-        gimbal_frame.pose.orientation.y=transformStamped_gimbalEE.transform.rotation.y;
-        gimbal_frame.pose.orientation.z=transformStamped_gimbalEE.transform.rotation.z;
-        gimbal_frame.pose.orientation.w=transformStamped_gimbalEE.transform.rotation.w;
+        gimbal_frame.pose.orientation.x = transformStamped_gimbalEE.transform.rotation.x;
+        gimbal_frame.pose.orientation.y = transformStamped_gimbalEE.transform.rotation.y;
+        gimbal_frame.pose.orientation.z = transformStamped_gimbalEE.transform.rotation.z;
+        gimbal_frame.pose.orientation.w = transformStamped_gimbalEE.transform.rotation.w;
 
         global_publisher.publish(global_frame);
         gimbal_publisher.publish(gimbal_frame);

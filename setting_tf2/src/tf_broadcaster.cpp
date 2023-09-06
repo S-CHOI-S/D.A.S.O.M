@@ -59,35 +59,40 @@ void TFBroadcaster::world2palletrone(Eigen::VectorXd optitrackquat)
     transformStamped.header.stamp = ros::Time::now();
     transformStamped.header.frame_id = "world";
     transformStamped.child_frame_id = "paletrone";
-    transformStamped.transform.translation.x = optitrackquat[0];
-    transformStamped.transform.translation.y = optitrackquat[1];
-    transformStamped.transform.translation.z = optitrackquat[2];
+    transformStamped.transform.translation.x = optitrackQuat_lpf[0];
+    transformStamped.transform.translation.y = optitrackQuat_lpf[1];
+    transformStamped.transform.translation.z = optitrackQuat_lpf[2];
 
-    transformStamped.transform.rotation.x = optitrackquat[3];
-    transformStamped.transform.rotation.y = optitrackquat[4];
-    transformStamped.transform.rotation.z = optitrackquat[5];
-    transformStamped.transform.rotation.w = optitrackquat[6];
+    transformStamped.transform.rotation.x = optitrackQuat_lpf[3];
+    transformStamped.transform.rotation.y = optitrackQuat_lpf[4];
+    transformStamped.transform.rotation.z = optitrackQuat_lpf[5];
+    transformStamped.transform.rotation.w = optitrackQuat_lpf[6];
 
     br.sendTransform(transformStamped);
 }
 
 void TFBroadcaster::optitrackCallback(const geometry_msgs::PoseStamped& msg)
 {
-    double roll;
+    double roll = 5;
     double pitch;
     double yaw;
 
     optitrackQuat[0] = msg.pose.position.x - 0.083278;
     optitrackQuat[1] = msg.pose.position.y - 0.053549;
     optitrackQuat[2] = msg.pose.position.z - 0.001452;
-    
+
     tf::Quaternion quat;
     tf::quaternionMsgToTF(msg.pose.orientation, quat);
+
+    // roll -= -0.006381 + 0.708853 -0.576069 -1.226498;
+    // pitch -= 0.02034 + 0.048070 + 0.401560 -2.031406;
+    // yaw -= 1.420537 + 0.702262 -0.559468 -2.055506;
+
     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
 
-    roll -= -0.006381;
-    pitch -= 0.020344;
-    yaw -= 1.420537;
+    // roll -= -1.035882;
+    // pitch -= -1.558368; 
+    // yaw -= -0.560295;
 
     quat.setRPY(roll, pitch, yaw);
 
@@ -95,6 +100,8 @@ void TFBroadcaster::optitrackCallback(const geometry_msgs::PoseStamped& msg)
     optitrackQuat[4] = quat.y();
     optitrackQuat[5] = quat.z();
     optitrackQuat[6] = quat.w();
+
+    ROS_ERROR("%lf, %lf, %lf, %lf, %lf, %lf", optitrackQuat[0], optitrackQuat[1], optitrackQuat[2], roll, pitch,yaw);
 
     world2palletrone(optitrackQuat);
 }
