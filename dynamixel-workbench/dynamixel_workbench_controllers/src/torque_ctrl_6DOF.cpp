@@ -113,7 +113,7 @@ void TorqueControl::initPublisher()
 
 void TorqueControl::initSubscriber()
 {
-  joint_command_sub_ = node_handle_.subscribe("/goal_dynamixel_position", 10, &TorqueControl::goalJointPositionCallback, this);
+  joint_command_sub_ = node_handle_.subscribe("/dasom/goal_dynamixel_position", 10, &TorqueControl::goalJointPositionCallback, this);
   paletrone_sub_ = node_handle_.subscribe("/dasombasePlate/world", 10, &TorqueControl::paletroneCallback, this);
 }
 

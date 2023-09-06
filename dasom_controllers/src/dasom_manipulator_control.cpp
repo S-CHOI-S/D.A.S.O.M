@@ -84,6 +84,7 @@ DasomControl::DasomControl()
   gimbal_tf.resize(7);
   gimbal_EE_cmd.resize(6);
   global_EE_tf.resize(7);
+  gimbal_EE_cmd << 0, 0.23, 0.30, M_PI/2, 0, 0;
 
   // For force estimation
   J.resize(6,6);
@@ -108,7 +109,7 @@ DasomControl::DasomControl()
   X_cmd.resize(6,1);
   
   // For DOB
-  d_hat.resize(2);
+  d_hat.resize(6);
  
   ros::Rate init_rate(1);
 }
@@ -267,6 +268,10 @@ void DasomControl::DOB()
 
   d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_ref[5], angle_measured[5]);
   angle_ref[5] = angle_ref[5] - d_hat[5];
+
+  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0],angle_ref[1],angle_ref[2],angle_ref[3],angle_ref[4],angle_ref[5]);
+
+
 }
 
 void DasomControl::AngleSafeFunction()
@@ -433,6 +438,9 @@ void DasomControl::PublishData()
   joint_cmd.position.push_back(angle_safe[5]);
   // joint_cmd.position.push_back(gripper_cmd);
 
+  
+
+
   // joint_cmd.velocity.push_back(angle_d[1]); 
   // joint_cmd.velocity.push_back(angle_ref[1]); 
   // joint_cmd.velocity.push_back(angle_ref[2]); 
@@ -508,8 +516,6 @@ int main(int argc, char **argv)
     if(ds_ctrl_.initPoseFlag)
     {
       ds_ctrl_.initPoseFunction();
-      ros::spinOnce();
-
       ds_ctrl_.AngleSafeFunction();
       ds_ctrl_.PublishData();
     }
@@ -518,7 +524,7 @@ int main(int argc, char **argv)
       ds_ctrl_.CommandGenerator();
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
-      ds_ctrl_.DOB();
+      // ds_ctrl_.DOB();
       ds_ctrl_.AngleSafeFunction();
       ds_ctrl_.PublishData();
       ds_ctrl_.test();

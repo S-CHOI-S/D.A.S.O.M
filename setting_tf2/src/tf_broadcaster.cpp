@@ -1,35 +1,27 @@
-#include <ros/ros.h>
-#include <tf2_ros/static_transform_broadcaster.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <geometry_msgs/Vector3.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <cstdio>
-#include <tf2/LinearMath/Quaternion.h>
-#include <cmath>
-#include "tf/transform_datatypes.h"
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
-#include "omni_msgs/OmniButtonEvent.h"
-#include "dasom_toolbox/dasom_joint.h"
+#include "../include/tf_broadcaster.h"
 
-
-#define PI 3.141592
-
-double roll;
-double pitch;
-double yaw;
-
-
-
-
-Eigen::VectorXd optitrackQuat;
-Eigen::VectorXd optitrackQuat_lpf;
-
-
-void joystickCallback(const geometry_msgs::Twist& msg)
+TFBroadcaster::TFBroadcaster()
+: node_handle_("")
 {
+  /************************************************************
+  ** Initialize ROS Subscribers and Clients
+  ************************************************************/
+  initSubscriber();
 
+  ds_jnt_ = new DasomJoint(8, 8);
+
+  optitrackQuat.resize(7);
+  optitrackQuat_lpf.resize(7);
+}
+
+TFBroadcaster::~TFBroadcaster()
+{
+  ROS_INFO("Bye TFBroadcaster!");
+  ros::shutdown();
+}
+
+void TFBroadcaster::joystickCallback(const geometry_msgs::Twist& msg)
+{
     static tf2_ros::StaticTransformBroadcaster br_pose;
     geometry_msgs::TransformStamped transformStamped_pose;
 
@@ -51,10 +43,40 @@ void joystickCallback(const geometry_msgs::Twist& msg)
     br_pose.sendTransform(transformStamped_pose);
 }
 
+void TFBroadcaster::world2palletrone(Eigen::VectorXd optitrackquat)
+{
+    static tf2_ros::StaticTransformBroadcaster br;
+    geometry_msgs::TransformStamped transformStamped;
 
+    optitrackQuat_lpf[0] = ds_jnt_->updateLPF(time_loop, optitrackquat[0]);
+    optitrackQuat_lpf[1] = ds_jnt_->updateLPF(time_loop, optitrackquat[1]);
+    optitrackQuat_lpf[2] = ds_jnt_->updateLPF(time_loop, optitrackquat[2]);
+    optitrackQuat_lpf[3] = ds_jnt_->updateLPF(time_loop, optitrackquat[3]);
+    optitrackQuat_lpf[4] = ds_jnt_->updateLPF(time_loop, optitrackquat[4]);
+    optitrackQuat_lpf[5] = ds_jnt_->updateLPF(time_loop, optitrackquat[5]);
+    optitrackQuat_lpf[6] = ds_jnt_->updateLPF(time_loop, optitrackquat[6]);
 
-void optitrackCallback(const geometry_msgs::PoseStamped& msg)
-{//use
+    transformStamped.header.stamp = ros::Time::now();
+    transformStamped.header.frame_id = "world";
+    transformStamped.child_frame_id = "paletrone";
+    transformStamped.transform.translation.x = optitrackquat[0];
+    transformStamped.transform.translation.y = optitrackquat[1];
+    transformStamped.transform.translation.z = optitrackquat[2];
+
+    transformStamped.transform.rotation.x = optitrackquat[3];
+    transformStamped.transform.rotation.y = optitrackquat[4];
+    transformStamped.transform.rotation.z = optitrackquat[5];
+    transformStamped.transform.rotation.w = optitrackquat[6];
+
+    br.sendTransform(transformStamped);
+}
+
+void TFBroadcaster::optitrackCallback(const geometry_msgs::PoseStamped& msg)
+{
+    double roll;
+    double pitch;
+    double yaw;
+
     optitrackQuat[0] = msg.pose.position.x - 0.083278;
     optitrackQuat[1] = msg.pose.position.y - 0.053549;
     optitrackQuat[2] = msg.pose.position.z - 0.001452;
@@ -73,10 +95,12 @@ void optitrackCallback(const geometry_msgs::PoseStamped& msg)
     optitrackQuat[4] = quat.y();
     optitrackQuat[5] = quat.z();
     optitrackQuat[6] = quat.w();
+
+    world2palletrone(optitrackQuat);
 }
 
-void PoseCallback(const geometry_msgs::Twist& msg)
-{//use
+void TFBroadcaster::PoseCallback(const geometry_msgs::Twist& msg)
+{
     static tf2_ros::StaticTransformBroadcaster br_pose;
     geometry_msgs::TransformStamped transformStamped_pose;
 
@@ -91,7 +115,6 @@ void PoseCallback(const geometry_msgs::Twist& msg)
 
     quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
 
-
     transformStamped_pose.transform.rotation.x = quat.x();
     transformStamped_pose.transform.rotation.y = quat.y();
     transformStamped_pose.transform.rotation.z = quat.z();
@@ -100,7 +123,7 @@ void PoseCallback(const geometry_msgs::Twist& msg)
     br_pose.sendTransform(transformStamped_pose);
 }
 
-void gimbalTF_Callback(const geometry_msgs::PoseStamped &msg)
+void TFBroadcaster::globalgimbalCallback(const geometry_msgs::PoseStamped &msg)
 {  
     static tf2_ros::StaticTransformBroadcaster br;
     geometry_msgs::TransformStamped transformStamped;
@@ -120,7 +143,7 @@ void gimbalTF_Callback(const geometry_msgs::PoseStamped &msg)
     br.sendTransform(transformStamped);
 }
 
-void gimbalCallback(const geometry_msgs::PoseStamped& msg)
+void TFBroadcaster::gimbalCallback(const geometry_msgs::PoseStamped& msg)
 {
     static tf2_ros::StaticTransformBroadcaster br_gimbal;
     geometry_msgs::TransformStamped transformStamped_pose;
@@ -139,93 +162,36 @@ void gimbalCallback(const geometry_msgs::PoseStamped& msg)
     br_gimbal.sendTransform(transformStamped_pose);
 }
 
-
+void TFBroadcaster::initSubscriber()
+{
+    joystick_pose_sub_ = node_handle_.subscribe("/dasom/EE_command", 1, &TFBroadcaster::joystickCallback, this, ros::TransportHints().tcpNoDelay());
+    sub_EEpose_ = node_handle_.subscribe("/dasom/EE_pose", 10, &TFBroadcaster::PoseCallback, this); 
+    sub_gimbal_tf_ = node_handle_.subscribe("/dasom/gimbal_tf", 10, &TFBroadcaster::gimbalCallback, this);
+    gimbal_pose_sub_ = node_handle_.subscribe("/dasom/global_gimbal_pose", 1, &TFBroadcaster::globalgimbalCallback, this, ros::TransportHints().tcpNoDelay());                                              
+    sub_optitrack_ = node_handle_.subscribe("/dasombasePlate/world", 10, &TFBroadcaster::optitrackCallback, this, ros::TransportHints().tcpNoDelay());
+}
 
 int main(int argc, char **argv)
 {
-    ros::init(argc,argv,"setting_joystickCMD_tf");
+    ros::init(argc,argv,"tf_broadcaster");
     ros::NodeHandle nh;
 
-
-    ros::Subscriber joystick_pose_sub_ = nh.subscribe("/dasom/EE_command", 1, joystickCallback, ros::TransportHints().tcpNoDelay());
-
-    ros::Subscriber sub_EEpose = nh.subscribe("/dasom/EE_pose", 10, &PoseCallback); 
-    ros::Subscriber sub_gimbal_tf = nh.subscribe("/dasom/gimbal_tf", 10, &gimbalCallback);
-    ros::Subscriber gimbal_pose_sub_ = nh.subscribe("/dasom/global_gimbal_pose", 1, gimbalTF_Callback, ros::TransportHints().tcpNoDelay());
-
-    ros::Publisher EE_drone_pose_pub_ = nh.advertise<geometry_msgs::PoseStamped>("/dasom/EE_drone_pose", 10);
-
-    ros::Publisher testpub_ = nh.advertise<geometry_msgs::Twist>("/testpub1", 10);
-    ros::Publisher testpub2_ = nh.advertise<geometry_msgs::Twist>("/testpub2", 10);
-                                                                          
-    ros::Subscriber sub_optitrack = nh.subscribe("/dasombasePlate/world", 10, &optitrackCallback);
+    TFBroadcaster tf_br_;
 
     ros::Rate loop(100);
-    double time_i = ros::Time::now().toSec();
-    double time_f = 0;
-    double time_loop = 0;
 
-    static tf2_ros::StaticTransformBroadcaster br;
-    geometry_msgs::TransformStamped transformStamped;
-    optitrackQuat.resize(7);
-    optitrackQuat_lpf.resize(7);
-
-    DasomJoint ds1(8, 8);
-    DasomJoint ds2(8, 8);
-    DasomJoint ds3(8, 8);
-    DasomJoint ds4(8, 8);
-    DasomJoint ds5(8, 8);
-    DasomJoint ds6(8, 8);
-    DasomJoint ds7(8, 8);
-
-    geometry_msgs::Twist testpub;
-    geometry_msgs::Twist testpub2;
-
+    tf_br_.time_i = ros::Time::now().toSec();
+    tf_br_.time_f = 0;
+    tf_br_.time_loop = 0;
 
     while(ros::ok())
     {
-    time_f = ros::Time::now().toSec();
-    time_loop = time_f - time_i;
-    time_i = ros::Time::now().toSec();
-
-    optitrackQuat_lpf[0] = ds1.updateLPF(time_loop, optitrackQuat[0]);
-    optitrackQuat_lpf[1] = ds2.updateLPF(time_loop, optitrackQuat[1]);
-    optitrackQuat_lpf[2] = ds3.updateLPF(time_loop, optitrackQuat[2]);
-    optitrackQuat_lpf[3] = ds4.updateLPF(time_loop, optitrackQuat[3]);
-    optitrackQuat_lpf[4] = ds5.updateLPF(time_loop, optitrackQuat[4]);
-    optitrackQuat_lpf[5] = ds6.updateLPF(time_loop, optitrackQuat[5]);
-    optitrackQuat_lpf[6] = ds7.updateLPF(time_loop, optitrackQuat[6]);
-
-
-        transformStamped.header.stamp = ros::Time::now();
-        transformStamped.header.frame_id = "world";
-        transformStamped.child_frame_id = "paletrone";
-        transformStamped.transform.translation.x = optitrackQuat[0];
-        transformStamped.transform.translation.y = optitrackQuat[1];
-        transformStamped.transform.translation.z = optitrackQuat[2];
-
-        transformStamped.transform.rotation.x = optitrackQuat[3];
-        transformStamped.transform.rotation.y = optitrackQuat[4];
-        transformStamped.transform.rotation.z = optitrackQuat[5];
-        transformStamped.transform.rotation.w = optitrackQuat[6];
-
-        br.sendTransform(transformStamped);
+        tf_br_.time_f = ros::Time::now().toSec();
+        tf_br_.time_loop = tf_br_.time_f - tf_br_.time_i;
+        tf_br_.time_i = ros::Time::now().toSec();
 
         ros::spinOnce();
         loop.sleep();
-
-
-    // testpub.linear.x = optitrackQuat[0];
-    // testpub.linear.y = optitrackQuat[1];
-    // testpub.linear.z = optitrackQuat[2];
-    // testpub.angular.x = optitrackQuat_lpf[0];
-    // testpub.angular.y = optitrackQuat_lpf[1];
-    // testpub.angular.z = optitrackQuat_lpf[2];
-
-
-
-
-    // testpub_.publish(testpub);
     }
 
     return 0;

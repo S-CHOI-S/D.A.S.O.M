@@ -214,6 +214,3 @@ add_executable(tf_listener src/tf_listener.cpp)
 add_dependencies(tf_listener ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(tf_listener ${catkin_LIBRARIES})
 
-add_executable(tf_listener_2 src/tf_listener_2.cpp)
-add_dependencies(tf_listener_2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(tf_listener_2 ${catkin_LIBRARIES})
