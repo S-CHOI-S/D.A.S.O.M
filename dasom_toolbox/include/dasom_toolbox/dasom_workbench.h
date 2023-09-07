@@ -37,6 +37,12 @@ namespace dasom
     /*****************************************************************************
     ** Define variables
     *****************************************************************************/
+    // For MCG Dynamics
+    KDL::JntSpaceInertiaMatrix H;
+    KDL::JntArray C;
+    KDL::JntArray G;
+
+    // For admittance control
     double virtual_mass_x;
     double virtual_damper_x;
     double virtual_spring_x;
@@ -51,7 +57,7 @@ namespace dasom
     ** Define functions
     *****************************************************************************/ 
     void test();  
-    void KDLrun();
+    void KDLrun(Eigen::VectorXd angle, Eigen::VectorXd velocity);
     void initializeRobotLinks();
     void computeMCGDynamics();
     void initializeAdmittance();
@@ -79,8 +85,6 @@ namespace dasom
     KDL::JntArray q_;      // 관절 위치
     KDL::JntArray q_dot_;  // 관절 속도
     KDL::JntArray q_dotdot_; // 관절 가속도
-
-    double cnt__ = 0;
 
     // For admittance control
     Eigen::Matrix2d A_x;

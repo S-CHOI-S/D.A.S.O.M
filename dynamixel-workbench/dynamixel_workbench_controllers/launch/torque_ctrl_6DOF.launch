@@ -14,9 +14,9 @@
   <arg name="position_i_gain" 	       default="0"/>
   <arg name="position_d_gain"	       default="700"/>
 
-  <arg name="position_p_gain_2nd"	       default="1200"/>
-  <arg name="position_i_gain_2nd" 	       default="0"/>
-  <arg name="position_d_gain_2nd"	       default="900"/>
+  <arg name="position_p_gain_2nd"      default="1500"/>
+  <arg name="position_i_gain_2nd"      default="0"/>
+  <arg name="position_d_gain_2nd"      default="1000"/>
 
 <!--end-->
   <param name="device_name"            value="$(arg device_name)"/>

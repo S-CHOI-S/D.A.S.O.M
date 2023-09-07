@@ -414,6 +414,7 @@ void sine_wave_vibration();
 void get_Rotation_matrix();
 void external_force_estimation();
 void admittance_controller();
+void joystickCallback(const geometry_msgs::Twist &msg);
 //-------------------------------------------------------
 
 //Publisher Group--------------------------------------
@@ -542,6 +543,16 @@ double accel_cutoff_freq = 1.0;
 //-----------------------------------------------------
 //Position DOB-----------------------------------------
 double pos_dob_cutoff_freq=1.0; 
+
+//-----------------------------------------------------
+//추가-------------------------------------------------
+bool position_joystick_control = false; //false: 조종기가 xy 포지션 커맨드 줌. true: 조이스틱이 xy 포지션 커맨드 줌
+Eigen::Vector3d haptic_command; // /phantom/xyzrpy
+double haptic_command_velocity_limit = 0.2; // [m/s]
+double X_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
+double Y_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
+//-----------------------------------------------------
+
 
 Eigen::MatrixXd MinvQ_A(4,4);
 Eigen::MatrixXd MinvQ_B(4,1);
@@ -695,6 +706,8 @@ int main(int argc, char **argv){
 	ros::Subscriber t265_pos=nh.subscribe("/t265_pos",100,posCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_rot=nh.subscribe("/t265_rot",100,rotCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_odom=nh.subscribe("/rs_t265/odom/sample",100,t265OdomCallback,ros::TransportHints().tcpNoDelay());
+	ros::Subscriber joystick_sub_ = nh.subscribe("/phantom/xyzrpy", 10, joystickCallback, ros::TransportHints().tcpNoDelay()); //추가
+
 	
 	ros::Timer timerPublish = nh.createTimer(ros::Duration(1.0/200.0),std::bind(publisherSet));
     ros::spin();
@@ -874,9 +887,28 @@ void rpyT_ctrl() {
 	}
 	if(position_mode || velocity_mode){
 		if(position_mode){
-			X_d = X_d_base - XY_limit*(((double)Sbus[1]-(double)1500)/(double)500);
-			Y_d = Y_d_base + XY_limit*(((double)Sbus[3]-(double)1500)/(double)500);
-		
+			if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
+			{
+				X_d = X_d_base - XY_limit*(((double)Sbus[1]-(double)1500)/(double)500); // 이걸 바꾼다 // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+				Y_d = Y_d_base + XY_limit*(((double)Sbus[3]-(double)1500)/(double)500); // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+			
+				ROS_INFO("FUTABA MODE!!!");
+			}
+			else
+			// joystick control mode일 때
+			// 만약 joystick의 위치가 일정 범위를 넘어간다면 드론 command를 주는 것으로!
+			{
+				// joystick의 위치가 일정 범위 이내에 있다면 -> 드론이 움직일 필요없음
+				// joystick의 위치가 일정 범위 밖에 있다면 -> 드론이 움직여야 함!
+				X_d = X_d + haptic_command_velocity_limit*((double)haptic_command[0]/(double)0.2)*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
+				Y_d = Y_d + haptic_command_velocity_limit*((double)haptic_command[1]/(double)0.13)*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
+				X_d_base = X_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
+				Y_d_base = Y_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
+			
+				ROS_WARN("JoYStIcK MOdE :) ");
+			}
+
+
 			e_X = X_d - pos.x;// X_r-pos.x;
 			e_Y = Y_d - pos.y;// Y_r-pos.y; #2023.08.17 update
 			e_X_i += e_X * delta_t.count();
@@ -1171,7 +1203,10 @@ void sbusCallback(const std_msgs::Int16MultiArray::ConstPtr& array){
 	}
 	
 	if(Sbus[4]<1500) kill_mode=true;
-	else kill_mode=false;
+	else {
+		kill_mode=false;
+		tilt_mode=true;
+	}
 	
 	if(Sbus[5]>1500) altitude_mode=true;
 	else altitude_mode=false;
@@ -1192,8 +1227,8 @@ void sbusCallback(const std_msgs::Int16MultiArray::ConstPtr& array){
 		position_mode=true;
 	}
 
-	if(Sbus[7]>1500) tilt_mode=true;
-	else tilt_mode=false;
+	if(Sbus[7]>1500) position_joystick_control = true;
+	else position_joystick_control = false;
 
 	if(Sbus[9]>1500) admittance_mode=true;
 	else admittance_mode=true;
@@ -1613,4 +1648,24 @@ void position_dob(){
 	
 	reference_position.x=X_tilde_r;
 	reference_position.y=Y_tilde_r;
+}
+
+
+void joystickCallback(const geometry_msgs::Twist &msg) //추가바
+{
+	haptic_command[0] = msg.linear.x; // 대략 -0.2 ~ 0.2
+	haptic_command[1] = msg.linear.y; // 대략 -0.15 ~ 0
+	haptic_command[2] = msg.linear.z; // 고려 안 함
+
+	if (fabs(haptic_command[0]) > 0.2)
+	{
+		if(haptic_command[0] > 0) haptic_command[0] = 0.2;
+		else haptic_command[0] = -0.2;
+	}
+
+	if (haptic_command[1] < -0.13) haptic_command[1] = -0.13;
+
+  	// ROS_WARN("JOYhapticmd = %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2]);
+	// ROS_WARN("time_loop = %lf", delta_t.count());
+	// ROS_INFO("X_d, Y_d = %lf, %lf", X_d, Y_d);
 }

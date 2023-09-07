@@ -155,6 +155,7 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::MatrixXd J;
   Eigen::MatrixXd JT;
   Eigen::MatrixXd JTI;
+  Eigen::VectorXd velocity_measured;
   Eigen::VectorXd tau_ext;
   Eigen::VectorXd tau_measured;
   Eigen::VectorXd tau_gravity;

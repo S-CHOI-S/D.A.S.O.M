@@ -90,6 +90,7 @@ DasomControl::DasomControl()
   J.resize(6,6);
   JT.resize(6,6);
   JTI.resize(6,6);
+  velocity_measured.resize(6,1);
   tau_ext.resize(6,1);
   tau_measured.resize(6,1);
   tau_gravity.resize(6,1);
@@ -155,6 +156,13 @@ void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   angle_measured[3] = msg->position.at(3);
   angle_measured[4] = msg->position.at(4);
   angle_measured[5] = msg->position.at(5);
+
+  // velocity_measured[0] = msg->velocity.at(0);
+  // velocity_measured[1] = msg->velocity.at(1);
+  // velocity_measured[2] = msg->velocity.at(2);
+  // velocity_measured[3] = msg->velocity.at(3);
+  // velocity_measured[4] = msg->velocity.at(4);
+  // velocity_measured[5] = msg->velocity.at(5);
 
   tau_measured[0] = msg->effort.at(0); 
   tau_measured[1] = msg->effort.at(1); 
@@ -238,6 +246,8 @@ void DasomControl::CalcExternalForce()
   JTI = JT.inverse(); // completeOrthogonalDecomposition().pseudoInverse();
 
   tau_ext = tau_measured - tau_gravity;
+
+  KDLrun(angle_measured, velocity_measured);
 }
 
 void DasomControl::AdmittanceControl()
@@ -436,9 +446,6 @@ void DasomControl::PublishData()
   joint_cmd.position.push_back(angle_safe[5]);
   // joint_cmd.position.push_back(gripper_cmd);
 
-  
-
-
   // joint_cmd.velocity.push_back(angle_d[1]); 
   // joint_cmd.velocity.push_back(angle_ref[1]); 
   // joint_cmd.velocity.push_back(angle_ref[2]); 
@@ -464,9 +471,9 @@ void DasomControl::test()
   first_publisher.linear.x = EE_command_vel_limit[0];
   first_publisher.linear.y = EE_command_vel_limit[1];
   first_publisher.linear.z = EE_command_vel_limit[2];
-  first_publisher.angular.x = EE_command[0];
-  first_publisher.angular.y = EE_command[1];
-  first_publisher.angular.z = EE_command[2];
+  first_publisher.angular.x = FK_pose[0];
+  first_publisher.angular.y = FK_pose[1];
+  first_publisher.angular.z = FK_pose[2];
 
   second_publisher.linear.x = angle_measured[0];
   second_publisher.linear.y = angle_measured[1];

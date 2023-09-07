@@ -66,19 +66,16 @@ TorqueControl::TorqueControl()
     dxl_wb_->itemWrite(dxl_id_[index], "Position_D_Gain", position_d_gain);
   }
 
+  dxl_wb_->itemWrite(dxl_id_[1], "Position_P_Gain", position_p_gain_2nd);
+  dxl_wb_->itemWrite(dxl_id_[1], "Position_I_Gain", position_i_gain_2nd);
+  dxl_wb_->itemWrite(dxl_id_[1], "Position_D_Gain", position_d_gain_2nd);
 
-    dxl_wb_->itemWrite(dxl_id_[1], "Position_P_Gain", position_p_gain_2nd);
-    dxl_wb_->itemWrite(dxl_id_[1], "Position_I_Gain", position_i_gain_2nd);
-    dxl_wb_->itemWrite(dxl_id_[1], "Position_D_Gain", position_d_gain_2nd);
-
-    dxl_wb_->itemWrite(dxl_id_[2], "Position_P_Gain", position_p_gain_2nd);
-    dxl_wb_->itemWrite(dxl_id_[2], "Position_I_Gain", position_i_gain_2nd);
-    dxl_wb_->itemWrite(dxl_id_[2], "Position_D_Gain", position_d_gain_2nd);
-
+  dxl_wb_->itemWrite(dxl_id_[2], "Position_P_Gain", position_p_gain_2nd);
+  dxl_wb_->itemWrite(dxl_id_[2], "Position_I_Gain", position_i_gain_2nd);
+  dxl_wb_->itemWrite(dxl_id_[2], "Position_D_Gain", position_d_gain_2nd);
 
   initPublisher();
   initSubscriber();
-
 }
 
 TorqueControl::~TorqueControl()

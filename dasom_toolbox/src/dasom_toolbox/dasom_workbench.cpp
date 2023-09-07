@@ -58,18 +58,18 @@ void DasomWorkbench::test()
   ROS_INFO("HI! Here is DasomWorkbench!");
 }
 
-void DasomWorkbench::KDLrun()
+void DasomWorkbench::KDLrun(Eigen::VectorXd angle, Eigen::VectorXd velocity)
 {
   // 관절 상태 초기화 및 MCG 다이나믹스 행렬 계산 등의 작업 수행
 
   // 여기서 관절 위치(q_), 관절 속도(q_dot_), 관절 가속도(q_dotdot_)를 초기화할 수 있습니다.
   for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
   {
-    q_(i) = sin(cnt__ / 100);         // 관절 위치를 적절히 설정하세요.
-    q_dot_(i) = sin(cnt__ / 100 + 1); // 관절 속도를 적절히 설정하세요.
-    q_dotdot_(i) = sin(cnt__ / 100 - 1); // 관절 가속도를 적절히 설정하세요.
+    q_(i) = angle[i];         // 관절 위치를 적절히 설정하세요.
+    q_dot_(i) = velocity[i]; // 관절 속도를 적절히 설정하세요.
+    q_dotdot_(i) = 0; // 관절 가속도를 적절히 설정하세요.
   }
-  
+
   computeMCGDynamics();
 }
 
@@ -115,16 +115,17 @@ void DasomWorkbench::initializeRobotLinks()
   q_.resize(num_joints);     // 관절 위치
   q_dot_.resize(num_joints); // 관절 속도
   q_dotdot_.resize(num_joints); // 관절 가속도
+
+  // MCG 다이나믹스 행렬을 계산하는데 사용할 변수들을 선언합니다.
+  H.resize(kdl_chain_.getNrOfJoints()); // M matrix
+  C.resize(kdl_chain_.getNrOfJoints()); // C matrix
+  G.resize(kdl_chain_.getNrOfJoints()); // G matrix
 }
 
 void DasomWorkbench::computeMCGDynamics()
 {
   // MCG 다이나믹스 행렬을 계산하고 출력하는 작업을 수행합니다.
 
-  // MCG 다이나믹스 행렬을 계산하는데 사용할 변수들을 선언합니다.
-  KDL::JntSpaceInertiaMatrix H(kdl_chain_.getNrOfJoints());
-  KDL::JntArray C(kdl_chain_.getNrOfJoints());
-  KDL::JntArray G(kdl_chain_.getNrOfJoints());
   KDL::JntArray q_dotdot_desired(kdl_chain_.getNrOfJoints());
 
   // 관절 상태 및 원하는 관절 가속도를 설정합니다. (임의로 설정된 값입니다.)
