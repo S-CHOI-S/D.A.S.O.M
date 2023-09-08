@@ -123,10 +123,10 @@ void TorqueControl::jointStatePublish()
   for (int index = 0; index < dxl_cnt_; index++)
     present_position[index] = dxl_wb_->itemRead(dxl_id_[index], "Present_Position");
 
-  // int32_t present_velocity[dxl_cnt_] = {0, };
+  int32_t present_velocity[dxl_cnt_] = {0, };
 
-  // for (int index = 0; index < dxl_cnt_; index++)
-  //   present_velocity[index] = dxl_wb_->itemRead(dxl_id_[index], "Present_Velocity");
+  for (int index = 0; index < dxl_cnt_; index++)
+    present_velocity[index] = dxl_wb_->itemRead(dxl_id_[index], "Present_Velocity");
 
   int16_t present_current[dxl_cnt_] = {0, };
 
@@ -144,7 +144,7 @@ void TorqueControl::jointStatePublish()
     dynamixel_.name.push_back(id_num.str());
 
     dynamixel_.position.push_back(dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]));
-    // dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]);
+    dynamixel_.velocity.push_back(dxl_wb_->convertValue2Velocity(dxl_id_[index], present_velocity[index]));
     dynamixel_.effort.push_back(dxl_wb_->convertValue2Torque(dxl_id_[index], present_current[index]));
 
     present_position_[index] = dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]);

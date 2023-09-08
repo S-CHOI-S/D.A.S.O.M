@@ -120,6 +120,10 @@ void DasomWorkbench::initializeRobotLinks()
   H.resize(kdl_chain_.getNrOfJoints()); // M matrix
   C.resize(kdl_chain_.getNrOfJoints()); // C matrix
   G.resize(kdl_chain_.getNrOfJoints()); // G matrix
+
+  M_matrix.resize(H.rows(), H.columns()); // M matrix
+  C_matrix.resize(C.rows()); // C matrix
+  G_matrix.resize(G.rows()); // G matrix
 }
 
 void DasomWorkbench::computeMCGDynamics()
@@ -142,30 +146,48 @@ void DasomWorkbench::computeMCGDynamics()
   dyn_param.JntToCoriolis(q_, q_dot_, C);
   dyn_param.JntToGravity(q_, G);
 
-  // 계산된 MCG 다이나믹스 행렬을 출력합니다.
-  ROS_INFO("Mass matrix (H):");
-  for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  for (int i = 0; i < H.rows(); ++i) 
   {
-    for (unsigned int j = 0; j < kdl_chain_.getNrOfJoints(); ++j)
+    for (int j = 0; j < H.columns(); ++j) 
     {
-      ROS_INFO("%f\t", H(i, j));
+      M_matrix(i, j) = H(i, j);
     }
-    ROS_INFO("\n");
   }
 
-  ROS_INFO("Coriolis matrix (C):");
-  for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  for (int i = 0; i < C.rows(); ++i) 
   {
-    ROS_INFO("%f\t", C(i));
+    C_matrix(i) = C(i);
   }
-  ROS_INFO("\n");
 
-  ROS_INFO("Gravity vector (G):");
-  for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  for (int i = 0; i < G.rows(); ++i) 
   {
-    ROS_INFO("%f\t", G(i));
+    G_matrix(i) = G(i);
   }
-  ROS_INFO("\n");
+
+  // 계산된 MCG 다이나믹스 행렬을 출력합니다.
+  // ROS_INFO("Mass matrix (H):");
+  // for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  // {
+  //   for (unsigned int j = 0; j < kdl_chain_.getNrOfJoints(); ++j)
+  //   {
+  //     ROS_INFO("%f\t", H(i, j));
+  //   }
+  //   ROS_INFO("\n");
+  // }
+
+  // ROS_INFO("Coriolis matrix (C):");
+  // for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  // {
+  //   ROS_INFO("%f\t", C(i));
+  // }
+  // ROS_INFO("\n");
+
+  // ROS_INFO("Gravity vector (G):");
+  // for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  // {
+  //   ROS_INFO("%f\t", G(i));
+  // }
+  // ROS_INFO("\n");
 }
 
 void DasomWorkbench::initializeAdmittance()

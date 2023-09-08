@@ -18,6 +18,8 @@
 #define DASOM_WORKBENCH_H_
 
 #include <ros/ros.h>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
 #include <kdl/chain.hpp>
 #include <kdl/chaindynparam.hpp>
 #include <kdl/jntarray.hpp>
@@ -38,9 +40,9 @@ namespace dasom
     ** Define variables
     *****************************************************************************/
     // For MCG Dynamics
-    KDL::JntSpaceInertiaMatrix H;
-    KDL::JntArray C;
-    KDL::JntArray G;
+    Eigen::MatrixXd M_matrix;
+    Eigen::VectorXd C_matrix;
+    Eigen::VectorXd G_matrix;
 
     // For admittance control
     double virtual_mass_x;
@@ -85,6 +87,11 @@ namespace dasom
     KDL::JntArray q_;      // 관절 위치
     KDL::JntArray q_dot_;  // 관절 속도
     KDL::JntArray q_dotdot_; // 관절 가속도
+
+    // For MCG Dynamics
+    KDL::JntSpaceInertiaMatrix H;
+    KDL::JntArray C;
+    KDL::JntArray G;
 
     // For admittance control
     Eigen::Matrix2d A_x;

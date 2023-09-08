@@ -25,6 +25,7 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <dynamixel_workbench_msgs/DasomDynamixel.h>
 #include <dynamixel_workbench_msgs/EECommand.h>
 #include <dasom_controllers/admittanceTest.h>
@@ -109,6 +110,7 @@ class DasomControl : public dasom::DasomWorkbench
   ros::Publisher joint_measured_pub_;
   ros::Publisher dasom_EE_pos_pub_;
   ros::Publisher gimbal_pub_;
+  ros::Publisher force_pub_;
   ros::Publisher test_Pub;
   ros::Publisher test_Pub2;
 
@@ -156,10 +158,8 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::MatrixXd JT;
   Eigen::MatrixXd JTI;
   Eigen::VectorXd velocity_measured;
-  Eigen::VectorXd tau_ext;
   Eigen::VectorXd tau_measured;
-  Eigen::VectorXd tau_gravity;
-  Eigen::Vector3d F_ext;
+  Eigen::VectorXd F_ext;
   Eigen::Vector3d F_max;
   Eigen::Vector3d F_min;
   Eigen::VectorXd hysteresis_max;

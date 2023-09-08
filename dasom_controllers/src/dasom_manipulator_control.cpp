@@ -91,15 +91,13 @@ DasomControl::DasomControl()
   JT.resize(6,6);
   JTI.resize(6,6);
   velocity_measured.resize(6,1);
-  tau_ext.resize(6,1);
   tau_measured.resize(6,1);
-  tau_gravity.resize(6,1);
-  F_ext.resize(3,1);
+  F_ext.resize(6,1);
   F_max.resize(3,1);
   F_min.resize(3,1);
   hysteresis_max.resize(6,1);
   hysteresis_min.resize(6,1);
-  F_ext << 0, 0, 0;
+  F_ext << 0, 0, 0, 0, 0, 0;
   F_max << 2.0, 1.0, 0;
   F_min << -2.0, -1.0, 0;
   hysteresis_max << 0.35, 0.27, 0.2, 0, 0, 0;
@@ -129,6 +127,7 @@ void DasomControl::initPublisher()
   joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>(robot_name_ + "/measured_dynamixel_position", 10);  
   dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_pose", 10); //use
   gimbal_pub_ = node_handle_.advertise<geometry_msgs::PoseStamped>(robot_name_ + "/global_gimbal_pose", 10); //use
+  force_pub_ = node_handle_.advertise<geometry_msgs::WrenchStamped>(robot_name_ + "/external_force", 10); //use
 
   // For Test
   test_Pub = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/test_Pub", 10); //use
@@ -157,12 +156,12 @@ void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   angle_measured[4] = msg->position.at(4);
   angle_measured[5] = msg->position.at(5);
 
-  // velocity_measured[0] = msg->velocity.at(0);
-  // velocity_measured[1] = msg->velocity.at(1);
-  // velocity_measured[2] = msg->velocity.at(2);
-  // velocity_measured[3] = msg->velocity.at(3);
-  // velocity_measured[4] = msg->velocity.at(4);
-  // velocity_measured[5] = msg->velocity.at(5);
+  velocity_measured[0] = msg->velocity.at(0);
+  velocity_measured[1] = msg->velocity.at(1);
+  velocity_measured[2] = msg->velocity.at(2);
+  velocity_measured[3] = msg->velocity.at(3);
+  velocity_measured[4] = msg->velocity.at(4);
+  velocity_measured[5] = msg->velocity.at(5);
 
   tau_measured[0] = msg->effort.at(0); 
   tau_measured[1] = msg->effort.at(1); 
@@ -241,13 +240,28 @@ void DasomControl::gimbalCmdCallback(const geometry_msgs::PoseStamped &msg)
 
 void DasomControl::CalcExternalForce()
 {
+  geometry_msgs::WrenchStamped ext_force;
+
   J = Jacobian(angle_measured);
   JT = J.transpose();
   JTI = JT.inverse(); // completeOrthogonalDecomposition().pseudoInverse();
 
-  tau_ext = tau_measured - tau_gravity;
+  KDLrun(angle_measured, velocity_measured); // Compute MCG Dynamics
 
-  KDLrun(angle_measured, velocity_measured);
+  F_ext = JTI * (tau_measured - C_matrix - G_matrix);
+
+  std::cout<<F_ext<<std::endl;
+
+  ext_force.header.stamp = ros::Time::now();
+
+  ext_force.wrench.force.x = F_ext[0];
+  ext_force.wrench.force.y = F_ext[1];
+  ext_force.wrench.force.z = F_ext[2];
+  ext_force.wrench.torque.x = F_ext[3];
+  ext_force.wrench.torque.y = F_ext[4];
+  ext_force.wrench.torque.z = F_ext[5];
+
+  force_pub_.publish(ext_force);
 }
 
 void DasomControl::AdmittanceControl()
@@ -531,6 +545,7 @@ int main(int argc, char **argv)
       ds_ctrl_.SolveInverseKinematics();
       // ds_ctrl_.DOB();
       ds_ctrl_.AngleSafeFunction();
+      ds_ctrl_.CalcExternalForce();
       ds_ctrl_.PublishData();
       ds_ctrl_.test();
     }
