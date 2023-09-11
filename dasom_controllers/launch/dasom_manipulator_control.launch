@@ -1,12 +1,14 @@
 <launch>
   <rosparam command="load" file="$(find dasom_controllers)/config/link.yaml"/>
   <rosparam command="load" file="$(find dasom_controllers)/config/admittance.yaml"/>
-  <rosparam command="load" file="$(find dasom_controllers)/config/dob.yaml"/>
+  
 
   <arg name="robot_name"      default="dasom"/>
 
   <param name="robot_name"    value="$(arg robot_name)"/>
 
-  <node name="dasom_manipulator_control" pkg="dasom_controllers" type="dasom_manipulator_control" required="true" output="screen"/> 
+  <node name="dasom_manipulator_control" pkg="dasom_controllers" type="dasom_manipulator_control" required="true" output="screen"> 
+     <rosparam command="load" file="$(find dasom_controllers)/config/dob.yaml"/>
+  </node>
 
 </launch>

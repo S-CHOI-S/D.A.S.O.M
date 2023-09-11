@@ -30,6 +30,14 @@ DasomWorkbench::DasomWorkbench()
   l6 = priv_nh_.param<double>("l6", 0.04233);
   l7 = priv_nh_.param<double>("l7", 0.1);
 
+  m1 = priv_nh_.param<double>("m1", 0.201);
+  m2 = priv_nh_.param<double>("m2", 0.201);
+  m3 = priv_nh_.param<double>("m3", 0.201);
+  m4 = priv_nh_.param<double>("m4", 0.201);
+  m5 = priv_nh_.param<double>("m5", 0.201);
+  m6 = priv_nh_.param<double>("m6", 0.201);
+  m7 = priv_nh_.param<double>("m7", 0.201);
+
   // For admittance control
   virtual_mass_x = priv_nh_.param<double>("virtual_mass_x", 1);
   virtual_damper_x = priv_nh_.param<double>("virtual_damper_x", 1);
@@ -60,14 +68,11 @@ void DasomWorkbench::test()
 
 void DasomWorkbench::KDLrun(Eigen::VectorXd angle, Eigen::VectorXd velocity)
 {
-  // 관절 상태 초기화 및 MCG 다이나믹스 행렬 계산 등의 작업 수행
-
-  // 여기서 관절 위치(q_), 관절 속도(q_dot_), 관절 가속도(q_dotdot_)를 초기화할 수 있습니다.
   for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
   {
-    q_(i) = angle[i];         // 관절 위치를 적절히 설정하세요.
-    q_dot_(i) = velocity[i]; // 관절 속도를 적절히 설정하세요.
-    q_dotdot_(i) = 0; // 관절 가속도를 적절히 설정하세요.
+    q_(i) = angle[i];
+    q_dot_(i) = velocity[i];
+    q_dotdot_(i) = 0;
   }
 
   computeMCGDynamics();
@@ -75,48 +80,51 @@ void DasomWorkbench::KDLrun(Eigen::VectorXd angle, Eigen::VectorXd velocity)
 
 void DasomWorkbench::initializeRobotLinks()
 {
-  // 로봇팔의 구성 정보를 직접 작성합니다.
-  unsigned int num_joints = 6;  // 관절의 수
-  unsigned int num_links = num_joints + 1;  // 링크의 수
+  unsigned int num_joints = 7;
+  unsigned int num_links = num_joints;
+  // unsigned int num_joints = 6;
+  // unsigned int num_links = num_joints + 1;
 
-  // 각 링크의 길이, 질량, 무게 중심, 관성 모멘트 정보를 설정합니다.
-  std::vector<double> link_lengths(num_links);        // 링크 길이
-  std::vector<double> link_masses(num_links);         // 링크 질량
-  std::vector<KDL::Vector> link_cogs(num_links);       // 링크 무게 중심
-  std::vector<KDL::RotationalInertia> link_inertias(num_links);  // 링크 관성 모멘트
-  
-  // 각 링크의 길이, 질량, 무게 중심, 관성 모멘트 정보를 초기화합니다.
-  for (unsigned int i = 0; i < num_links; ++i)
-  {
-    link_lengths[i] = 0.158;                   // 링크의 길이를 적절히 설정하세요.
-    link_masses[i] = 0.201;                    // 링크의 질량을 적절히 설정하세요.
-    link_cogs[i] = KDL::Vector(0.128, 0.072, 0.0); // 링크의 무게 중심을 적절히 설정하세요.
-    double ixx = 0.000067648;                        // 관성 모멘트 정보를 적절히 설정하세요.
-    double iyy = 0.000340463;
-    double izz = 0.000310225;
-    double ixy = 0.0;
-    double ixz = 0.000001570;
-    double iyz = 0.0;
-    link_inertias[i] = KDL::RotationalInertia(ixx, iyy, izz, ixy, ixz, iyz); // 초기화된 관성 모멘트를 설정합니다.
-  }
+  link_lengths.resize(num_links);
+  link_masses.resize(num_links);
+  link_cogs.resize(num_links);
+  link_inertias.resize(num_links);
 
-  // 로봇팔의 체인을 생성합니다.
-  for (unsigned int i = 0; i < num_joints; ++i)
-  {
-    KDL::Vector joint_axis(0.0, 0.0, 1.0);  // 관절 축을 설정합니다.
-    KDL::Joint joint(KDL::Joint::RotZ);     // 관절 유형을 설정합니다. 여기서는 회전 관절(RotZ)을 사용합니다.
-    KDL::Frame frame(KDL::Vector(link_lengths[i], 0.0, 0.0));  // 관절 위치를 설정합니다.
-    frame.p = link_cogs[i];  // 링크의 무게 중심을 설정합니다.
-    KDL::RigidBodyInertia link_inertia(link_masses[i], link_cogs[i], link_inertias[i]); // 관성 모멘트를 설정합니다.
-    kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
-  }
+  link_lengths = {l1, l2, l3, l4, l5, l6, l7};
+  link_masses = {m1, m2, m3, m4, m5, m6, m7};
+  link_cogs = {
+                1.0e-03 * KDL::Vector(120.79, 0.0, 0.39), // link1
+                1.0e-03 * KDL::Vector(120.79, 0.0, 0.39), // link2
+                1.0e-03 * KDL::Vector(92.17, -8.86, -0.27), // link3
+                1.0e-03 * KDL::Vector(47.97, 0.0, 2.18), // link4
+                1.0e-03 * KDL::Vector(2.28, -0.41, 35.44), // link5
+                1.0e-03 * KDL::Vector(43.4, 3.68, 38.04), // link6
+                1.0e-03 * KDL::Vector(6.27, 53.07, -44.27)  // link7
+              };
+  // link_inertias = KDL::RotationalInertia(ixx, iyy, izz, ixy, ixz, iyz);
+  link_inertias = {
+                    1.0e-09 * KDL::RotationalInertia(0, 0, 0, 0, 0, 0), // link1
+                    1.0e-09 * KDL::RotationalInertia(73214.39, 465871.33, 432808.44, 14.73, 2214.66, 0.08), // link2
+                    1.0e-09 * KDL::RotationalInertia(53931.12, 191227.48, 197544.93, -24494.86, -744.82, 197.08), // link3
+                    1.0e-09 * KDL::RotationalInertia(5484.39, 11290.33, 13145.13, 0.0, -1779.56, 0.0), // link4
+                    1.0e-09 * KDL::RotationalInertia(20230.61, 23201.55, 13599.39, 0.0, 28.67, 0.0), // link5
+                    1.0e-09 * KDL::RotationalInertia(49705.97, 72814.73, 39460.09, -4033.85, 17779.66, -3638.54), // link6
+                    1.0e-09 * KDL::RotationalInertia(728539.02, 332109.09, 538223.79, -68916.07, 9006.52, -27419.39)  // link7
+                  };
 
-  // 로봇 관절 상태를 설정합니다.
-  q_.resize(num_joints);     // 관절 위치
-  q_dot_.resize(num_joints); // 관절 속도
-  q_dotdot_.resize(num_joints); // 관절 가속도
+  // Set Joint Configuration
+  addJointSegmentZ(0,2);
+  addJointSegmentX(1,1);
+  addJointSegmentX(2,1);
+  addJointSegmentY(3,-2);
+  addJointSegmentFixed(4,1);
+  addJointSegmentX(5,2);
+  addJointSegmentX(6,0);
 
-  // MCG 다이나믹스 행렬을 계산하는데 사용할 변수들을 선언합니다.
+  q_.resize(num_joints);
+  q_dot_.resize(num_joints);
+  q_dotdot_.resize(num_joints);
+
   H.resize(kdl_chain_.getNrOfJoints()); // M matrix
   C.resize(kdl_chain_.getNrOfJoints()); // C matrix
   G.resize(kdl_chain_.getNrOfJoints()); // G matrix
@@ -126,22 +134,127 @@ void DasomWorkbench::initializeRobotLinks()
   G_matrix.resize(G.rows()); // G matrix
 }
 
-void DasomWorkbench::computeMCGDynamics()
+void DasomWorkbench::addJointSegmentX(int jnt_num, int link_frame)
 {
-  // MCG 다이나믹스 행렬을 계산하고 출력하는 작업을 수행합니다.
+  KDL::Vector joint_axis(1.0, 0.0, 0.0);
+  KDL::Joint joint(KDL::Joint::RotX);
+  KDL::Frame frame;
 
-  KDL::JntArray q_dotdot_desired(kdl_chain_.getNrOfJoints());
-
-  // 관절 상태 및 원하는 관절 가속도를 설정합니다. (임의로 설정된 값입니다.)
-  for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  // heading axis
+  // 0: X, 1: Y, 2: Z
+  if(link_frame == 0) 
   {
-    q_dotdot_desired(i) = 0.0; // 원하는 관절 가속도를 설정하세요. (임의로 0으로 설정하였습니다.)
+    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
+  }
+  else if(link_frame == 1) 
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
+  }
+  else if(link_frame == 2) 
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
+  }
+  
+  frame.p = link_cogs[jnt_num];
+  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
+  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
+}
+
+void DasomWorkbench::addJointSegmentY(int jnt_num, int link_frame)
+{
+  KDL::Vector joint_axis(0.0, 1.0, 0.0);
+  KDL::Joint joint(KDL::Joint::RotY);
+  KDL::Frame frame;
+
+  // heading axis
+  // 0: X, 1: Y, 2: Z
+  if(link_frame == 0) 
+  {
+    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
+  }
+  else if(link_frame == 1) 
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
+  }
+  else if(link_frame == 2)  
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
+  }
+  
+  frame.p = link_cogs[jnt_num];
+  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
+  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
+}
+
+void DasomWorkbench::addJointSegmentZ(int jnt_num, int link_frame)
+{
+  KDL::Vector joint_axis(0.0, 0.0, 1.0);
+  KDL::Joint joint(KDL::Joint::RotZ);
+  KDL::Frame frame;
+
+  // heading axis
+  // 0: X, 1: Y, 2: Z, -2: -Z
+  if(link_frame == 0) 
+  {
+    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
+  }
+  else if(link_frame == 1) 
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
+  }
+  else if(link_frame == 2)  
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
+  }
+  else if(link_frame == -2)  
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, 0.0, -link_lengths[jnt_num]));
   }
 
-  // MCG 다이나믹스 행렬 계산을 위해 ChainDynParam 클래스 객체를 생성합니다.
-  KDL::ChainDynParam dyn_param(kdl_chain_, KDL::Vector(0.0, 0.0, -9.81)); // 중력 벡터를 설정합니다.
+  frame.p = link_cogs[jnt_num];
+  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
+  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
+}
 
-  // MCG 다이나믹스 행렬을 계산합니다.
+void DasomWorkbench::addJointSegmentFixed(int jnt_num, int link_frame)
+{
+  KDL::Joint joint(KDL::Joint::None);
+  KDL::Frame frame;
+
+  if (link_frame == 0)
+  {
+    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
+  }
+  else if (link_frame == 1)
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
+  }
+  else if (link_frame == 2)
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
+  }
+  else if (link_frame == -2)
+  {
+    frame = KDL::Frame(KDL::Vector(0.0, 0.0, -link_lengths[jnt_num]));
+  }
+
+  frame.p = link_cogs[jnt_num];
+  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
+  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
+}
+
+
+void DasomWorkbench::computeMCGDynamics()
+{
+  KDL::JntArray q_dotdot_desired(kdl_chain_.getNrOfJoints());
+
+  for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
+  {
+    q_dotdot_desired(i) = 0.0; // desired joint accel
+  }
+
+  KDL::ChainDynParam dyn_param(kdl_chain_, KDL::Vector(0.0, 0.0, -9.81));
+
   dyn_param.JntToMass(q_, H);
   dyn_param.JntToCoriolis(q_, q_dot_, C);
   dyn_param.JntToGravity(q_, G);

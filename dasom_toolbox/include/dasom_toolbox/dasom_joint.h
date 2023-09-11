@@ -35,7 +35,7 @@ class DasomJoint
   void test();
   double updateLPF(double time_loop, double input_data);
   void initDOB();
-  double updateDOB(double time_loop, double angle_ref, double angle_measured);
+  double updateDOB(double time_loop, double angle_measured);
 
  private:
   /*****************************************************************************

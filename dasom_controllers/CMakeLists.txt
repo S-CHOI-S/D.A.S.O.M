@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   setting_tf2
   omni_common
   omni_msgs
+  serial
 )
 
 ## System dependencies are found with CMake's conventions
@@ -52,7 +53,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES turtles
-  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs dasom_toolbox dasom_description setting_tf2 omni_common
+  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs dasom_toolbox dasom_description setting_tf2 omni_common serial
 #  DEPENDS system_lib
 )
 
@@ -94,3 +95,7 @@ target_link_libraries(dasom_camera_control dasom_toolbox ${catkin_LIBRARIES})
 add_executable(dasom_manipulator_control src/dasom_manipulator_control.cpp)
 add_dependencies(dasom_manipulator_control ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dasom_manipulator_control dasom_toolbox ${catkin_LIBRARIES})
+
+add_executable(serial_parani src/serial_parani.cpp)
+add_dependencies(serial_parani ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(serial_parani serial ${catkin_LIBRARIES})

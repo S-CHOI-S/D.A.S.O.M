@@ -59,6 +59,7 @@
   <exec_depend>orocos_kdl</exec_depend>
   <exec_depend>omni_msgs</exec_depend>
   <depend>dasom_toolbox</depend>
+  <depend>serial</depend>
   <build_export_depend>dasom_description</build_export_depend>
   <build_export_depend>setting_tf2</build_export_depend>
   <build_export_depend>omni_common</build_export_depend>

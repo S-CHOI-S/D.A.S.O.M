@@ -108,7 +108,7 @@ void DasomJoint::initDOB()
   Q_angle_d_C = Q_angle_d_C.transpose();
 }
 
-double DasomJoint::updateDOB(double time_loop, double angle_ref, double angle_measured)
+double DasomJoint::updateDOB(double time_loop, double angle_measured)
 {
   // For 1 joint
 
@@ -122,7 +122,7 @@ double DasomJoint::updateDOB(double time_loop, double angle_ref, double angle_me
   Q_angle_d += Q_angle_d_dot * time_loop;
   angle_d_lpf = Q_angle_d_C.dot(Q_angle_d);
 
-  d_hat = angle_d_hat - angle_d_lpf; // d_hat: estimated dist
+  d_hat = angle_d_hat - angle_d_lpf; // d_hat: estimated disturbance
 
   return d_hat;
 }

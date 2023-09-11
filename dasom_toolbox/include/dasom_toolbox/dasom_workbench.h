@@ -18,6 +18,7 @@
 #define DASOM_WORKBENCH_H_
 
 #include <ros/ros.h>
+#include <iostream>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <kdl/chain.hpp>
@@ -61,6 +62,10 @@ namespace dasom
     void test();  
     void KDLrun(Eigen::VectorXd angle, Eigen::VectorXd velocity);
     void initializeRobotLinks();
+    void addJointSegmentX(int jnt_num, int link_frame);
+    void addJointSegmentY(int jnt_num, int link_frame);
+    void addJointSegmentZ(int jnt_num, int link_frame);
+    void addJointSegmentFixed(int jnt_num, int link_frame);
     void computeMCGDynamics();
     void initializeAdmittance();
     double admittanceControlX(double time_loop, double ref, double f_ext);
@@ -124,6 +129,21 @@ namespace dasom
     double l5;
     double l6;
     double l7;
+
+    // link mass
+    double m1;
+    double m2;
+    double m3;
+    double m4;
+    double m5;
+    double m6;
+    double m7;
+
+    // joint segment
+    std::vector<double> link_lengths;
+    std::vector<double> link_masses;
+    std::vector<KDL::Vector> link_cogs;
+    std::vector<KDL::RotationalInertia> link_inertias;
 
     /*****************************************************************************
     ** Define functions

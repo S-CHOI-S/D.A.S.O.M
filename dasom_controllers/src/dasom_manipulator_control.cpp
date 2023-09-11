@@ -74,6 +74,7 @@ DasomControl::DasomControl()
   // For haptic control
   haptic_initPose.resize(6,1);
   haptic_command.resize(6);
+  haptic_command << 0, 0, 0, 0, 0, 0;
   
   // For haptic button
   grey_button = true;
@@ -250,7 +251,7 @@ void DasomControl::CalcExternalForce()
 
   F_ext = JTI * (tau_measured - C_matrix - G_matrix);
 
-  std::cout<<F_ext<<std::endl;
+  // std::cout<<F_ext<<std::endl;
 
   ext_force.header.stamp = ros::Time::now();
 
@@ -275,25 +276,23 @@ void DasomControl::AdmittanceControl()
 
 void DasomControl::DOB()
 {
-  d_hat[0] = ds_jnt1_->updateDOB(time_loop, angle_ref[0], angle_measured[0]);
-  angle_ref[0] = angle_ref[0] - d_hat[0];
+  // d_hat[0] = ds_jnt1_->updateDOB(time_loop, angle_measured[0]);
+  // angle_ref[0] = angle_ref[0] - d_hat[0];
 
-  d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_ref[1], angle_measured[1]);
+  d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1]);
   angle_ref[1] = angle_ref[1] - d_hat[1];
 
-  d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_ref[2], angle_measured[2]);
-  angle_ref[2] = angle_ref[2] - d_hat[2];
+  // d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2]);
+  // angle_ref[2] = angle_ref[2] - d_hat[2];
 
-  d_hat[3] = ds_jnt4_->updateDOB(time_loop, angle_ref[3], angle_measured[3]);
-  angle_ref[3] = angle_ref[3] - d_hat[3];
+  // d_hat[3] = ds_jnt4_->updateDOB(time_loop, angle_measured[3]);
+  // angle_ref[3] = angle_ref[3] - d_hat[3];
 
-  d_hat[4] = ds_jnt5_->updateDOB(time_loop, angle_ref[4], angle_measured[4]);
-  angle_ref[4] = angle_ref[4] - d_hat[4];
+  // d_hat[4] = ds_jnt5_->updateDOB(time_loop, angle_measured[4]);
+  // angle_ref[4] = angle_ref[4] - d_hat[4];
 
-  d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_ref[5], angle_measured[5]);
-  angle_ref[5] = angle_ref[5] - d_hat[5];
-
-  ROS_INFO("%lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0],angle_ref[1],angle_ref[2],angle_ref[3],angle_ref[4],angle_ref[5]);
+  // d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_measured[5]);
+  // angle_ref[5] = angle_ref[5] - d_hat[5];
 }
 
 void DasomControl::AngleSafeFunction()
@@ -388,6 +387,9 @@ void DasomControl::CommandVelocityLimit()
   EE_command_vel_limit[3] = EE_command[3];
   EE_command_vel_limit[4] = EE_command[4];
   EE_command_vel_limit[5] = EE_command[5];
+
+  ROS_INFO("EE_command = %lf, %lf, %lf, %lf, %lf, %lf", EE_command[0], EE_command[1], EE_command[2], EE_command[3], EE_command[4], EE_command[5]);
+  ROS_INFO("EE_command_vel_limit = %lf, %lf, %lf, %lf, %lf, %lf", EE_command_vel_limit[0], EE_command_vel_limit[1], EE_command_vel_limit[2], EE_command_vel_limit[3], EE_command_vel_limit[4], EE_command_vel_limit[5]);
 }
 
 void DasomControl::SolveInverseKinematics()
@@ -475,6 +477,13 @@ void DasomControl::PublishData()
   // joint_cmd.effort.push_back(angle_measured[5]);  
 
   joint_command_pub_.publish(joint_cmd);
+
+  ROS_INFO("angle_measured = %lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1],angle_measured[2],angle_measured[3],angle_measured[4],angle_measured[5]);
+  ROS_WARN("================================================");
+  ROS_INFO("angle_ref = %lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1],angle_ref[2],angle_ref[3],angle_ref[4],angle_ref[5]);
+  ROS_WARN("================================================");
+  ROS_INFO("angle_safe = %lf, %lf, %lf, %lf, %lf, %lf", angle_safe[0], angle_safe[1],angle_safe[2],angle_safe[3],angle_safe[4],angle_safe[5]);
+  ROS_WARN("================================================");
 }
 
 void DasomControl::test()

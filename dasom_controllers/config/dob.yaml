@@ -1,4 +1,4 @@
-dob_p_gain: 0
+dob_p_gain: 1200
 dob_i_gain: 0
-dob_d_gain: 0
-dob_polar_moment: 0
+dob_d_gain: 900
+dob_polar_moment: 0.0027
