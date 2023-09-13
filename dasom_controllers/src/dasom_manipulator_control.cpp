@@ -145,7 +145,7 @@ void DasomControl::initSubscriber()
 
 void DasomControl::initServer()
 {
-
+  admittance_srv_ = node_handle_.advertiseService(robot_name_ + "/admittance_srv", &DasomControl::admittanceCallback, this);
 }
 
 void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -239,6 +239,24 @@ void DasomControl::gimbalCmdCallback(const geometry_msgs::PoseStamped &msg)
   tf::Matrix3x3(quat).getRPY(gimbal_EE_cmd[3], gimbal_EE_cmd[4], gimbal_EE_cmd[5]);
 }
 
+bool DasomControl::admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
+                                      dasom_controllers::admittanceSRV::Response &res)
+{
+  virtual_mass_x = req.x_m;
+  virtual_damper_x = req.x_d;
+  virtual_spring_x = req.x_k;
+  
+  virtual_mass_y = req.y_m;
+  virtual_damper_y = req.y_d;
+  virtual_spring_y = req.y_k;
+
+  virtual_mass_z = req.z_m;
+  virtual_damper_z = req.z_d;
+  virtual_spring_z = req.z_k;
+
+  initializeAdmittance();
+}
+
 void DasomControl::CalcExternalForce()
 {
   geometry_msgs::WrenchStamped ext_force;
@@ -251,7 +269,7 @@ void DasomControl::CalcExternalForce()
 
   F_ext = JTI * (tau_measured - C_matrix - G_matrix);
 
-  // std::cout<<F_ext<<std::endl;
+  // std::cout<<G_matrix<<std::endl;
 
   ext_force.header.stamp = ros::Time::now();
 
@@ -279,11 +297,11 @@ void DasomControl::DOB()
   // d_hat[0] = ds_jnt1_->updateDOB(time_loop, angle_measured[0]);
   // angle_ref[0] = angle_ref[0] - d_hat[0];
 
-  d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1]);
+  d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1], angle_ref[1]);
   angle_ref[1] = angle_ref[1] - d_hat[1];
 
-  // d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2]);
-  // angle_ref[2] = angle_ref[2] - d_hat[2];
+  d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2], angle_ref[2]);
+  angle_ref[2] = angle_ref[2] - d_hat[2];
 
   // d_hat[3] = ds_jnt4_->updateDOB(time_loop, angle_measured[3]);
   // angle_ref[3] = angle_ref[3] - d_hat[3];
@@ -358,13 +376,14 @@ void DasomControl::CommandGenerator()
   if(grey_button == true) 
   {
     EE_command = haptic_command + initPose; 
-    ROS_INFO("Command Mode");
+    // ROS_INFO("Command Mode");
   }
   else 
   {
     EE_command = gimbal_EE_cmd;
-    ROS_INFO("Gimbaling Mode");
+    // ROS_INFO("Gimbaling Mode");
   }
+  X_ref = EE_command;
 }
 
 void DasomControl::CommandVelocityLimit()
@@ -387,9 +406,6 @@ void DasomControl::CommandVelocityLimit()
   EE_command_vel_limit[3] = EE_command[3];
   EE_command_vel_limit[4] = EE_command[4];
   EE_command_vel_limit[5] = EE_command[5];
-
-  ROS_INFO("EE_command = %lf, %lf, %lf, %lf, %lf, %lf", EE_command[0], EE_command[1], EE_command[2], EE_command[3], EE_command[4], EE_command[5]);
-  ROS_INFO("EE_command_vel_limit = %lf, %lf, %lf, %lf, %lf, %lf", EE_command_vel_limit[0], EE_command_vel_limit[1], EE_command_vel_limit[2], EE_command_vel_limit[3], EE_command_vel_limit[4], EE_command_vel_limit[5]);
 }
 
 void DasomControl::SolveInverseKinematics()
@@ -478,12 +494,12 @@ void DasomControl::PublishData()
 
   joint_command_pub_.publish(joint_cmd);
 
-  ROS_INFO("angle_measured = %lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1],angle_measured[2],angle_measured[3],angle_measured[4],angle_measured[5]);
-  ROS_WARN("================================================");
-  ROS_INFO("angle_ref = %lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1],angle_ref[2],angle_ref[3],angle_ref[4],angle_ref[5]);
-  ROS_WARN("================================================");
-  ROS_INFO("angle_safe = %lf, %lf, %lf, %lf, %lf, %lf", angle_safe[0], angle_safe[1],angle_safe[2],angle_safe[3],angle_safe[4],angle_safe[5]);
-  ROS_WARN("================================================");
+  // ROS_INFO("angle_measured = %lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1],angle_measured[2],angle_measured[3],angle_measured[4],angle_measured[5]);
+  // ROS_WARN("================================================");
+  // ROS_INFO("angle_ref = %lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1],angle_ref[2],angle_ref[3],angle_ref[4],angle_ref[5]);
+  // ROS_WARN("================================================");
+  // ROS_INFO("angle_safe = %lf, %lf, %lf, %lf, %lf, %lf", angle_safe[0], angle_safe[1],angle_safe[2],angle_safe[3],angle_safe[4],angle_safe[5]);
+  // ROS_WARN("================================================");
 }
 
 void DasomControl::test()
@@ -491,19 +507,19 @@ void DasomControl::test()
   geometry_msgs::Twist first_publisher;
   geometry_msgs::Twist second_publisher;
 
-  first_publisher.linear.x = EE_command_vel_limit[0];
-  first_publisher.linear.y = EE_command_vel_limit[1];
-  first_publisher.linear.z = EE_command_vel_limit[2];
-  first_publisher.angular.x = FK_pose[0];
-  first_publisher.angular.y = FK_pose[1];
-  first_publisher.angular.z = FK_pose[2];
+  first_publisher.linear.x = X_ref[0];
+  first_publisher.linear.y = X_ref[1];
+  first_publisher.linear.z = X_ref[2];
+  first_publisher.angular.x = X_cmd[0];
+  first_publisher.angular.y = X_cmd[1];
+  first_publisher.angular.z = X_cmd[2];
 
-  second_publisher.linear.x = angle_measured[0];
-  second_publisher.linear.y = angle_measured[1];
-  second_publisher.linear.z = angle_measured[2];
-  second_publisher.angular.x = angle_measured[3];
-  second_publisher.angular.y = angle_measured[4];
-  second_publisher.angular.z = angle_measured[5];
+  second_publisher.linear.x = G_matrix[0];
+  second_publisher.linear.y = G_matrix[1];
+  second_publisher.linear.z = G_matrix[2];
+  second_publisher.angular.x = G_matrix[3];
+  second_publisher.angular.y = G_matrix[4];
+  second_publisher.angular.z = G_matrix[5];
 
   test_Pub.publish(first_publisher);
   test_Pub2.publish(second_publisher);
@@ -545,19 +561,20 @@ int main(int argc, char **argv)
     {
       ds_ctrl_.initPoseFunction();
       ds_ctrl_.AngleSafeFunction();
-      ds_ctrl_.PublishData();
     }
     else
     {
       ds_ctrl_.CommandGenerator();
+      ds_ctrl_.CalcExternalForce();
+      ds_ctrl_.AdmittanceControl();
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
       // ds_ctrl_.DOB();
       ds_ctrl_.AngleSafeFunction();
-      ds_ctrl_.CalcExternalForce();
-      ds_ctrl_.PublishData();
       ds_ctrl_.test();
     }
+  
+    ds_ctrl_.PublishData();
 
     ros::spinOnce();
     loop_rate.sleep();

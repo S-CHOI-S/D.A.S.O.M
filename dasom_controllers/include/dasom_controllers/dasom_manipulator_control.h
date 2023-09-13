@@ -26,9 +26,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/WrenchStamped.h>
-#include <dynamixel_workbench_msgs/DasomDynamixel.h>
-#include <dynamixel_workbench_msgs/EECommand.h>
-#include <dasom_controllers/admittanceTest.h>
+#include <dasom_controllers/admittanceSRV.h>
 #include <omni_msgs/OmniButtonEvent.h>
 #include <tf/transform_datatypes.h>
 #include <tf2/LinearMath/Quaternion.h>
@@ -123,6 +121,11 @@ class DasomControl : public dasom::DasomWorkbench
   ros::Subscriber gimbal_cmd_sub_;
 
   /*****************************************************************************
+  ** ROS Services Clients
+  *****************************************************************************/
+  ros::ServiceServer admittance_srv_;
+
+  /*****************************************************************************
   ** Define variables
   *****************************************************************************/
   // For init pose
@@ -181,6 +184,8 @@ class DasomControl : public dasom::DasomWorkbench
   void joystickCallback(const geometry_msgs::Twist &msg);
   void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
   void gimbalCmdCallback(const geometry_msgs::PoseStamped &msg);
+  bool admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
+                          dasom_controllers::admittanceSRV::Response &res);
   void deleteToolbox();
 };
 

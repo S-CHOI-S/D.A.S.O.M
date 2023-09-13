@@ -36,20 +36,6 @@ DasomWorkbench::DasomWorkbench()
   m4 = priv_nh_.param<double>("m4", 0.201);
   m5 = priv_nh_.param<double>("m5", 0.201);
   m6 = priv_nh_.param<double>("m6", 0.201);
-  m7 = priv_nh_.param<double>("m7", 0.201);
-
-  // For admittance control
-  virtual_mass_x = priv_nh_.param<double>("virtual_mass_x", 1);
-  virtual_damper_x = priv_nh_.param<double>("virtual_damper_x", 1);
-  virtual_spring_x = priv_nh_.param<double>("virtual_spring_x", 1);
-
-  virtual_mass_y = priv_nh_.param<double>("virtual_mass_y", 1);
-  virtual_damper_y = priv_nh_.param<double>("virtual_damper_y", 1);
-  virtual_spring_y = priv_nh_.param<double>("virtual_spring_y", 1);
-
-  virtual_mass_z = priv_nh_.param<double>("virtual_mass_z", 1);
-  virtual_damper_z = priv_nh_.param<double>("virtual_damper_z", 1);
-  virtual_spring_z = priv_nh_.param<double>("virtual_spring_z", 1);
 
   initializeRobotLinks();
   initializeAdmittance();
@@ -74,53 +60,67 @@ void DasomWorkbench::KDLrun(Eigen::VectorXd angle, Eigen::VectorXd velocity)
     q_dot_(i) = velocity[i];
     q_dotdot_(i) = 0;
   }
-
+  
   computeMCGDynamics();
 }
 
 void DasomWorkbench::initializeRobotLinks()
 {
-  unsigned int num_joints = 7;
+  unsigned int num_joints = 6;
   unsigned int num_links = num_joints;
-  // unsigned int num_joints = 6;
-  // unsigned int num_links = num_joints + 1;
 
   link_lengths.resize(num_links);
   link_masses.resize(num_links);
   link_cogs.resize(num_links);
   link_inertias.resize(num_links);
 
-  link_lengths = {l1, l2, l3, l4, l5, l6, l7};
-  link_masses = {m1, m2, m3, m4, m5, m6, m7};
+  link_lengths = {
+                   KDL::Vector(0.0,0.0,l1), // link1
+                   KDL::Vector(0.0,l2,0.0), // link2
+                   KDL::Vector(0.0,l3,0.0), // link3
+                   KDL::Vector(0.0,l5,-l4), // link4
+                   KDL::Vector(0.0,0.0,l6), // link5
+                   KDL::Vector(0.0,l7,0.0)  // link6
+                 };
+  link_masses = {m1, m2, m3, m4, m5, m6};
   link_cogs = {
-                1.0e-03 * KDL::Vector(120.79, 0.0, 0.39), // link1
-                1.0e-03 * KDL::Vector(120.79, 0.0, 0.39), // link2
-                1.0e-03 * KDL::Vector(92.17, -8.86, -0.27), // link3
-                1.0e-03 * KDL::Vector(47.97, 0.0, 2.18), // link4
-                1.0e-03 * KDL::Vector(2.28, -0.41, 35.44), // link5
-                1.0e-03 * KDL::Vector(43.4, 3.68, 38.04), // link6
-                1.0e-03 * KDL::Vector(6.27, 53.07, -44.27)  // link7
+                KDL::Vector(0,0,0.027325), // link1
+                KDL::Vector(0.00039,-0.03411,0.0), // link2
+                KDL::Vector(-0.00001,-0.06095,0.00226), // link3
+                KDL::Vector(-0.00036,-0.03577,0.02293), // link4
+                KDL::Vector(0.0434,0.00368,-0.02326), // link5
+                KDL::Vector(-0.04427,-0.06193,-0.00627)  // link6
               };
   // link_inertias = KDL::RotationalInertia(ixx, iyy, izz, ixy, ixz, iyz);
   link_inertias = {
                     1.0e-09 * KDL::RotationalInertia(0, 0, 0, 0, 0, 0), // link1
-                    1.0e-09 * KDL::RotationalInertia(73214.39, 465871.33, 432808.44, 14.73, 2214.66, 0.08), // link2
-                    1.0e-09 * KDL::RotationalInertia(53931.12, 191227.48, 197544.93, -24494.86, -744.82, 197.08), // link3
-                    1.0e-09 * KDL::RotationalInertia(5484.39, 11290.33, 13145.13, 0.0, -1779.56, 0.0), // link4
-                    1.0e-09 * KDL::RotationalInertia(20230.61, 23201.55, 13599.39, 0.0, 28.67, 0.0), // link5
-                    1.0e-09 * KDL::RotationalInertia(49705.97, 72814.73, 39460.09, -4033.85, 17779.66, -3638.54), // link6
-                    1.0e-09 * KDL::RotationalInertia(728539.02, 332109.09, 538223.79, -68916.07, 9006.52, -27419.39)  // link7
+                    1.0e-09 * KDL::RotationalInertia(0, 0, 0, 0, 0, 0), // link2
+                    1.0e-09 * KDL::RotationalInertia(0, 0, 0, 0, 0, 0), // link3
+                    1.0e-09 * KDL::RotationalInertia(0, 0, 0, 0, 0, 0), // link4
+                    1.0e-09 * KDL::RotationalInertia(0, 0, 0, 0, 0, 0), // link5
+                    1.0e-09 * KDL::RotationalInertia(0, 0, 0, 0, 0, 0)  // link6
                   };
 
   // Set Joint Configuration
-  addJointSegmentZ(0,2);
-  addJointSegmentX(1,1);
-  addJointSegmentX(2,1);
-  addJointSegmentY(3,-2);
-  addJointSegmentFixed(4,1);
-  addJointSegmentX(5,2);
-  addJointSegmentX(6,0);
-
+  // 0.0
+  kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ), KDL::Frame(link_lengths[0]),
+                                KDL::RigidBodyInertia(0.5, link_cogs[0], link_inertias[0])));
+  // 0.0 0.263367
+  kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotX), KDL::Frame(link_lengths[1]),
+                                KDL::RigidBodyInertia(0.22226, link_cogs[1], link_inertias[1])));
+  // 0.0 0.577486	0.117183	
+  kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotX), KDL::Frame(link_lengths[2]),
+                                KDL::RigidBodyInertia(0.1296, link_cogs[2], link_inertias[2])));
+  // 0.0 0.641148	0.146350 0.000080
+  kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotY), KDL::Frame(link_lengths[3]),
+                                KDL::RigidBodyInertia(0.0227, link_cogs[3], link_inertias[3])));
+  // 0.0 0.991254	0.329760 -0.046625 0.000000	
+  kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ), KDL::Frame(link_lengths[4]),
+                                KDL::RigidBodyInertia(0.1097, link_cogs[4], link_inertias[4])));
+  // 0.0 2.110560	0.986372 0.085612 0.000000 0.158523	
+  kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotX), KDL::Frame(link_lengths[5]),
+                                KDL::RigidBodyInertia(0.30449, link_cogs[5], link_inertias[5])));
+ 
   q_.resize(num_joints);
   q_dot_.resize(num_joints);
   q_dotdot_.resize(num_joints);
@@ -133,116 +133,6 @@ void DasomWorkbench::initializeRobotLinks()
   C_matrix.resize(C.rows()); // C matrix
   G_matrix.resize(G.rows()); // G matrix
 }
-
-void DasomWorkbench::addJointSegmentX(int jnt_num, int link_frame)
-{
-  KDL::Vector joint_axis(1.0, 0.0, 0.0);
-  KDL::Joint joint(KDL::Joint::RotX);
-  KDL::Frame frame;
-
-  // heading axis
-  // 0: X, 1: Y, 2: Z
-  if(link_frame == 0) 
-  {
-    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
-  }
-  else if(link_frame == 1) 
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
-  }
-  else if(link_frame == 2) 
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
-  }
-  
-  frame.p = link_cogs[jnt_num];
-  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
-  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
-}
-
-void DasomWorkbench::addJointSegmentY(int jnt_num, int link_frame)
-{
-  KDL::Vector joint_axis(0.0, 1.0, 0.0);
-  KDL::Joint joint(KDL::Joint::RotY);
-  KDL::Frame frame;
-
-  // heading axis
-  // 0: X, 1: Y, 2: Z
-  if(link_frame == 0) 
-  {
-    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
-  }
-  else if(link_frame == 1) 
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
-  }
-  else if(link_frame == 2)  
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
-  }
-  
-  frame.p = link_cogs[jnt_num];
-  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
-  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
-}
-
-void DasomWorkbench::addJointSegmentZ(int jnt_num, int link_frame)
-{
-  KDL::Vector joint_axis(0.0, 0.0, 1.0);
-  KDL::Joint joint(KDL::Joint::RotZ);
-  KDL::Frame frame;
-
-  // heading axis
-  // 0: X, 1: Y, 2: Z, -2: -Z
-  if(link_frame == 0) 
-  {
-    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
-  }
-  else if(link_frame == 1) 
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
-  }
-  else if(link_frame == 2)  
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
-  }
-  else if(link_frame == -2)  
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, 0.0, -link_lengths[jnt_num]));
-  }
-
-  frame.p = link_cogs[jnt_num];
-  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
-  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
-}
-
-void DasomWorkbench::addJointSegmentFixed(int jnt_num, int link_frame)
-{
-  KDL::Joint joint(KDL::Joint::None);
-  KDL::Frame frame;
-
-  if (link_frame == 0)
-  {
-    frame = KDL::Frame(KDL::Vector(link_lengths[jnt_num], 0.0, 0.0));
-  }
-  else if (link_frame == 1)
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, link_lengths[jnt_num], 0.0));
-  }
-  else if (link_frame == 2)
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, 0.0, link_lengths[jnt_num]));
-  }
-  else if (link_frame == -2)
-  {
-    frame = KDL::Frame(KDL::Vector(0.0, 0.0, -link_lengths[jnt_num]));
-  }
-
-  frame.p = link_cogs[jnt_num];
-  KDL::RigidBodyInertia link_inertia(link_masses[jnt_num], link_cogs[jnt_num], link_inertias[jnt_num]);
-  kdl_chain_.addSegment(KDL::Segment(joint, frame, link_inertia));
-}
-
 
 void DasomWorkbench::computeMCGDynamics()
 {
@@ -299,6 +189,31 @@ void DasomWorkbench::computeMCGDynamics()
   // for (unsigned int i = 0; i < kdl_chain_.getNrOfJoints(); ++i)
   // {
   //   ROS_INFO("%f\t", G(i));
+  // }
+  // ROS_INFO("\n");
+
+  // 계산된 MCG 다이나믹스 행렬을 출력합니다.
+  // ROS_INFO("Mass matrix (H):");
+  // for (unsigned int i = 0; i < H.rows(); ++i)
+  // {
+  //   for (unsigned int j = 0; j < H.columns(); ++j)
+  //   {
+  //     ROS_INFO("%f\t", M_matrix(i, j));
+  //   }
+  //   ROS_INFO("\n");
+  // }
+
+  // ROS_INFO("Coriolis matrix (C):");
+  // for (unsigned int i = 0; i < C.rows(); ++i)
+  // {
+  //   ROS_INFO("%f\t", C_matrix(i));
+  // }
+  // ROS_INFO("\n");
+
+  // ROS_INFO("Gravity vector (G):");
+  // for (unsigned int i = 0; i < G.rows(); ++i)
+  // {
+  //   ROS_INFO("%f\t", G_matrix(i));
   // }
   // ROS_INFO("\n");
 }

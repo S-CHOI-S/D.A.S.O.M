@@ -64,6 +64,7 @@ add_library(dasom_toolbox
   src/dasom_toolbox/dasom_realsense_d435i.cpp
   src/dasom_toolbox/dasom_tf2.cpp
   src/dasom_toolbox/dasom_joint.cpp
+  src/dasom_toolbox/dasom_palletrone.cpp
 )
 add_dependencies(dasom_toolbox ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dasom_toolbox ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${realsense2_LIBRARIES})

@@ -108,7 +108,7 @@ void DasomJoint::initDOB()
   Q_angle_d_C = Q_angle_d_C.transpose();
 }
 
-double DasomJoint::updateDOB(double time_loop, double angle_measured)
+double DasomJoint::updateDOB(double time_loop, double angle_measured, double angle_ref)
 {
   // For 1 joint
 
@@ -118,7 +118,7 @@ double DasomJoint::updateDOB(double time_loop, double angle_measured)
   angle_d_hat = Q_M_C.dot(Q_M); 
 
   // State space (theta_d)
-  Q_angle_d_dot = Q_angle_d_A * Q_angle_d + Q_angle_d_B * angle_d;
+  Q_angle_d_dot = Q_angle_d_A * Q_angle_d + Q_angle_d_B * angle_ref;
   Q_angle_d += Q_angle_d_dot * time_loop;
   angle_d_lpf = Q_angle_d_C.dot(Q_angle_d);
 

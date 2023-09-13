@@ -62,10 +62,10 @@ namespace dasom
     void test();  
     void KDLrun(Eigen::VectorXd angle, Eigen::VectorXd velocity);
     void initializeRobotLinks();
-    void addJointSegmentX(int jnt_num, int link_frame);
-    void addJointSegmentY(int jnt_num, int link_frame);
-    void addJointSegmentZ(int jnt_num, int link_frame);
-    void addJointSegmentFixed(int jnt_num, int link_frame);
+    void addJointSegmentX(int jnt_num, int link_num, int link_frame);
+    void addJointSegmentY(int jnt_num, int link_num, int link_frame);
+    void addJointSegmentZ(int jnt_num, int link_num, int link_frame);
+    void addJointSegmentFixed(int jnt_num, int link_num);
     void computeMCGDynamics();
     void initializeAdmittance();
     double admittanceControlX(double time_loop, double ref, double f_ext);
@@ -137,10 +137,9 @@ namespace dasom
     double m4;
     double m5;
     double m6;
-    double m7;
 
     // joint segment
-    std::vector<double> link_lengths;
+    std::vector<KDL::Vector> link_lengths;
     std::vector<double> link_masses;
     std::vector<KDL::Vector> link_cogs;
     std::vector<KDL::RotationalInertia> link_inertias;
