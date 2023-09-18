@@ -39,7 +39,7 @@ namespace dasom
 
     /*****************************************************************************
     ** Define variables
-    *****************************************************************************/
+    *****************************************************************************/ 
     // For MCG Dynamics
     Eigen::MatrixXd M_matrix;
     Eigen::VectorXd C_matrix;
@@ -129,7 +129,6 @@ namespace dasom
     double l5;
     double l6;
     double l7;
-
     // link mass
     double m1;
     double m2;
@@ -137,6 +136,7 @@ namespace dasom
     double m4;
     double m5;
     double m6;
+    double m7;
 
     // joint segment
     std::vector<KDL::Vector> link_lengths;

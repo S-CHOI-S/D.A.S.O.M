@@ -15,288 +15,157 @@
 /* Authors: Sol Choi (Jennifer) */
 
 #include "ros/ros.h"
+#include "sensor_msgs/JointState.h"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
 #include <kdl/chain.hpp>
-#include <kdl/chainfksolver.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/frames_io.hpp>
 #include <kdl/chaindynparam.hpp>
 #include <kdl/jntarray.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <stdio.h>
-#include <iostream>
+#include <kdl/frames_io.hpp>
+#include <dasom_toolbox/dasom_joint.h>
+#include <dasom_toolbox/dasom_realsense_d435i.h>
+#include <dasom_toolbox/dasom_camera.h>
+#include <dasom_toolbox/dasom_tf2.h>
+#include <visualization_msgs/Marker.h>
+#include <geometry_msgs/Point.h>
 #include <geometry_msgs/Twist.h>
- 
-using namespace KDL;
 
-int main( int argc, char** argv )
+#define PI 3.141592
+
+using namespace dasom;
+
+double joint = 0;
+double joint2 = 0;
+double i = 0;
+
+void Callback(const sensor_msgs::JointState &msg)
+{
+    joint = msg.effort[0];
+    joint2 = msg.effort[1] + 0.1*sin(3.14 * i * i - i);
+}
+
+int main(int argc, char **argv)
 {
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
     ROS_WARN("try node start!");
 
+    // nh.setParam("/dasom_rviz_started", true);
+
+    // ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
+    ros::Publisher rs_c_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/color", 10);
+    ros::Publisher rs_d_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/depth", 10);
+    ros::Publisher joint_pub = nh.advertise<geometry_msgs::Twist>("/joint1", 100);
+    ros::Subscriber subs_ = nh.subscribe("/dasom/joint_states", 10, Callback);
+    ros::Subscriber sub;
+    
+    // For DasomCam
+    image_transport::ImageTransport it(nh);
+    image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
+
     ros::Rate loop_rate(200);
 
-    //Definition of a kinematic chain & add segments to the chain
-    KDL::Chain chain;
-    // 0.0
-    chain.addSegment(Segment(Joint(Joint::RotZ),Frame(Vector(0.0,0.0,0.05465)),RigidBodyInertia(0.5,Vector(0,0,0.027325),RotationalInertia(0,0,0,0,0,0))));
-    // 0.0 0.263367
-    chain.addSegment(Segment(Joint(Joint::RotX),Frame(Vector(0.0,0.1549,0.0)),RigidBodyInertia(0.22226,Vector(0.00039,-0.03411,0.0),RotationalInertia(0,0,0,0,0,0))));
-    // 0.0 0.577486	0.117183	
-    chain.addSegment(Segment(Joint(Joint::RotX),Frame(Vector(0.0,0.116,0.0)),RigidBodyInertia(0.1296,Vector(-0.00027,-0.02383,-0.00886),RotationalInertia(0,0,0,0,0,0))));
-    // 0.0 0.641148	0.146350 0.000080
-    chain.addSegment(Segment(Joint(Joint::RotY),Frame(Vector(0.0,0.05075,-0.06183)),RigidBodyInertia(0.0227,Vector(-0.00036,-0.03577,0.02293),RotationalInertia(0,0,0,0,0,0))));
-    // 0.0 0.991254	0.329760 -0.046625 0.000000	
-    chain.addSegment(Segment(Joint(Joint::RotZ),Frame(Vector(0.0,0.0,0.0613)),RigidBodyInertia(0.1097,Vector(0.0434,0.00368,-0.02326),RotationalInertia(0,0,0,0,0,0))));
-    // 0.0 2.110560	0.986372 0.085612 0.000000 0.158523	
-    chain.addSegment(Segment(Joint(Joint::RotX),Frame(Vector(0.0,0.115,0)),RigidBodyInertia(0.30449,Vector(-0.04427,-0.06193,-0.00627),RotationalInertia(0,0,0,0,0,0))));
- 
-    // Create solver based on kinematic chain
-    ChainFkSolverPos_recursive fksolver = ChainFkSolverPos_recursive(chain);
- 
-    // Create joint array
-    unsigned int nj = chain.getNrOfJoints();
-    KDL::JntArray jointpositions = JntArray(nj);
+    // double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
+    //        base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
+    // double i = 0;
+    // double t = 0;
 
-    double i = 0;
+    // sensor_msgs::JointState joint_states;
 
-    ros::Publisher joint_pub = nh.advertise<geometry_msgs::Twist>("/joint1", 100);
-    geometry_msgs::Twist test;
- 
-    // Assign some values to the joint positions
-    // for(unsigned int i=0;i<nj;i++){
-    //     float myinput;
-        // printf ("Enter the position of joint %i: ",i);
-        // scanf ("%e",&myinput);
-        // jointpositions(i)=(double)myinput;
-    // }
+    Eigen::Vector3d point;
 
-    while(ros::ok())
-    {
-        jointpositions(0) = 0;
-        jointpositions(1) = 3.141592/2;//-1.75*cos(i/1000)+1.75;
-        jointpositions(2) = 0;
-        jointpositions(3) = 0;
-        jointpositions(4) = 0;
-        jointpositions(5) = 3.141592/2;
+    point << 0, 0, 0;
+
+    // For DasomLPF
+    // DasomJoint ds_joint_(8, 8);
+    // DasomLPF ds_lpf_2(8);
+
+    // For DasomRealSense
+    // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
+
+    // For DasomCam
+    DasomCam ds_cam_(pub, 0);
+
+    // // For DasomTF2
+    // DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
+    double law_data = 0;
+    double raw_data = 0;
+    while (ros::ok())
+    {   
+        // For DasomLPF
+        // geometry_msgs::Twist msg;
+        // law_data = 0.1*sin(50 * i * i - i) + 10 * sin(0.005 * 3.14 * 2 / 4 * i);
+
+        // raw_data = 0.1*cos(50 * i * i - i) + 10 * cos(0.005 * 3.14 * 2 / 4 * i);
+        // // msg.header.stamp = ros::Time::now();
+        // msg.linear.x = ds_lpf_.updateLPF(0.005, law_data);
+        // msg.linear.y = law_data;
+
+        // msg.angular.x = ds_lpf_2.updateLPF(0.005, raw_data);
+        // msg.angular.y = raw_data;
+
+        // joint_pub.publish(msg);
+
+        // For DasomRealSense
+        // ds_rs_.test();
+        // ds_rs_.updateCamera();
+
+        // For DasomCam
+        ds_cam_.UpdateCameraCommand(point);
+        // ds_cam_.DetectLightBulb();
         
-        // ROS_INFO("joint2 = %lf",jointpositions(1));
-    
-        // Create the frame that will contain the results
-        KDL::Frame cartpos;    
-    
-        // Calculate forward position kinematics
-        bool kinematics_status;
-        kinematics_status = fksolver.JntToCart(jointpositions,cartpos);
-        // if(kinematics_status>=0){
-            std::cout << cartpos <<std::endl;
-            // printf("%s \n","Succes, thanks KDL!");
-        // }else{
-        //     printf("%s \n","Error: could not calculate forward kinematics :(");
-        // }
+        //update joint_state
+        // joint_states.header.stamp = ros::Time::now();
+        // joint_states.name.resize(9);
+        // joint_states.position.resize(9);
+        // joint_states.name[0] = "id_1";
+        // joint_states.position[0] = joint1;
+        // joint_states.name[1] = "id_2";
+        // joint_states.position[1] = joint2;
+        // joint_states.name[2] = "id_3";
+        // joint_states.position[2] = joint3;
+        // joint_states.name[3] = "id_4";
+        // joint_states.position[3] = joint4;
+        // joint_states.name[4] = "id_5";
+        // joint_states.position[4] = joint5;
+        // joint_states.name[5] = "id_6";
+        // joint_states.position[5] = joint6;
+        // joint_states.name[6] = "base_joint_X";
+        // joint_states.position[6] = base_joint_X;
+        // joint_states.name[7] = "base_joint_Y";
+        // joint_states.position[7] = base_joint_Y;
+        // joint_states.name[8] = "base_joint_Z";
+        // joint_states.position[8] = base_joint_Z;
 
-        KDL::JntArray q(chain.getNrOfJoints());
-        KDL::JntArray qdot(chain.getNrOfJoints());
-        KDL::JntArray qdotdot(chain.getNrOfJoints());
-        KDL::JntArray tau(chain.getNrOfJoints());
-        KDL::JntArray tauHCGa(chain.getNrOfJoints());
-        KDL::JntArray tauHCG(chain.getNrOfJoints());
-        KDL::JntArray C(chain.getNrOfJoints()); //coriolis matrix
-        KDL::JntArray G(chain.getNrOfJoints()); //gravity matrix
-        KDL::Wrenches f(chain.getNrOfSegments());
-        KDL::Vector grav(0.0,0.0,-9.81);
-        KDL::JntSpaceInertiaMatrix H(chain.getNrOfJoints()); //inertiamatrix H=square matrix of size= number of joints
-        KDL::ChainDynParam chaindynparams(chain,grav);  
+        // t = i / 100;
+        // joint1 = t;
+        // joint2 = 1 + t;
+        // joint3 = -t;
+        // joint4 = t;
+        // joint5 = 0;
+        // joint6 = 0;
+        // base_joint_X = sin(4*t-PI);
+        // base_joint_Y = sin(4*t-PI);
+        // base_joint_Z = sin(2*t);
 
-        qdot(0) = 0;
-        qdot(1) = 0;//1.75*0.001*sin(i/1000);
-        qdot(2) = 0;
-        qdot(3) = 0;
-        qdot(4) = 0;
-        qdot(5) = 0;
-
-        //calculation of the HCG matrices
-        chaindynparams.JntToMass(jointpositions,H);
-        chaindynparams.JntToCoriolis(jointpositions,qdot,C);
-        chaindynparams.JntToGravity(jointpositions,G);
-
-        // Jacobian 계산
-        KDL::Jacobian jacobian;  // Jacobian 행렬
-        KDL::ChainJntToJacSolver jac_solver(chain); // Jacobian 계산용 Solver 생성
-
-        jac_solver.JntToJac(jointpositions, jacobian);
+        // joint_pub.publish(joint_states);
 
         i++;
 
-        ROS_INFO("Gravity vector (G):");
-        for (unsigned int i = 0; i < chain.getNrOfJoints(); ++i)
-        {
-          ROS_INFO("%f\t", G(i));
-        }
-        ROS_INFO("\n");
+        // ROS_ERROR("i: %lf", i);
+        // if(i > 157) break;
 
-        test.linear.y = cartpos(3,2);
+        // ROS_INFO("joint1: %lf", joint1);
+        // ROS_INFO("joint2: %lf", joint2);
+        // ROS_INFO("joint3: %lf", joint3);
+        // ROS_INFO("joint4: %lf", joint4);
+        // ROS_WARN("==========================");
 
-        joint_pub.publish(test);
-
-        ros::spinOnce();
-        loop_rate.sleep();
+        // ros::spinOnce();
+        // loop_rate.sleep();
+        
     }
-
-    return 0;
 }
-
-// #include "sensor_msgs/JointState.h"
-// #include <eigen3/Eigen/Core>
-// #include <eigen3/Eigen/Dense>
-// #include <kdl/chain.hpp>
-// #include <kdl/chaindynparam.hpp>
-// #include <kdl/jntarray.hpp>
-// #include <kdl/frames_io.hpp>
-// #include <dasom_toolbox/dasom_joint.h>
-// #include <dasom_toolbox/dasom_realsense_d435i.h>
-// #include <dasom_toolbox/dasom_camera.h>
-// #include <dasom_toolbox/dasom_tf2.h>
-// #include <visualization_msgs/Marker.h>
-// #include <geometry_msgs/Point.h>
-// #include <geometry_msgs/Twist.h>
-
-// #define PI 3.141592
-
-// using namespace dasom;
-
-// double joint = 0;
-// double joint2 = 0;
-// double i = 0;
-
-// void Callback(const sensor_msgs::JointState &msg)
-// {
-//     joint = msg.effort[0];
-//     joint2 = msg.effort[1] + 0.1*sin(3.14 * i * i - i);
-// }
-
-// int main(int argc, char **argv)
-// {
-//     ros::init(argc, argv, "try");
-//     ros::NodeHandle nh;
-//     ROS_WARN("try node start!");
-
-//     // nh.setParam("/dasom_rviz_started", true);
-
-//     // ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
-//     ros::Publisher rs_c_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/color", 10);
-//     ros::Publisher rs_d_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/depth", 10);
-//     ros::Publisher joint_pub = nh.advertise<geometry_msgs::Twist>("/joint1", 100);
-//     ros::Subscriber subs_ = nh.subscribe("/dasom/joint_states", 10, Callback);
-//     ros::Subscriber sub;
-    
-//     // For DasomCam
-//     image_transport::ImageTransport it(nh);
-//     image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
-
-//     ros::Rate loop_rate(200);
-
-//     // double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
-//     //        base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
-//     // double i = 0;
-//     // double t = 0;
-
-//     // sensor_msgs::JointState joint_states;
-
-//     // Eigen::Vector3d point;
-
-//     // point << 0, 0, 0;
-
-//     // For DasomLPF
-//     // DasomJoint ds_joint_(8, 8);
-//     // DasomLPF ds_lpf_2(8);
-
-//     // For DasomRealSense
-//     // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
-
-//     // For DasomCam
-//     // DasomCam ds_cam_(pub, 0);
-
-//     // // For DasomTF2
-//     // DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
-//     double law_data = 0;
-//     double raw_data = 0;
-//     while (ros::ok())
-//     {   
-//         // For DasomLPF
-//         // geometry_msgs::Twist msg;
-//         // law_data = 0.1*sin(50 * i * i - i) + 10 * sin(0.005 * 3.14 * 2 / 4 * i);
-
-//         // raw_data = 0.1*cos(50 * i * i - i) + 10 * cos(0.005 * 3.14 * 2 / 4 * i);
-//         // // msg.header.stamp = ros::Time::now();
-//         // msg.linear.x = ds_lpf_.updateLPF(0.005, law_data);
-//         // msg.linear.y = law_data;
-
-//         // msg.angular.x = ds_lpf_2.updateLPF(0.005, raw_data);
-//         // msg.angular.y = raw_data;
-
-//         // joint_pub.publish(msg);
-
-//         // For DasomRealSense
-//         // ds_rs_.test();
-//         // ds_rs_.updateCamera();
-
-//         // For DasomCam
-//         // ds_cam_.UpdateCameraCommand(point);
-//         // ds_cam_.DetectLightBulb();
-        
-//         //update joint_state
-//         // joint_states.header.stamp = ros::Time::now();
-//         // joint_states.name.resize(9);
-//         // joint_states.position.resize(9);
-//         // joint_states.name[0] = "id_1";
-//         // joint_states.position[0] = joint1;
-//         // joint_states.name[1] = "id_2";
-//         // joint_states.position[1] = joint2;
-//         // joint_states.name[2] = "id_3";
-//         // joint_states.position[2] = joint3;
-//         // joint_states.name[3] = "id_4";
-//         // joint_states.position[3] = joint4;
-//         // joint_states.name[4] = "id_5";
-//         // joint_states.position[4] = joint5;
-//         // joint_states.name[5] = "id_6";
-//         // joint_states.position[5] = joint6;
-//         // joint_states.name[6] = "base_joint_X";
-//         // joint_states.position[6] = base_joint_X;
-//         // joint_states.name[7] = "base_joint_Y";
-//         // joint_states.position[7] = base_joint_Y;
-//         // joint_states.name[8] = "base_joint_Z";
-//         // joint_states.position[8] = base_joint_Z;
-
-//         // t = i / 100;
-//         // joint1 = t;
-//         // joint2 = 1 + t;
-//         // joint3 = -t;
-//         // joint4 = t;
-//         // joint5 = 0;
-//         // joint6 = 0;
-//         // base_joint_X = sin(4*t-PI);
-//         // base_joint_Y = sin(4*t-PI);
-//         // base_joint_Z = sin(2*t);
-
-//         // joint_pub.publish(joint_states);
-
-//         i++;
-
-//         // ROS_ERROR("i: %lf", i);
-//         // if(i > 157) break;
-
-//         // ROS_INFO("joint1: %lf", joint1);
-//         // ROS_INFO("joint2: %lf", joint2);
-//         // ROS_INFO("joint3: %lf", joint3);
-//         // ROS_INFO("joint4: %lf", joint4);
-//         // ROS_WARN("==========================");
-
-//         // ros::spinOnce();
-//         // loop_rate.sleep();
-        
-//     }
-
 
 //     ///////////////////////////////////////////////////////////
 //     //          3D Marker 그리기, RViz에서 확인 가능          //

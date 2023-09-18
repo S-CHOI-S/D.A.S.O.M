@@ -30,9 +30,12 @@ TorqueControl::TorqueControl()
   double position_i_gain	= node_handle_.param<double>("position_i_gain", 0);
   double position_d_gain	= node_handle_.param<double>("position_d_gain", 0);
 
-  double position_p_gain_2nd	= node_handle_.param<double>("position_p_gain_2nd", 800);
-  double position_i_gain_2nd	= node_handle_.param<double>("position_i_gain_2nd", 0);
-  double position_d_gain_2nd	= node_handle_.param<double>("position_d_gain_2nd", 0);  
+  double feedforward_1st_gain	= node_handle_.param<double>("feedforward_1st_gain", 0);
+  double feedforward_2nd_gain	= node_handle_.param<double>("feedforward_2nd_gain", 0);
+
+  double position_p_gain_540	= node_handle_.param<double>("position_p_gain_540", 800);
+  double position_i_gain_540	= node_handle_.param<double>("position_i_gain_540", 0);
+  double position_d_gain_540	= node_handle_.param<double>("position_d_gain_540", 0);  
 
   dxl_wb_ = new DynamixelWorkbench;
   initpose(); // ADD 이거 실행되면 true로 바뀜
@@ -58,21 +61,22 @@ TorqueControl::TorqueControl()
   dxl_wb_->addSyncWrite("Goal_Position");
   dxl_wb_->addSyncRead("Present_Position");
 
-
   for (int index = 0; index < dxl_cnt_; index++)
   {
     dxl_wb_->itemWrite(dxl_id_[index], "Position_P_Gain", position_p_gain);
     dxl_wb_->itemWrite(dxl_id_[index], "Position_I_Gain", position_i_gain);
     dxl_wb_->itemWrite(dxl_id_[index], "Position_D_Gain", position_d_gain);
+    // dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_1st_Gain", feedforward_1st_gain);
+    // dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_2nd_Gain", feedforward_2nd_gain);
   }
 
-  dxl_wb_->itemWrite(dxl_id_[1], "Position_P_Gain", position_p_gain_2nd);
-  dxl_wb_->itemWrite(dxl_id_[1], "Position_I_Gain", position_i_gain_2nd);
-  dxl_wb_->itemWrite(dxl_id_[1], "Position_D_Gain", position_d_gain_2nd);
+  dxl_wb_->itemWrite(dxl_id_[1], "Position_P_Gain", position_p_gain_540);
+  dxl_wb_->itemWrite(dxl_id_[1], "Position_I_Gain", position_i_gain_540);
+  dxl_wb_->itemWrite(dxl_id_[1], "Position_D_Gain", position_d_gain_540);
 
-  dxl_wb_->itemWrite(dxl_id_[2], "Position_P_Gain", position_p_gain_2nd);
-  dxl_wb_->itemWrite(dxl_id_[2], "Position_I_Gain", position_i_gain_2nd);
-  dxl_wb_->itemWrite(dxl_id_[2], "Position_D_Gain", position_d_gain_2nd);
+  dxl_wb_->itemWrite(dxl_id_[2], "Position_P_Gain", position_p_gain_540);
+  dxl_wb_->itemWrite(dxl_id_[2], "Position_I_Gain", position_i_gain_540);
+  dxl_wb_->itemWrite(dxl_id_[2], "Position_D_Gain", position_d_gain_540);
 
   initPublisher();
   initSubscriber();

@@ -186,6 +186,7 @@ class DasomControl : public dasom::DasomWorkbench
   void gimbalCmdCallback(const geometry_msgs::PoseStamped &msg);
   bool admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
                           dasom_controllers::admittanceSRV::Response &res);
+  void tauLPFforExternalForce();
   void deleteToolbox();
 };
 

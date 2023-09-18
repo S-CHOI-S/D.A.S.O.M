@@ -75,6 +75,9 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
   line(frame, cv::Point(230 - core[0], 250 - core[2]), cv::Point(270 - core[0], 250 - core[2]), cv::Scalar::all(255), 3, 4, 0);
   line(frame, cv::Point(250 - core[0], 230 - core[2]), cv::Point(250 - core[0], 270 - core[2]), cv::Scalar::all(255), 3, 4, 0);
 
+  // frame = flipCamera(rotateCamera(frame));
+  frame = flipCamera(frame);
+
   imshow("detect",frame);
 
   if(!frame.empty())
@@ -212,4 +215,22 @@ void DasomCam::DetectLightBulb()
   }
 
   ROS_WARN("Detect!");
+}
+
+cv::Mat DasomCam::flipCamera(cv::Mat frame)
+{
+  cv::Mat flipped_frame;
+
+  cv::flip(frame, flipped_frame, 1);
+
+  return flipped_frame;
+}
+
+cv::Mat DasomCam::rotateCamera(cv::Mat frame)
+{
+  cv::Mat rotated_frame;
+
+  cv::rotate(frame, rotated_frame, cv::ROTATE_90_CLOCKWISE);
+
+  return rotated_frame;
 }
