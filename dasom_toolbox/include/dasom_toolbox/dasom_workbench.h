@@ -25,6 +25,7 @@
 #include <kdl/chaindynparam.hpp>
 #include <kdl/jntarray.hpp>
 #include <kdl/frames_io.hpp>
+#include <kdl/chainjnttojacsolver.hpp>
 #include <sensor_msgs/JointState.h>
 
 #define PI 3.14159256359

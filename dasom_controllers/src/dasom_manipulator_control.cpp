@@ -44,7 +44,7 @@ DasomControl::DasomControl()
   ** Resize matrices & vectors
   ************************************************************/
   // For init pose
-  initPoseFlag = true;
+  initPoseFlag = false;
   initPose.resize(6,1);
   angle_init.resize(6);
   initPose << 0, 0.23, 0.30, M_PI/2, 0, 0;
@@ -298,7 +298,7 @@ void DasomControl::CalcExternalForce()
   else if (F_ext[2] > hysteresis_max[2]) F_ext[2] -= hysteresis_max[2];
   else if (F_ext[2] < hysteresis_min[2]) F_ext[2] -= hysteresis_min[2];
 
-  // std::cout<<G_matrix<<std::endl;
+  // std::cout<<J<<std::endl;
 
   ext_force.header.stamp = ros::Time::now();
 
