@@ -69,15 +69,18 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
   // DetectLightBulb();
 
   // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core[0], 250 - core[2]), 150 - core[1], cv::Scalar(255,0,0), 3, 4, 0);
+  circle(frame, cv::Point(250 - core[1], 250 - core[0]), 150 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
   
   // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - core[0], 250 - core[2]), cv::Point(270 - core[0], 250 - core[2]), cv::Scalar::all(255), 3, 4, 0);
-  line(frame, cv::Point(250 - core[0], 230 - core[2]), cv::Point(250 - core[0], 270 - core[2]), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(230 - core[1], 250 - core[0]), cv::Point(270 - core[1], 250 - core[0]), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(250 - core[1], 230 - core[0]), cv::Point(250 - core[1], 270 - core[0]), cv::Scalar::all(255), 3, 4, 0);
 
-  // frame = flipCamera(rotateCamera(frame));
   frame = flipCamera(frame);
 
+  arrowedLine(frame, cv::Point(30, 450), cv::Point(60, 425), blue, 3, cv::LINE_AA);
+  arrowedLine(frame, cv::Point(30, 450), cv::Point(70, 450), green, 3);
+  arrowedLine(frame, cv::Point(30, 450), cv::Point(30, 410), red, 3);
+  
   imshow("detect",frame);
 
   if(!frame.empty())
@@ -94,11 +97,11 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 void DasomCam::DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color)
 {
   // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - gimbal[0], 250 - gimbal[2]), cv::Point(270 - gimbal[0], 250 - gimbal[2]), color, 3, 4, 0);
-  line(frame, cv::Point(250 - gimbal[0], 230 - gimbal[2]), cv::Point(250 - gimbal[0], 270 - gimbal[2]), color, 3, 4, 0);
+  line(frame, cv::Point(230 - gimbal[1], 250 - gimbal[0]), cv::Point(270 - gimbal[1], 250 - gimbal[0]), color, 3, 4, 0);
+  line(frame, cv::Point(250 - gimbal[1], 230 - gimbal[0]), cv::Point(250 - gimbal[1], 270 - gimbal[0]), color, 3, 4, 0);
 
   // putText(frame, string, Point(x,y), font face, font scale, color, thickness, line type, bottom left origin);
-  putText(frame, "gimbal", cv::Point(210 - gimbal[0], 290 - gimbal[2]), 3, 0.7, color, 1, 8);
+  putText(frame, "gimbal", cv::Point(210 - gimbal[1], 290 - gimbal[0]), 3, 0.7, color, 1, 8);
 }
 
 void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
@@ -111,11 +114,13 @@ void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
   DrawGimbalCross(gimbal, white);
 
   // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core[0], 250 - core[2]), 150 - core[1], cv::Scalar(255,0,0), 3, 4, 0);
+  circle(frame, cv::Point(250 - core[1], 250 - core[0]), 150 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
   
   // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - core[0], 250 - core[2]), cv::Point(270 - core[0], 250 - core[2]), cv::Scalar::all(255), 3, 4, 0);
-  line(frame, cv::Point(250 - core[0], 230 - core[2]), cv::Point(250 - core[0], 270 - core[2]), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(230 - core[1], 250 - core[0]), cv::Point(270 - core[1], 250 - core[0]), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(250 - core[1], 230 - core[0]), cv::Point(250 - core[1], 270 - core[0]), cv::Scalar::all(255), 3, 4, 0);
+
+  frame = flipCamera(frame);
 
   if(!frame.empty())
   {
@@ -134,13 +139,13 @@ void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
   // ROS_ERROR("%lf, %lf", core[0] - gimbal[0], core[2] - gimbal[2]);
 
   // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core[0], 250 - core[2]), 150 - core[1], cv::Scalar(255,0,0), 3, 4, 0);
+  circle(frame, cv::Point(250 - core[1], 250 - core[0]), 150 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
   
   // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - core[0], 250 - core[2]), cv::Point(270 - core[0], 250 - core[2]), cv::Scalar::all(255), 3, 4, 0);
-  line(frame, cv::Point(250 - core[0], 230 - core[2]), cv::Point(250 - core[0], 270 - core[2]), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(230 - core[1], 250 - core[0]), cv::Point(270 - core[1], 250 - core[0]), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(250 - core[1], 230 - core[0]), cv::Point(250 - core[1], 270 - core[0]), cv::Scalar::all(255), 3, 4, 0);
 
-  if(abs(core[0] - gimbal[0]) < 3 && abs(core[2] - gimbal[2]) < 3)
+  if(abs(core[1] - gimbal[1]) < 3 && abs(core[0] - gimbal[0]) < 3)
   {
     ROS_INFO("Start Gimbaling + Command mode!");
      
@@ -157,6 +162,8 @@ void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
     i = 0;
     gimbalcommand_safe = false;
   }
+
+  frame = flipCamera(frame);
 
   if(!frame.empty())
   {

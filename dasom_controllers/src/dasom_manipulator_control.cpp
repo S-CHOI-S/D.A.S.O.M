@@ -21,7 +21,7 @@ DasomControl::DasomControl()
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
-  ds_jnt1_ = new DasomJoint(1,8);
+  ds_jnt1_ = new DasomJoint(1,8); // admittance cof 4?
   ds_jnt2_ = new DasomJoint(1,8);
   ds_jnt3_ = new DasomJoint(1,8);
   ds_jnt4_ = new DasomJoint(1,8);
@@ -44,7 +44,7 @@ DasomControl::DasomControl()
   ** Resize matrices & vectors
   ************************************************************/
   // For init pose
-  initPoseFlag = false;
+  initPoseFlag = true; // default = true
   initPose.resize(6,1);
   angle_init.resize(6);
   initPose << 0, 0.23, 0.30, M_PI/2, 0, 0;
@@ -424,9 +424,10 @@ void DasomControl::CommandGenerator()
   X_ref = EE_command;
 }
 
-double vel_limit = 0.15;  // [m/s]
 void DasomControl::CommandVelocityLimit()
 {
+  double vel_limit = 0.15;  // [m/s]
+
   for (int i = 0; i < 3; i++)
   {
     if((EE_command[i] - EE_command_vel_limit[i]) > 0.001) 
@@ -442,6 +443,7 @@ void DasomControl::CommandVelocityLimit()
       EE_command_vel_limit[i] = EE_command[i];
     }
   }
+
   EE_command_vel_limit[3] = EE_command[3];
   EE_command_vel_limit[4] = EE_command[4];
   EE_command_vel_limit[5] = EE_command[5];

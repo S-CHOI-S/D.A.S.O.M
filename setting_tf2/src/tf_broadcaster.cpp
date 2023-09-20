@@ -20,6 +20,29 @@ TFBroadcaster::~TFBroadcaster()
   ros::shutdown();
 }
 
+void TFBroadcaster::testCallback(const geometry_msgs::Twist& msg)
+{
+    static tf2_ros::StaticTransformBroadcaster br_pose;
+    geometry_msgs::TransformStamped transformStamped_pose;
+
+    transformStamped_pose.header.stamp = ros::Time::now();
+    transformStamped_pose.header.frame_id = "world";
+    transformStamped_pose.child_frame_id = "haptic";
+    transformStamped_pose.transform.translation.x = msg.linear.x;
+    transformStamped_pose.transform.translation.y = msg.linear.y;
+    transformStamped_pose.transform.translation.z = msg.linear.z;
+
+    tf::Quaternion quat;
+    quat.setRPY(msg.angular.x, msg.angular.y, msg.angular.z);
+
+    transformStamped_pose.transform.rotation.x = quat.x();
+    transformStamped_pose.transform.rotation.y = quat.y();
+    transformStamped_pose.transform.rotation.z = quat.z();
+    transformStamped_pose.transform.rotation.w = quat.w();
+    
+    br_pose.sendTransform(transformStamped_pose);
+}
+
 void TFBroadcaster::joystickCallback(const geometry_msgs::Twist& msg)
 {
     static tf2_ros::StaticTransformBroadcaster br_pose;
@@ -171,6 +194,7 @@ void TFBroadcaster::gimbalCallback(const geometry_msgs::PoseStamped& msg)
 
 void TFBroadcaster::initSubscriber()
 {
+    test_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 1, &TFBroadcaster::testCallback, this, ros::TransportHints().tcpNoDelay());
     joystick_pose_sub_ = node_handle_.subscribe("/dasom/EE_command", 1, &TFBroadcaster::joystickCallback, this, ros::TransportHints().tcpNoDelay());
     sub_EEpose_ = node_handle_.subscribe("/dasom/EE_pose", 10, &TFBroadcaster::PoseCallback, this); 
     sub_gimbal_tf_ = node_handle_.subscribe("/dasom/gimbal_tf", 10, &TFBroadcaster::gimbalCallback, this);

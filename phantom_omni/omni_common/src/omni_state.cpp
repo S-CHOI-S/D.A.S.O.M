@@ -171,18 +171,24 @@ public:
     state_msg.locked = state->lock;
     state_msg.close_gripper = state->close_gripper;
     // Position
-    state_msg.pose.position.x = state->position[0];
-    state_msg.pose.position.y = state->position[1];
-    state_msg.pose.position.z = state->position[2];
+    // state_msg.pose.position.x = state->position[0];
+    // state_msg.pose.position.y = state->position[1];
+    // state_msg.pose.position.z = state->position[2];
+    state_msg.pose.position.x = state->position[2];
+    state_msg.pose.position.y = state->position[0];
+    state_msg.pose.position.z = state->position[1];
     // Orientation
     state_msg.pose.orientation.x = state->rot.v()[0];
     state_msg.pose.orientation.y = state->rot.v()[1];
     state_msg.pose.orientation.z = state->rot.v()[2];
     state_msg.pose.orientation.w = state->rot.s();
     // Velocity
-    state_msg.velocity.x = state->velocity[0];
-    state_msg.velocity.y = state->velocity[1];
-    state_msg.velocity.z = state->velocity[2];
+    // state_msg.velocity.x = state->velocity[0];
+    // state_msg.velocity.y = state->velocity[1];
+    // state_msg.velocity.z = state->velocity[2];
+    state_msg.velocity.x = state->velocity[2];
+    state_msg.velocity.y = state->velocity[0];
+    state_msg.velocity.z = state->velocity[1];
     // TODO: Append Current to the state msg
     state_msg.header.stamp = ros::Time::now();
     state_publisher.publish(state_msg);
@@ -216,22 +222,23 @@ public:
     pose_msg.pose.orientation.z = state_msg.pose.orientation.z;
     pose_msg.pose.orientation.w = state_msg.pose.orientation.w;
 
-    pose_msg.pose.position.x /= -1000.0;
-    pose_msg.pose.position.y /= 1000.0;
+    pose_msg.pose.position.x /= 1000.0;
+    pose_msg.pose.position.y /= -1000.0;
     pose_msg.pose.position.z /= 1000.0;
 
     pose_publisher.publish(pose_msg);
 
     // Build the joysitck command msg
-    if(abs(pose_msg.pose.position.x - pose_msg_i.pose.position.x) < 0.01) xyzrpy.linear.x = pose_msg.pose.position.x;
-    if(abs(pose_msg.pose.position.y - pose_msg_i.pose.position.y) < 0.01) xyzrpy.linear.y = pose_msg.pose.position.y - 0.0855954589844;
-    if(abs(pose_msg.pose.position.z - pose_msg_i.pose.position.z) < 0.01) xyzrpy.linear.z = pose_msg.pose.position.z + 0.0979452972412;
-    tf::Quaternion quat;
-    tf::quaternionMsgToTF(state_msg.pose.orientation, quat);
-    tf::Matrix3x3(quat).getRPY(xyzrpy.angular.y, xyzrpy.angular.x, xyzrpy.angular.z);
-    xyzrpy.angular.x = (-xyzrpy.angular.x + 1.20787740832)/2;
-    xyzrpy.angular.y = (-xyzrpy.angular.y)/2;
-    xyzrpy.angular.z = (xyzrpy.angular.z + 1.61819366374)/2;
+    if(abs(pose_msg.pose.position.x - pose_msg_i.pose.position.x) < 0.01) 
+      xyzrpy.linear.x = pose_msg.pose.position.x + 0.0979452972412;
+    if(abs(pose_msg.pose.position.y - pose_msg_i.pose.position.y) < 0.01) 
+      xyzrpy.linear.y = pose_msg.pose.position.y;
+    if(abs(pose_msg.pose.position.z - pose_msg_i.pose.position.z) < 0.01) 
+      xyzrpy.linear.z = pose_msg.pose.position.z - 0.0855954589844;
+    
+    xyzrpy.angular.x = 0;
+    xyzrpy.angular.y = 0;
+    xyzrpy.angular.z = 0;
 
     pose_msg_i = pose_msg;
 

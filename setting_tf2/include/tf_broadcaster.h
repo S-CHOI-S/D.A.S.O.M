@@ -85,6 +85,7 @@ class TFBroadcaster
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
+  ros::Subscriber test_sub_;
   ros::Subscriber joystick_pose_sub_;
   ros::Subscriber sub_EEpose_; 
   ros::Subscriber sub_gimbal_tf_;
@@ -101,6 +102,7 @@ class TFBroadcaster
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
+  void testCallback(const geometry_msgs::Twist &msg);
   void joystickCallback(const geometry_msgs::Twist &msg);
   void world2palletrone(Eigen::VectorXd optitrackquat);
   void optitrackCallback(const geometry_msgs::PoseStamped& msg);
