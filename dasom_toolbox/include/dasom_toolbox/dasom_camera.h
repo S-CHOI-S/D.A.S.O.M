@@ -84,6 +84,7 @@ namespace dasom
     void initCamera(int cam_num);
     cv::Mat flipCamera(cv::Mat frame);
     cv::Mat rotateCamera(cv::Mat frame);
+    void drawCoordinate();
   };
 } // namespace DASOM
 

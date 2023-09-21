@@ -1,49 +1,43 @@
+%%
 clear all; close all; clc;
-bag = rosbag("/home/choisol/2023-09-21-18-31-26.bag");
-% bag = rosbag("C:\Users\hami0\OneDrive\1__dobXPosition_P300_D100.bag")
-%%
-bag_plot_data = select(bag,'Topic','/dasom/test_Pub','Time',[bag.StartTime,bag.StartTime]);
-%bag_plot_data = select(bag,'Topic','/measured_dynamixel_position')
-%bag_plot2_data = select(bag,'Topic','/second_publisher','Time',[bag.StartTime+15,bag.StartTime + 60]);
-%%
-plot_data = timeseries(bag_plot_data);
-%plot2_data = timeseries(bag_plot2_data);
-%%
-%
-plot_msgs = readMessages(bag_plot_data,"DataFormat","struct");
-%plot2_msgs = readMessages(bag_plot2_data,"DataFormat","struct");
+bag = rosbag("/home/choisol/2023-09-21-19-10-55.bag");
 
-%
+%%
+topic_name = '/dasom/test_Pub';
+topic_name2 = '/dasom/goal_dynamixel_position';
+msg_type = 'geometry_msgs/Twist';
+msg_type2 = 'sensor_msgs/JointState';
+
+msgs = readMessages(select(bag, 'Topic', topic_name, 'MessageType', msg_type));
+msgs2 = readMessages(select(bag, 'Topic', topic_name2, 'MessageType', msg_type2));
+timestamps = cellfun(@(msg) msg.Header.Stamp.Sec + msg.Header.Stamp.Nsec*1e-9, msgs2);
+
+linear_x_values = cellfun(@(msg) msg.Linear.X, msgs);
+linear_y_values = cellfun(@(msg) msg.Linear.Y, msgs);
+linear_z_values = cellfun(@(msg) msg.Linear.Z, msgs);
+
+angular_x_values = cellfun(@(msg) msg.Linear.X, msgs);
+angular_y_values = cellfun(@(msg) msg.Linear.Y, msgs);
+angular_z_values = cellfun(@(msg) msg.Linear.Z, msgs);
+
+plot_data = timeseries([linear_x_values, linear_y_values, linear_z_values ...
+                        angular_x_values, angular_y_values, angular_z_values], timestamps);
+
 time_origin = plot_data.Time(1);
-%time_origin2 = plot2_data.Time(1);
 
-%
-plot_msgs_size = size(plot_msgs)
-%plot2_msgs_size = size(plot2_msgs)
+plot_msgs_size = size(msgs)
 
-%%
 plot_zeros = zeros(plot_msgs_size(1),6);
-%plot2_zeros = zeros(plot2_msgs_size(1),6);
 
 %%
 %
 for i=1:plot_msgs_size(1)
-    pose(i,1)=plot_msgs{i,1}.Linear.X;
-    pose(i,2)=plot_msgs{i,1}.Linear.Y;
-    pose(i,3)=plot_msgs{i,1}.Linear.Z;
-    pose(i,4)=plot_msgs{i,1}.Angular.X;
-    pose(i,5)=plot_msgs{i,1}.Angular.Y;
-    pose(i,6)=plot_msgs{i,1}.Angular.Z;
-end
-
-%%
-for i=1:plot2_msgs_size(1)
-    pose2(i,1)=plot2_msgs{i,1}.Linear.X;
-    pose2(i,2)=plot2_msgs{i,1}.Linear.Y;
-    pose2(i,3)=plot2_msgs{i,1}.Linear.Z;
-    pose2(i,4)=plot2_msgs{i,1}.Angular.X;
-    pose2(i,5)=plot2_msgs{i,1}.Angular.Y;
-    pose2(i,6)=plot2_msgs{i,1}.Angular.Z;
+    pose(i,1)=msgs{i,1}.Linear.X;
+    pose(i,2)=msgs{i,1}.Linear.Y;
+    pose(i,3)=msgs{i,1}.Linear.Z;
+    pose(i,4)=msgs{i,1}.Angular.X;
+    pose(i,5)=msgs{i,1}.Angular.Y;
+    pose(i,6)=msgs{i,1}.Angular.Z;
 end
 
 %%
@@ -67,36 +61,20 @@ legend('reference angle','desired angle','measured angle')
 xlabel('time[s]')
 ylabel('angle[rad]')
 %ylim([1 1.85]);
-%xlim([1 12]);
+xlim([1 22]);
+
 %%
-figure
-title('X position response w/o DOB')
-hold on
-plot(plot2_data.Time-time_origin2,plot2_data.Data(:,1),"LineWidth",2)
-hold on
-%plot(plot2_data.Time-time_origin2,plot2_data.Data(:,2),"LineWidth",2)
-hold on
-%plot(plot2_data.Time-time_origin2,plot2_data.Data(:,3),"LineWidth",2)
-hold on
-plot(plot2_data.Time-time_origin2,plot2_data.Data(:,4),"LineWidth",2)
-hold on
-%plot(plot2_data.Time-time_origin2,plot2_data.Data(:,5),"LineWidth",2)
-hold on
-%plot(plot2_data.Time-time_origin2,plot2_data.Data(:,6),"LineWidth",2)
-legend('reference position','measured position')
-xlabel('time[s]')
-ylabel('Position[m]')
-ylim([-0.08 0.18]);
-xlim([0 10]);
-%%
-figure
-title('Joint2 servoangle')
-plot(plot_data.Time-time_origin,plot_data.Data(:,4),'-.','LineWidth',2.0);
-hold on
-plot(plot_data.Time-time_origin,plot_data.Data(:,6),"LineWidth",2)
-legend('reference angle','measured angle')
-xlabel('time[s]')
-ylabel('angle[rad]')
-title('Joint2 servoangle')
-ylim([1 1.85]);
-xlim([1 12]);
+signal = plot_data.Data(:,6);
+
+% fourier transform
+N = length(signal);
+X = fft(signal);
+
+% convert data to frequency data
+magnitude = abs(X);
+
+% visualization
+plot(plot_data.Time-time_origin, magnitude)
+xlabel('주파수 (Hz)')
+ylabel('크기')
+title('주파수 영역 데이터')

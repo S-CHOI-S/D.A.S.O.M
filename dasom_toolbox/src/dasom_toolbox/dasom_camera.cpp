@@ -77,9 +77,7 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 
   frame = flipCamera(frame);
 
-  arrowedLine(frame, cv::Point(30, 450), cv::Point(60, 425), blue, 3, cv::LINE_AA);
-  arrowedLine(frame, cv::Point(30, 450), cv::Point(70, 450), green, 3);
-  arrowedLine(frame, cv::Point(30, 450), cv::Point(30, 410), red, 3);
+  drawCoordinate();
   
   imshow("detect",frame);
 
@@ -240,4 +238,11 @@ cv::Mat DasomCam::rotateCamera(cv::Mat frame)
   cv::rotate(frame, rotated_frame, cv::ROTATE_90_CLOCKWISE);
 
   return rotated_frame;
+}
+
+void DasomCam::drawCoordinate()
+{
+  arrowedLine(frame, cv::Point(30, 450), cv::Point(60, 425), blue, 3, cv::LINE_AA);
+  arrowedLine(frame, cv::Point(30, 450), cv::Point(70, 450), red, 3);
+  arrowedLine(frame, cv::Point(30, 450), cv::Point(30, 410), green, 3);
 }
