@@ -12,7 +12,7 @@
 <!--ADD-->
   <arg name="position_p_gain"	           default="1000"/>
   <arg name="position_i_gain" 	           default="0"/>
-  <arg name="position_d_gain"    	   default="700"/>
+  <arg name="position_d_gain"    	   default="800"/>
 
   <arg name="feedforward_1st_gain"         default="200"/>
   <arg name="feedforward_2nd_gain"         default="200"/>

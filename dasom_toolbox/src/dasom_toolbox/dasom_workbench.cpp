@@ -36,7 +36,6 @@ DasomWorkbench::DasomWorkbench()
   m4 = priv_nh_.param<double>("m4", 0.201);
   m5 = priv_nh_.param<double>("m5", 0.201);
   m6 = priv_nh_.param<double>("m6", 0.201);
-  m7 = priv_nh_.param<double>("m7", 0.201);
 
   virtual_mass_x = 1000;
   virtual_damper_x = 1000;
@@ -126,22 +125,22 @@ void DasomWorkbench::initializeRobotLinks()
   // Set Joint Configuration
   // 0.0
   kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ), KDL::Frame(link_lengths[0]),
-                                     KDL::RigidBodyInertia(0.5, link_cogs[0], link_inertias[0])));
+                                     KDL::RigidBodyInertia(m1, link_cogs[0], link_inertias[0])));
   // 0.0 0.263367
   kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotX), KDL::Frame(link_lengths[1]),
-                                     KDL::RigidBodyInertia(0.22226, link_cogs[1], link_inertias[1])));
+                                     KDL::RigidBodyInertia(m2, link_cogs[1], link_inertias[1])));
   // 0.0 0.577486	0.117183	
   kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotX), KDL::Frame(link_lengths[2]),
-                                     KDL::RigidBodyInertia(0.1296, link_cogs[2], link_inertias[2])));
+                                     KDL::RigidBodyInertia(m3, link_cogs[2], link_inertias[2])));
   // 0.0 0.641148	0.146350 0.000080
   kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotY), KDL::Frame(link_lengths[3]),
-                                     KDL::RigidBodyInertia(0.0227, link_cogs[3], link_inertias[3])));
+                                     KDL::RigidBodyInertia(m4, link_cogs[3], link_inertias[3])));
   // 0.0 0.991254	0.329760 -0.046625 0.000000	
   kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotZ), KDL::Frame(link_lengths[4]),
-                                     KDL::RigidBodyInertia(0.1097, link_cogs[4], link_inertias[4])));
+                                     KDL::RigidBodyInertia(m5, link_cogs[4], link_inertias[4])));
   // 0.0 2.110560	0.986372 0.085612 0.000000 0.158523	
   kdl_chain_.addSegment(KDL::Segment(KDL::Joint(KDL::Joint::RotX), KDL::Frame(link_lengths[5]),
-                                     KDL::RigidBodyInertia(0.30449, link_cogs[5], link_inertias[5])));
+                                     KDL::RigidBodyInertia(m6, link_cogs[5], link_inertias[5])));
  
   q_.resize(num_joints);
   q_dot_.resize(num_joints);

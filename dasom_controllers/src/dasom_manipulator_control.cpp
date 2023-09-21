@@ -21,12 +21,12 @@ DasomControl::DasomControl()
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
-  ds_jnt1_ = new DasomJoint(1,8); // admittance cof 4?
-  ds_jnt2_ = new DasomJoint(1,8);
-  ds_jnt3_ = new DasomJoint(1,8);
-  ds_jnt4_ = new DasomJoint(1,8);
-  ds_jnt5_ = new DasomJoint(1,8);
-  ds_jnt6_ = new DasomJoint(1,8);
+  ds_jnt1_ = new DasomJoint(4,8); // admittance cof 4?
+  ds_jnt2_ = new DasomJoint(4,8);
+  ds_jnt3_ = new DasomJoint(4,8);
+  ds_jnt4_ = new DasomJoint(4,8);
+  ds_jnt5_ = new DasomJoint(4,8);
+  ds_jnt6_ = new DasomJoint(4,8);
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -69,9 +69,9 @@ DasomControl::DasomControl()
   FK_pose.resize(6,1);
   EE_command.resize(6);
   EE_command_vel_limit.resize(6);
-  FK_pose << 0, 0.23, 0.30, M_PI/2, 0, 0;
-  EE_command << 0, 0.23, 0.30, M_PI/2, 0, 0;
-  EE_command_vel_limit << 0, 0.23, 0.30, M_PI/2, 0, 0;
+  FK_pose = initPose;
+  EE_command = initPose;
+  EE_command_vel_limit = initPose;
   
   // For haptic control
   haptic_initPose.resize(6,1);
@@ -87,7 +87,7 @@ DasomControl::DasomControl()
   gimbal_tf.resize(7);
   gimbal_EE_cmd.resize(6);
   global_EE_tf.resize(7);
-  gimbal_EE_cmd << 0, 0.23, 0.30, M_PI/2, 0, 0;
+  gimbal_EE_cmd = initPose;
 
   // For force estimation
   J.resize(6,6);
@@ -109,13 +109,34 @@ DasomControl::DasomControl()
   // For admittance control
   X_ref.resize(6,1);
   X_cmd.resize(6,1);
-  X_ref << 0, 0.23, 0.30, M_PI/2, 0, 0;
-  X_cmd << 0, 0.23, 0.30, M_PI/2, 0, 0;
+  X_ref = initPose;
+  X_cmd = initPose;
   
   // For DOB
   d_hat.resize(6);
  
   ros::Rate init_rate(1);
+
+  // ㅁㅁㅁㅁ for Band pass filter
+  wl = 1; // ㅁㅁㅁㅁ 이거 잘 숫자 넣어서 튜닝해보십쇼
+  wh = 2; // 컷오프 프리퀀시 lower랑 higher임.
+  w = sqrt(wl * wh);
+  Q = w / (wh - wl);
+  
+  //pf//
+  bp_A << - w/ Q, - w*w,
+              1,      0;
+
+  bp_B << 1, 0;
+  bp_B.transpose();
+  bp_C << w/ Q, 0;
+  bp_D = 0;
+  bp_X1 << 0, 0;
+  bp_X1.transpose();
+  bp_X2 << 0, 0;
+  bp_X2.transpose();
+  bp_X3 << 0, 0;
+  bp_X3.transpose();
 }
 
 DasomControl::~DasomControl()
@@ -150,6 +171,7 @@ void DasomControl::initSubscriber()
 void DasomControl::initServer()
 {
   admittance_srv_ = node_handle_.advertiseService(robot_name_ + "/admittance_srv", &DasomControl::admittanceCallback, this);
+  bandpass_srv_ = node_handle_.advertiseService(robot_name_ + "/bandpass_srv", &DasomControl::bandpassCallback, this);
 }
 
 void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -260,6 +282,43 @@ bool DasomControl::admittanceCallback(dasom_controllers::admittanceSRV::Request 
 
   initializeAdmittance();
 
+  X_from_model_matrix << 0, 0;
+  X_dot_from_model_matrix << 0, 0;
+  Y_from_model_matrix << 0, 0;
+  Y_dot_from_model_matrix << 0, 0;
+  Z_from_model_matrix << 0, 0;
+  Z_dot_from_model_matrix << 0, 0;
+
+  return true;
+}
+
+//ㅁㅁㅁㅁ 튜닝용 서비스
+bool DasomControl::bandpassCallback(dasom_controllers::bandpassSRV::Request & req,
+                                    dasom_controllers::bandpassSRV::Response & res)
+{
+  wl = req.wl; // ㅁㅁㅁㅁ 이거 잘 숫자 넣어서 튜닝해보십쇼
+  wh = req.wh; // 컷오프 프리퀀시 lower랑 higher임.
+  double w = sqrt(wl * wh);
+  double Q = w / (wh - wl);
+
+  ROS_INFO("wl = %lf", wl);
+  ROS_INFO("wh = %lf", wh);
+  
+  //pf//
+  bp_A << - w/ Q, - w*w,
+              1,      0;
+
+  bp_B << 1, 0;
+  bp_B.transpose();
+  bp_C << w/ Q, 0;
+  bp_D = 0;
+  bp_X1 << 0, 0;
+  bp_X1.transpose();
+  bp_X2 << 0, 0;
+  bp_X2.transpose();
+  bp_X3 << 0, 0;
+  bp_X3.transpose();
+
   return true;
 }
 
@@ -277,7 +336,7 @@ void DasomControl::CalcExternalForce()
 {
   geometry_msgs::WrenchStamped ext_force;
 
-  tauLPFforExternalForce();
+  // tauLPFforExternalForce();
 
   J = Jacobian(angle_measured);
   JT = J.transpose();
@@ -287,16 +346,31 @@ void DasomControl::CalcExternalForce()
 
   F_ext = JTI * (tau_measured - C_matrix - G_matrix);
 
-  F_ext[1] = F_ext[1] - 1;
-  F_ext[2] = F_ext[2] + 4.3;
+  // F_ext[1] = F_ext[1] - 1;
+  // F_ext[2] = F_ext[2] + 4.3;
 
-  if (F_ext[0] <= hysteresis_max[0] && F_ext[0] >= hysteresis_min[0]) F_ext[0] = 0;
-  else if (F_ext[0] > hysteresis_max[0]) F_ext[0] -= hysteresis_max[0];
-  else if (F_ext[0] < hysteresis_min[0]) F_ext[0] -= hysteresis_min[0];
+  // if (F_ext[0] <= hysteresis_max[0] && F_ext[0] >= hysteresis_min[0]) F_ext[0] = 0;
+  // else if (F_ext[0] > hysteresis_max[0]) F_ext[0] -= hysteresis_max[0];
+  // else if (F_ext[0] < hysteresis_min[0]) F_ext[0] -= hysteresis_min[0];
 
-  if (F_ext[2] <= hysteresis_max[2] && F_ext[2] >= hysteresis_min[2]) F_ext[2] = 0;
-  else if (F_ext[2] > hysteresis_max[2]) F_ext[2] -= hysteresis_max[2];
-  else if (F_ext[2] < hysteresis_min[2]) F_ext[2] -= hysteresis_min[2];
+  // if (F_ext[2] <= hysteresis_max[2] && F_ext[2] >= hysteresis_min[2]) F_ext[2] = 0;
+  // else if (F_ext[2] > hysteresis_max[2]) F_ext[2] -= hysteresis_max[2];
+  // else if (F_ext[2] < hysteresis_min[2]) F_ext[2] -= hysteresis_min[2]; // ㅁㅁㅁㅁ 데드존을 뺄지말지는 잘 판단해보십쇼
+
+  // ㅁㅁㅁㅁ band pass filter
+  bp_X_dot1 = bp_A * bp_X1 + bp_B * F_ext[0];
+  bp_X1 += bp_X_dot1 * time_loop;
+  bf_F_ext[0] = bp_C.dot(bp_X1) + F_ext[0] * bp_D;
+
+  bp_X_dot2 = bp_A * bp_X2 + bp_B * F_ext[1];
+  bp_X2 += bp_X_dot2 * time_loop;
+  bf_F_ext[1] = bp_C.dot(bp_X2) + F_ext[1] * bp_D;
+
+  bp_X_dot3 = bp_A * bp_X3 + bp_B * F_ext[2];
+  bp_X3 += bp_X_dot3 * time_loop;
+  bf_F_ext[2] = bp_C.dot(bp_X3) + F_ext[2] * bp_D;
+  
+  //ㅁㅁㅁㅁ bf_F_ext를 admittance에 넣으십쇼
 
   // std::cout<<J<<std::endl;
 
@@ -305,9 +379,9 @@ void DasomControl::CalcExternalForce()
   ext_force.wrench.force.x = F_ext[0];
   ext_force.wrench.force.y = F_ext[1];
   ext_force.wrench.force.z = F_ext[2];
-  ext_force.wrench.torque.x = F_ext[3];
-  ext_force.wrench.torque.y = F_ext[4];
-  ext_force.wrench.torque.z = F_ext[5];
+  ext_force.wrench.torque.x = bf_F_ext[0];
+  ext_force.wrench.torque.y = bf_F_ext[1];
+  ext_force.wrench.torque.z = bf_F_ext[2];
 
   force_pub_.publish(ext_force);
 }
@@ -315,11 +389,11 @@ void DasomControl::CalcExternalForce()
 void DasomControl::AdmittanceControl()
 // X_ref: haptic command
 {
-  X_cmd[0] = admittanceControlX(time_loop, X_ref[0], F_ext[0]);
+  X_cmd[0] = admittanceControlX(time_loop, X_ref[0], bf_F_ext[0]);
 
-  X_cmd[1] = admittanceControlY(time_loop, X_ref[1], F_ext[1]);
+  X_cmd[1] = admittanceControlY(time_loop, X_ref[1], bf_F_ext[1]);
 
-  X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], F_ext[2]);
+  X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], bf_F_ext[2]);
 
   EE_command[0] = X_cmd[0];
   EE_command[1] = X_cmd[1];
@@ -496,6 +570,7 @@ void DasomControl::initPoseFunction()
      )
   {
     initPoseFlag = false;
+    ROS_WARN("Finished to arrive at the initial pose!");
     
     ds_jnt1_->initDOB();
     ds_jnt2_->initDOB();
@@ -504,7 +579,6 @@ void DasomControl::initPoseFunction()
     ds_jnt5_->initDOB();
     ds_jnt6_->initDOB();
   }
-  // ROS_INFO("DOING");
 }
 
 void DasomControl::PublishData()
@@ -567,9 +641,9 @@ void DasomControl::test()
   geometry_msgs::Twist first_publisher;
   geometry_msgs::Twist second_publisher;
 
-  first_publisher.linear.x = EE_command[0];
-  first_publisher.linear.y = EE_command[1];
-  first_publisher.linear.z = EE_command[2];
+  first_publisher.linear.x = F_ext[0];
+  first_publisher.linear.y = F_ext[1];
+  first_publisher.linear.z = F_ext[2];
   first_publisher.angular.x = X_cmd[0];
   first_publisher.angular.y = X_cmd[1];
   first_publisher.angular.z = X_cmd[2];
@@ -606,7 +680,7 @@ int main(int argc, char **argv)
   init_rate.sleep();
   ros::spinOnce();
   ds_ctrl_.angle_ref = ds_ctrl_.angle_measured;
-  ROS_INFO("Start moving to initPose!!");
+  ROS_WARN("Start moving to initPose!");
 
   ros::Rate loop_rate(200);
   ds_ctrl_.time_i = ros::Time::now().toSec();
@@ -626,7 +700,7 @@ int main(int argc, char **argv)
     {
       ds_ctrl_.CommandGenerator();
       ds_ctrl_.CalcExternalForce();
-      ds_ctrl_.AdmittanceControl();
+      // ds_ctrl_.AdmittanceControl();
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
       // ds_ctrl_.DOB();

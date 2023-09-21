@@ -27,6 +27,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <dasom_controllers/admittanceSRV.h>
+#include <dasom_controllers/bandpassSRV.h>
 #include <omni_msgs/OmniButtonEvent.h>
 #include <tf/transform_datatypes.h>
 #include <tf2/LinearMath/Quaternion.h>
@@ -124,6 +125,7 @@ class DasomControl : public dasom::DasomWorkbench
   ** ROS Services Clients
   *****************************************************************************/
   ros::ServiceServer admittance_srv_;
+  ros::ServiceServer bandpass_srv_;
 
   /*****************************************************************************
   ** Define variables
@@ -175,6 +177,23 @@ class DasomControl : public dasom::DasomWorkbench
   // For DOB
   Eigen::VectorXd d_hat;
 
+  // For bpf
+  double wl;
+  double wh;
+  double w;
+  double Q;
+  Eigen::Matrix2d bp_A;
+  Eigen::Vector2d bp_B;
+  Eigen::Vector2d bp_C;
+  double bp_D;
+  Eigen::Vector2d bp_X1;
+  Eigen::Vector2d bp_X2;
+  Eigen::Vector2d bp_X3;
+  Eigen::Vector2d bp_X_dot1;
+  Eigen::Vector2d bp_X_dot2;
+  Eigen::Vector2d bp_X_dot3;
+  Eigen::Vector3d bf_F_ext;
+
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
@@ -186,6 +205,8 @@ class DasomControl : public dasom::DasomWorkbench
   void gimbalCmdCallback(const geometry_msgs::PoseStamped &msg);
   bool admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
                           dasom_controllers::admittanceSRV::Response &res);
+  bool bandpassCallback(dasom_controllers::bandpassSRV::Request  &req,
+                        dasom_controllers::bandpassSRV::Response &res);
   void tauLPFforExternalForce();
   void deleteToolbox();
 };

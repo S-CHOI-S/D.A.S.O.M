@@ -56,6 +56,13 @@ namespace dasom
     double virtual_mass_z;
     double virtual_damper_z;
     double virtual_spring_z;
+    
+    Eigen::Vector2d X_from_model_matrix;
+    Eigen::Vector2d X_dot_from_model_matrix;
+    Eigen::Vector2d Y_from_model_matrix;
+    Eigen::Vector2d Y_dot_from_model_matrix;
+    Eigen::Vector2d Z_from_model_matrix;
+    Eigen::Vector2d Z_dot_from_model_matrix;
 
     /*****************************************************************************
     ** Define functions
@@ -104,22 +111,22 @@ namespace dasom
     Eigen::Vector2d B_x;
     Eigen::Vector2d C_x;
     Eigen::Vector2d D_x;
-    Eigen::Vector2d X_from_model_matrix;
-    Eigen::Vector2d X_dot_from_model_matrix;
+    // Eigen::Vector2d X_from_model_matrix;
+    // Eigen::Vector2d X_dot_from_model_matrix;
 
     Eigen::Matrix2d A_y;
     Eigen::Vector2d B_y;
     Eigen::Vector2d C_y;
     Eigen::Vector2d D_y;
-    Eigen::Vector2d Y_from_model_matrix;
-    Eigen::Vector2d Y_dot_from_model_matrix;
+    // Eigen::Vector2d Y_from_model_matrix;
+    // Eigen::Vector2d Y_dot_from_model_matrix;
 
     Eigen::Matrix2d A_z;
     Eigen::Vector2d B_z;
     Eigen::Vector2d C_z;
     Eigen::Vector2d D_z;
-    Eigen::Vector2d Z_from_model_matrix;
-    Eigen::Vector2d Z_dot_from_model_matrix;
+    // Eigen::Vector2d Z_from_model_matrix;
+    // Eigen::Vector2d Z_dot_from_model_matrix;
 
     // For kinematics
     // link lengths

@@ -32,6 +32,8 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Wrench.h>
 #include <dasom_toolbox/dasom_workbench.h>
+#include <dasom_controllers/admittanceSRV.h>
+#include <dasom_controllers/bandpassSRV.h>
  
 using namespace KDL;
 
@@ -43,12 +45,12 @@ Derived dampedPinv(const Eigen::MatrixBase<Derived>& a, double rho = 1e-4)
 
 KDL::Chain chain;
 
-double num_jnt = 6;
+double num_jnt = 3;
 
-KDL::JntArray q(6);
-KDL::JntArray qdot(6);
-KDL::JntArray qdotdot(6);
-KDL::JntArray tau(6);
+KDL::JntArray q(num_jnt);
+KDL::JntArray qdot(num_jnt);
+KDL::JntArray qdotdot(num_jnt);
+KDL::JntArray tau(num_jnt);
 
 // Eigen::VectorXd jnt_p;
 // Eigen::VectorXd jnt_v;
@@ -59,9 +61,108 @@ KDL::JntArray tau(6);
 // jnt_v.resize(num_jnt);
 // jnt_e.resize(num_jnt);
 
+// void cmdgenerator()
+// {
+//     sensor_msgs::JointState jnt;
+//     double i = 0;
+//     double move;
+
+//     move = sin(i/100) + 1.57;
+//     ROS_ERROR("%lf",move);
+
+//     jnt.position.push_back(0);
+//     jnt.position.push_back(0);
+
+//     joint_cmd_pub.publish(jnt);
+// }
+
+double wl = 1;
+double wh = 2;
+double w = sqrt(wl * wh);
+double Q = w / (wh - wl);
+Eigen::Matrix2d bp_A;
+Eigen::Vector2d bp_B;
+Eigen::Vector2d bp_C;
+double bp_D;
+Eigen::Vector2d bp_X1;
+Eigen::Vector2d bp_X2;
+Eigen::Vector2d bp_X3;
+Eigen::Vector2d bp_X_dot1;
+Eigen::Vector2d bp_X_dot2;
+Eigen::Vector2d bp_X_dot3;
+Eigen::Vector3d bf_F_ext;
+
+// For admittance control
+double virtual_mass_x;
+double virtual_damper_x;
+double virtual_spring_x;
+double virtual_mass_y;
+double virtual_damper_y;
+double virtual_spring_y;
+double virtual_mass_z;
+double virtual_damper_z;
+double virtual_spring_z;
+
+bool bandpassCallback(dasom_controllers::bandpassSRV::Request & req,
+                      dasom_controllers::bandpassSRV::Response & res)
+{
+  wl = req.wl; // ㅁㅁㅁㅁ 이거 잘 숫자 넣어서 튜닝해보십쇼
+  wh = req.wh; // 컷오프 프리퀀시 lower랑 higher임.
+  double w = sqrt(wl * wh);
+  double Q = w / (wh - wl);
+
+  ROS_INFO("wl = %lf", wl);
+  ROS_INFO("wh = %lf", wh);
+  
+  //pf//
+  bp_A << - w/ Q, - w*w,
+              1,      0;
+
+  bp_B << 1, 0;
+  bp_B.transpose();
+  bp_C << w/ Q, 0;
+  bp_D = 0;
+  bp_X1 << 0, 0;
+  bp_X1.transpose();
+  bp_X2 << 0, 0;
+  bp_X2.transpose();
+  bp_X3 << 0, 0;
+  bp_X3.transpose();
+
+  return true;
+}
+
+// bool admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
+//                         dasom_controllers::admittanceSRV::Response &res)
+// {
+//   virtual_mass_x = req.x_m;
+//   virtual_damper_x = req.x_d;
+//   virtual_spring_x = req.x_k;
+  
+//   virtual_mass_y = req.y_m;
+//   virtual_damper_y = req.y_d;
+//   virtual_spring_y = req.y_k;
+
+//   virtual_mass_z = req.z_m;
+//   virtual_damper_z = req.z_d;
+//   virtual_spring_z = req.z_k;
+
+//   initializeAdmittance();
+
+//   X_from_model_matrix << 0, 0;
+//   X_dot_from_model_matrix << 0, 0;
+//   Y_from_model_matrix << 0, 0;
+//   Y_dot_from_model_matrix << 0, 0;
+//   Z_from_model_matrix << 0, 0;
+//   Z_dot_from_model_matrix << 0, 0;
+
+//   return true;
+// }
+
+
 void jointCallback(const sensor_msgs::JointState &msg)
 {
-    for (unsigned int i = 0; i < 6; ++i) 
+    for (unsigned int i = 0; i < num_jnt; ++i) 
     {
         q(i) = msg.position.at(i);
         qdot(i) = msg.velocity.at(i);
@@ -78,9 +179,19 @@ int main( int argc, char** argv )
     ros::Rate loop_rate(20);
 
     ros::Publisher force_pub_ = nh.advertise<geometry_msgs::Wrench>("ext_force", 10);
+    ros::Publisher joint_cmd_pub = nh.advertise<sensor_msgs::JointState>("/dasom/goal_dynamixel_position", 10);
     ros::Subscriber joint_sub_ = nh.subscribe("/joint_states", 10, &jointCallback);
+    ros::ServiceServer bandpass_srv_ = nh.advertiseService("/bandpass_srv", &bandpassCallback);
 
     dasom::DasomWorkbench ds_wb_;
+
+    sensor_msgs::JointState jnt;
+    double i = 0;
+    double move;
+
+    double time_i = ros::Time::now().toSec();
+    double time_f;
+    double time_loop;
 
     geometry_msgs::Wrench ext;
 
@@ -137,16 +248,16 @@ int main( int argc, char** argv )
                              RigidBodyInertia(0.22226, link_cogs[1], link_inertias[1])));
     // 0.0 0.577486	0.117183	
     chain.addSegment(Segment(Joint(Joint::RotX), Frame(link_lengths[2]),
-                             RigidBodyInertia(0.1296, link_cogs[2], link_inertias[2])));
-    // 0.0 0.641148	0.146350 0.000080
-    chain.addSegment(Segment(Joint(Joint::RotY), Frame(link_lengths[3]),
-                             RigidBodyInertia(0.0227, link_cogs[3], link_inertias[3])));
-    // 0.0 0.991254	0.329760 -0.046625 0.000000	
-    chain.addSegment(Segment(Joint(Joint::RotZ), Frame(link_lengths[4]),
-                             RigidBodyInertia(0.1097, link_cogs[4], link_inertias[4])));
-    // 0.0 2.110560	0.986372 0.085612 0.000000 0.158523	
-    chain.addSegment(Segment(Joint(Joint::RotX), Frame(link_lengths[5]),
-                             RigidBodyInertia(0.30449, link_cogs[5], link_inertias[5])));
+                             RigidBodyInertia(0.0476, link_cogs[2], link_inertias[2])));
+    // // 0.0 0.641148	0.146350 0.000080
+    // chain.addSegment(Segment(Joint(Joint::RotY), Frame(link_lengths[3]),
+    //                          RigidBodyInertia(0.0227, link_cogs[3], link_inertias[3])));
+    // // 0.0 0.991254	0.329760 -0.046625 0.000000	
+    // chain.addSegment(Segment(Joint(Joint::RotZ), Frame(link_lengths[4]),
+    //                          RigidBodyInertia(0.1097, link_cogs[4], link_inertias[4])));
+    // // 0.0 2.110560	0.986372 0.085612 0.000000 0.158523	
+    // chain.addSegment(Segment(Joint(Joint::RotX), Frame(link_lengths[5]),
+    //                          RigidBodyInertia(0.30449, link_cogs[5], link_inertias[5])));
  
     // Create solver based on kinematic chain
     ChainFkSolverPos_recursive fksolver = ChainFkSolverPos_recursive(chain);
@@ -171,9 +282,30 @@ int main( int argc, char** argv )
 
     double t;
 
+    bp_A << - w/ Q, - w*w,
+              1,      0;
+
+    bp_B << 1, 0;
+    bp_B.transpose();
+    bp_C << w/ Q, 0;
+    bp_D = 0;
+    bp_X1 << 0, 0;
+    bp_X1.transpose();
+    bp_X2 << 0, 0;
+    bp_X2.transpose();
+    bp_X3 << 0, 0;
+    bp_X3.transpose();
+
     // printf("AAAAAAA");
     while(ros::ok())
     {
+        move = sin(t/100) + 1.57;
+        ROS_ERROR("%lf", move);
+
+        time_f = ros::Time::now().toSec();
+        time_loop = time_f - time_i;
+        time_i = ros::Time::now().toSec();
+        
         // 관절 각도, 속도, 가속도 설정 (예시로 0으로 초기화)
         for (unsigned int i = 0; i < chain.getNrOfJoints(); ++i) {
             // printf("BBBBBBB");
@@ -307,6 +439,12 @@ int main( int argc, char** argv )
             F_ext(i) = kdl_jacobian(i,j) * (tau(i) - C(i) - G(i));
             }
         }
+
+        Eigen::Vector3d F_ext_Eigen(3);
+        for (unsigned int i = 0; i < 3; ++i) {
+            F_ext_Eigen[i] = F_ext(i);
+        }    
+            
         // std::cout << "Force " << F_ext(0) << "  " << F_ext(1) << "  " << F_ext(2) << "  " << F_ext(3) << "  " << F_ext(4) << "  " << F_ext(5) << std::endl;
 
         Eigen::MatrixXd jac(6, chain.getNrOfJoints());
@@ -315,22 +453,54 @@ int main( int argc, char** argv )
                 jac(i,j) = Jac(i,j) - eigen_jacobian(i,j);
             }
         }
-        // std::cout<<Jac<<std::endl;
+
+        bp_X_dot1 = bp_A * bp_X1 + bp_B * F_ext_Eigen[0];
+        bp_X1 += bp_X_dot1 * time_loop;
+        bf_F_ext[0] = bp_C.dot(bp_X1) + F_ext_Eigen[0] * bp_D;
+
+        bp_X_dot2 = bp_A * bp_X2 + bp_B * F_ext_Eigen[1];
+        bp_X2 += bp_X_dot2 * time_loop;
+        bf_F_ext[1] = bp_C.dot(bp_X2) + F_ext_Eigen[1] * bp_D;
+
+        bp_X_dot3 = bp_A * bp_X3 + bp_B * F_ext_Eigen[2];
+        bp_X3 += bp_X_dot3 * time_loop;
+        bf_F_ext[2] = bp_C.dot(bp_X3) + F_ext_Eigen[2] * bp_D;
+        
+        std::cout<<F_ext_Eigen<<std::endl;
         // ROS_INFO("==============================");
         // std::cout<<eigen_jacobian<<std::endl;
         // ROS_INFO("==============================");
         // std::cout<<jac<<std::endl;
 
-        ext.force.x = F_ext(0);
-        ext.force.y = F_ext(1);
-        ext.force.z = F_ext(2);
-        ext.torque.x = F_ext(3);
-        ext.torque.y = F_ext(4);
-        ext.torque.z = F_ext(5);
+        // ext.force.x = tau(0);
+        // ext.force.y = tau(1);
+        // ext.force.z = tau(2);
+        // ext.torque.x = C(0) + G(0);
+        // ext.torque.y = C(1) + G(1);
+        // ext.torque.z = C(2) + G(2);
+
+        ext.force.x = bf_F_ext(0);
+        ext.force.y = bf_F_ext(1);
+        ext.force.z = bf_F_ext(2);
+        ext.torque.x = F_ext(0);
+        ext.torque.y = F_ext(1);
+        ext.torque.z = F_ext(2);
 
         force_pub_.publish(ext);
 
         t++;
+
+        jnt.header.stamp = ros::Time::now();
+        jnt.name.resize(3);
+        jnt.position.resize(3);
+        jnt.name[0] = "id_1";
+        jnt.position[0] = 0;
+        jnt.name[1] = "id_2";
+        jnt.position[1] = 1; //move;
+        jnt.name[2] = "id_3";
+        jnt.position[2] = -0.6;
+
+        joint_cmd_pub.publish(jnt);
 
         loop_rate.sleep();
         ros::spinOnce();
