@@ -37,17 +37,17 @@ DasomWorkbench::DasomWorkbench()
   m5 = priv_nh_.param<double>("m5", 0.201);
   m6 = priv_nh_.param<double>("m6", 0.201);
 
-  virtual_mass_x = 1000;
-  virtual_damper_x = 1000;
-  virtual_spring_x = 1000;
+  virtual_mass_x = 10000;
+  virtual_damper_x = 10000;
+  virtual_spring_x = 10000;
 
-  virtual_mass_y = 1000;
-  virtual_damper_y = 1000;
-  virtual_spring_y = 1000;
+  virtual_mass_y = 10000;
+  virtual_damper_y = 10000;
+  virtual_spring_y = 10000;
 
-  virtual_mass_z = 1000;
-  virtual_damper_z = 1000;
-  virtual_spring_z = 1000;
+  virtual_mass_z = 10000;
+  virtual_damper_z = 10000;
+  virtual_spring_z = 10000;
 
   X_from_model_matrix << 0, 0;
   X_dot_from_model_matrix << 0, 0;

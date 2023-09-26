@@ -12,8 +12,6 @@
 #include <kdl/chain.hpp>
 #include <dynamixel_workbench_msgs/DasomDynamixel.h>
 #include <dynamixel_workbench_msgs/EECommand.h>
-#include "dasom_controllers/movingFlag.h"
-#include "dasom_controllers/admittanceTest.h"
 #include <dasom_toolbox/dasom_workbench.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_msgs/TFMessage.h>
@@ -196,10 +194,6 @@ class HI
   void CommandGenerator();
   void solveInverseKinematics();
   void setInitpose();
-  bool movingServiceCallback(dasom_controllers::movingFlag::Request  &req,
-                             dasom_controllers::movingFlag::Response &res);
-  bool AdmittanceCallback(dasom_controllers::admittanceTest::Request  &req,
-                          dasom_controllers::admittanceTest::Response &res);
   
  private:
   /*****************************************************************************

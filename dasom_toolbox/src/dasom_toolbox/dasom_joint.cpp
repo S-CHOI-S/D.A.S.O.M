@@ -34,7 +34,7 @@ DasomJoint::DasomJoint(double cut_off_freq_current, double cut_off_freq_qfilter)
   I_gain = priv_nh_.param<double>("dob_i_gain",0);
   D_gain = priv_nh_.param<double>("dob_d_gain",0);
   polar_moment = priv_nh_.param<double>("dob_polar_moment",0);
-  
+
   initDOB();
 }
 
@@ -111,7 +111,7 @@ void DasomJoint::initDOB()
 double DasomJoint::updateDOB(double time_loop, double angle_measured, double angle_ref)
 {
   // For 1 joint
-
+  
   // State space (Gn)
   Q_M_dot = Q_M_A * Q_M + Q_M_B * angle_measured;
   Q_M += Q_M_dot * time_loop;
@@ -123,6 +123,14 @@ double DasomJoint::updateDOB(double time_loop, double angle_measured, double ang
   angle_d_lpf = Q_angle_d_C.dot(Q_angle_d);
 
   d_hat = angle_d_hat - angle_d_lpf; // d_hat: estimated disturbance
+
+  // std::cout<<"Q_angle_d_dot"<<std::endl<<Q_angle_d_dot<<std::endl;
+
+  // std::cout<<"Q_angle_d"<<std::endl<<Q_angle_d<<std::endl;
+
+  // std::cout<<"angle_d_lpf"<<std::endl<<angle_d_lpf<<std::endl;
+
+  // std::cout<<"angle_ref"<<std::endl<<angle_ref<<std::endl;
 
   return d_hat;
 }

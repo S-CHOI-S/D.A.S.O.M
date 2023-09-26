@@ -35,7 +35,7 @@ class DasomJoint
   void test();
   double updateLPF(double time_loop, double input_data);
   void initDOB();
-  double updateDOB(double time_loop, double angle_measured, double angle_ref);
+  double updateDOB(double time_loop, double angle_measured, double angle_d);
 
  private:
   /*****************************************************************************
@@ -58,7 +58,7 @@ class DasomJoint
   double b0_2nd;
   double b1_2nd;
   double b2_2nd;
-
+  double i;
   Eigen::VectorXd bw2_filtered_input;
   Eigen::VectorXd bw2_filtered_output;
 

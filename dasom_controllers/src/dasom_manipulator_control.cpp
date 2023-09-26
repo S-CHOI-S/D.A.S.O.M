@@ -21,12 +21,12 @@ DasomControl::DasomControl()
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
-  ds_jnt1_ = new DasomJoint(4,8); // admittance cof 4?
-  ds_jnt2_ = new DasomJoint(4,8);
-  ds_jnt3_ = new DasomJoint(4,8);
-  ds_jnt4_ = new DasomJoint(4,8);
-  ds_jnt5_ = new DasomJoint(4,8);
-  ds_jnt6_ = new DasomJoint(4,8);
+  ds_jnt1_ = new DasomJoint(4,1); // admittance cof 4?
+  ds_jnt2_ = new DasomJoint(4,1);
+  ds_jnt3_ = new DasomJoint(4,1);
+  ds_jnt4_ = new DasomJoint(4,1);
+  ds_jnt5_ = new DasomJoint(4,1);
+  ds_jnt6_ = new DasomJoint(4,1);
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -52,6 +52,7 @@ DasomControl::DasomControl()
 
   // For angle control
   angle_ref.resize(6);
+  angle_d.resize(6);
   angle_measured.resize(6,1);
   angle_ref << 0, 0, 0, 0, 0, 0;
 
@@ -103,8 +104,8 @@ DasomControl::DasomControl()
   F_ext << 0, 0, 0, 0, 0, 0;
   F_max << 2.0, 1.0, 0;
   F_min << -2.0, -1.0, 0;
-  hysteresis_max << 0.5, 0.27, 0.8, 0, 0, 0;
-  hysteresis_min << -0.5, -0.35, -0.15, 0, 0, 0;
+  hysteresis_max << 0.5, 3, 5, 0, 0, 0;
+  hysteresis_min << -0.5, -3, -5, 0, 0, 0;
 
   // For admittance control
   X_ref.resize(6,1);
@@ -191,11 +192,18 @@ void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   velocity_measured[5] = msg->velocity.at(5);
 
   tau_measured[0] = msg->effort.at(0); 
-  tau_measured[1] = 0.3*3.53*msg->effort.at(1)-0.3; 
-  tau_measured[2] = 1.3*msg->effort.at(2)-0.3; 
-  tau_measured[3] = msg->effort.at(3)+0.09; 
-  tau_measured[4] = msg->effort.at(4)+0.01; 
+  tau_measured[1] = msg->effort.at(1); 
+  tau_measured[2] = msg->effort.at(2); 
+  tau_measured[3] = msg->effort.at(3); 
+  tau_measured[4] = msg->effort.at(4); 
   tau_measured[5] = msg->effort.at(5);
+
+  // tau_measured[0] = msg->effort.at(0); 
+  // tau_measured[1] = 0.3*3.53*msg->effort.at(1)-0.3; 
+  // tau_measured[2] = 1.3*msg->effort.at(2)-0.3; 
+  // tau_measured[3] = msg->effort.at(3)+0.09; 
+  // tau_measured[4] = msg->effort.at(4)+0.01; 
+  // tau_measured[5] = msg->effort.at(5);
 }
 
 void DasomControl::joystickCallback(const geometry_msgs::Twist &msg)
@@ -292,12 +300,11 @@ bool DasomControl::admittanceCallback(dasom_controllers::admittanceSRV::Request 
   return true;
 }
 
-//ㅁㅁㅁㅁ 튜닝용 서비스
 bool DasomControl::bandpassCallback(dasom_controllers::bandpassSRV::Request & req,
                                     dasom_controllers::bandpassSRV::Response & res)
 {
-  wl = req.wl; // ㅁㅁㅁㅁ 이거 잘 숫자 넣어서 튜닝해보십쇼
-  wh = req.wh; // 컷오프 프리퀀시 lower랑 higher임.
+  wl = req.wl;
+  wh = req.wh;
   double w = sqrt(wl * wh);
   double Q = w / (wh - wl);
 
@@ -346,21 +353,8 @@ void DasomControl::CalcExternalForce()
 
   F_ext = JTI * (tau_measured - C_matrix - G_matrix);
 
-  // F_ext[1] = F_ext[1] - 1;
-  // F_ext[2] = F_ext[2] + 4.3;
-
-  // if (F_ext[0] <= hysteresis_max[0] && F_ext[0] >= hysteresis_min[0]) F_ext[0] = 0;
-  // else if (F_ext[0] > hysteresis_max[0]) F_ext[0] -= hysteresis_max[0];
-  // else if (F_ext[0] < hysteresis_min[0]) F_ext[0] -= hysteresis_min[0];
-
-  // if (F_ext[2] <= hysteresis_max[2] && F_ext[2] >= hysteresis_min[2]) F_ext[2] = 0;
-  // else if (F_ext[2] > hysteresis_max[2]) F_ext[2] -= hysteresis_max[2];
-  // else if (F_ext[2] < hysteresis_min[2]) F_ext[2] -= hysteresis_min[2]; // ㅁㅁㅁㅁ 데드존을 뺄지말지는 잘 판단해보십쇼
-
-  // ㅁㅁㅁㅁ band pass filter
-  bp_X_dot1 = bp_A * bp_X1 + bp_B * F_ext[0];
-  bp_X1 += bp_X_dot1 * time_loop;
-  bf_F_ext[0] = bp_C.dot(bp_X1) + F_ext[0] * bp_D;
+  // band pass filter
+  bf_F_ext[0] = F_ext[0];
 
   bp_X_dot2 = bp_A * bp_X2 + bp_B * F_ext[1];
   bp_X2 += bp_X_dot2 * time_loop;
@@ -369,10 +363,20 @@ void DasomControl::CalcExternalForce()
   bp_X_dot3 = bp_A * bp_X3 + bp_B * F_ext[2];
   bp_X3 += bp_X_dot3 * time_loop;
   bf_F_ext[2] = bp_C.dot(bp_X3) + F_ext[2] * bp_D;
-  
-  //ㅁㅁㅁㅁ bf_F_ext를 admittance에 넣으십쇼
 
-  // std::cout<<J<<std::endl;
+  if(bf_F_ext[2] > 0) bf_F_ext[2] = bf_F_ext[2] * 2.3333;
+
+  if (bf_F_ext[0] <= hysteresis_max[0] && bf_F_ext[0] >= hysteresis_min[0]) bf_F_ext[0] = 0;
+  else if (bf_F_ext[0] > hysteresis_max[0]) bf_F_ext[0] -= hysteresis_max[0];
+  else if (bf_F_ext[0] < hysteresis_min[0]) bf_F_ext[0] -= hysteresis_min[0];
+
+  if (bf_F_ext[1] <= hysteresis_max[1] && bf_F_ext[1] >= hysteresis_min[1]) bf_F_ext[1] = 0;
+  else if (bf_F_ext[1] > hysteresis_max[1]) bf_F_ext[1] -= hysteresis_max[1];
+  else if (bf_F_ext[1] < hysteresis_min[1]) bf_F_ext[1] -= hysteresis_min[1];
+
+  if (bf_F_ext[2] <= hysteresis_max[2] && bf_F_ext[2] >= hysteresis_min[2]) bf_F_ext[2] = 0;
+  else if (bf_F_ext[2] > hysteresis_max[2]) bf_F_ext[2] -= hysteresis_max[2];
+  else if (bf_F_ext[2] < hysteresis_min[2]) bf_F_ext[2] -= hysteresis_min[2];
 
   ext_force.header.stamp = ros::Time::now();
 
@@ -406,22 +410,27 @@ void DasomControl::AdmittanceControl()
 void DasomControl::DOB()
 {
   // d_hat[0] = ds_jnt1_->updateDOB(time_loop, angle_measured[0]);
-  // angle_ref[0] = angle_ref[0] - d_hat[0];
+  // angle_d[0] = angle_ref[0] - d_hat[0];
 
-  d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1], angle_ref[1]);
-  angle_ref[1] = angle_ref[1] - d_hat[1];
+  d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1], angle_d[1]);
+  angle_d[1] = angle_safe[1] - d_hat[1];
+  angle_safe[1] = angle_d[1];
 
-  d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2], angle_ref[2]);
-  angle_ref[2] = angle_ref[2] - d_hat[2];
+  d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2], angle_d[2]);
+  angle_d[2] = angle_safe[2] - d_hat[2];
+  angle_safe[2] = angle_d[2];
 
-  // d_hat[3] = ds_jnt4_->updateDOB(time_loop, angle_measured[3]);
-  // angle_ref[3] = angle_ref[3] - d_hat[3];
+  d_hat[3] = ds_jnt4_->updateDOB(time_loop, angle_measured[3], angle_d[3]);
+  angle_d[3] = angle_ref[3] - d_hat[3];
+  angle_safe[3] = angle_d[3];
 
-  // d_hat[4] = ds_jnt5_->updateDOB(time_loop, angle_measured[4]);
-  // angle_ref[4] = angle_ref[4] - d_hat[4];
+  d_hat[4] = ds_jnt5_->updateDOB(time_loop, angle_measured[4], angle_d[4]);
+  angle_d[4] = angle_ref[4] - d_hat[4];
+  angle_safe[4] = angle_d[4];
 
-  // d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_measured[5]);
-  // angle_ref[5] = angle_ref[5] - d_hat[5];
+  d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_measured[5], angle_d[5]);
+  angle_d[5] = angle_ref[5] - d_hat[5];
+  angle_safe[5] = angle_d[5];
 }
 
 void DasomControl::AngleSafeFunction()
@@ -593,7 +602,7 @@ void DasomControl::PublishData()
   joint_cmd.position.push_back(angle_safe[3]); 
   joint_cmd.position.push_back(angle_safe[4]); 
   joint_cmd.position.push_back(angle_safe[5]);
-  // joint_cmd.position.push_back(gripper_cmd);
+  joint_cmd.position.push_back(gripper_cmd);
 
   // joint_cmd.velocity.push_back(tau_measured[0]);
   // joint_cmd.velocity.push_back(ds_jnt1_->updateLPF(time_loop, tau_measured[0]));
@@ -621,8 +630,9 @@ void DasomControl::PublishData()
   joint_cmd.velocity.push_back(ds_jnt6_->updateLPF(time_loop, tau_measured[5]));
   joint_cmd.velocity.push_back(G_matrix[5]);
 
-  // joint_cmd.effort.push_back(angle_measured[2]); 
-  // joint_cmd.effort.push_back(angle_measured[3]); 
+  joint_cmd.effort.push_back(angle_d[0]); 
+  joint_cmd.effort.push_back(angle_d[1]); 
+  joint_cmd.effort.push_back(angle_d[2]); 
   // joint_cmd.effort.push_back(angle_measured[4]); 
   // joint_cmd.effort.push_back(angle_measured[5]);  
 
@@ -641,16 +651,16 @@ void DasomControl::test()
   geometry_msgs::Twist first_publisher;
   geometry_msgs::Twist second_publisher;
 
-  first_publisher.linear.x = F_ext[0];
-  first_publisher.linear.y = F_ext[1];
-  first_publisher.linear.z = F_ext[2];
+  first_publisher.linear.x = EE_command_vel_limit[0];
+  first_publisher.linear.y = EE_command_vel_limit[1];
+  first_publisher.linear.z = EE_command_vel_limit[2];
   first_publisher.angular.x = X_cmd[0];
   first_publisher.angular.y = X_cmd[1];
   first_publisher.angular.z = X_cmd[2];
 
-  second_publisher.linear.x = FK_pose[0];
-  second_publisher.linear.y = FK_pose[1];
-  second_publisher.linear.z = FK_pose[2];
+  second_publisher.linear.x = d_hat[1];
+  second_publisher.linear.y = angle_ref[1] - angle_measured[1];
+  second_publisher.linear.z = angle_ref[1] - angle_measured[1];
   second_publisher.angular.x = G_matrix[3];
   second_publisher.angular.y = G_matrix[4];
   second_publisher.angular.z = G_matrix[5];
@@ -703,8 +713,8 @@ int main(int argc, char **argv)
       // ds_ctrl_.AdmittanceControl();
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
-      // ds_ctrl_.DOB();
       ds_ctrl_.AngleSafeFunction();
+      ds_ctrl_.DOB();
       ds_ctrl_.test();
     }
   

@@ -133,6 +133,9 @@ class DasomControl : public dasom::DasomWorkbench
   // For init pose
   Eigen::VectorXd initPose;
   Eigen::VectorXd angle_init;
+
+  // For angle control
+  Eigen::VectorXd angle_d;
   
   // For angle safe
   Eigen::VectorXd angle_safe;

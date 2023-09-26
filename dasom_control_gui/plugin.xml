@@ -1,0 +1,33 @@
+<library path="lib/libdasom_control_gui">
+  <class name="dasom_control_gui/DasomRQT" type="dasom_control_gui::DasomRQT" base_class_type="rqt_gui_cpp::Plugin">
+    <description>
+      A C++ GUI plugin for displaying and replaying ROS bag files.
+    </description>
+    <qtgui>
+      <group>
+        <label>D.A.S.O.M</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to visualization.</statustip>
+      </group>
+      <label>New Control Pannel</label>
+      <icon type="theme">folder</icon>
+      <statustip>A Python GUI plugin for displaying and replaying ROS bag files.</statustip>
+    </qtgui>
+  </class>
+
+  <class name="dasom_gui/DasomRQTT" type="dasom_gui::DasomRQTT" base_class_type="rqt_gui_cpp::Plugin">
+    <description>
+      A C++ GUI plugin for displaying and replaying ROS bag files.
+    </description>
+    <qtgui>
+      <group>
+        <label>D.A.S.O.M</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to visualization.</statustip>
+      </group>
+      <label>New Pannel</label>
+      <icon type="theme">applications-other</icon>
+      <statustip>A Python GUI plugin for displaying and replaying ROS bag files.</statustip>
+    </qtgui>
+  </class>
+</library>
