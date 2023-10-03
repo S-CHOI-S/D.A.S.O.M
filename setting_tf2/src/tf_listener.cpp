@@ -16,27 +16,19 @@ int main(int argc, char** argv)
     tf2_ros::Buffer tfBuffer_globalEE;
     tf2_ros::TransformListener tfListener_globalEE(tfBuffer_globalEE);
 
-    // For /dasom/gimbal_EE_cmd
-    tf2_ros::Buffer tfBuffer_gimbalEE;
-    tf2_ros::TransformListener tfListener_gimbalEE(tfBuffer_gimbalEE);
-
     geometry_msgs::PoseStamped global_frame;
-    geometry_msgs::PoseStamped gimbal_frame;
     
-    ros::Publisher global_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/global_EE_frame/world", 10);
-    ros::Publisher gimbal_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/gimbal_EE_cmd", 10);
+    ros::Publisher global_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/tf/global_EE_pose", 10);
 
     ros::Rate rate(250);
 
     while(nh.ok())
     {
         geometry_msgs::TransformStamped transformStamped_globalEE;
-        geometry_msgs::TransformStamped transformStamped_gimbalEE;
 
         try
         {
-            transformStamped_globalEE = tfBuffer_globalEE.lookupTransform("world", "global_EE_pose", ros::Time(0));
-            transformStamped_gimbalEE = tfBuffer_gimbalEE.lookupTransform("paletrone", "global_gimbal_tf", ros::Time(0));
+            transformStamped_globalEE = tfBuffer_globalEE.lookupTransform("world", "tf/global_EE_pose", ros::Time(0));
         }
         catch(tf2::TransformException &ex)
         {
@@ -45,7 +37,7 @@ int main(int argc, char** argv)
             continue;
         }
 
-        // For /dasom/global_EE_frame/world
+        // For /dasom/tf/global_EE_pose
         global_frame.pose.position.x = transformStamped_globalEE.transform.translation.x;
         global_frame.pose.position.y = transformStamped_globalEE.transform.translation.y;
         global_frame.pose.position.z = transformStamped_globalEE.transform.translation.z;
@@ -55,18 +47,7 @@ int main(int argc, char** argv)
         global_frame.pose.orientation.z = transformStamped_globalEE.transform.rotation.z;
         global_frame.pose.orientation.w = transformStamped_globalEE.transform.rotation.w;
 
-        // For /dasom/gimbal_EE_cmd
-        gimbal_frame.pose.position.x = transformStamped_gimbalEE.transform.translation.x;
-        gimbal_frame.pose.position.y = transformStamped_gimbalEE.transform.translation.y;
-        gimbal_frame.pose.position.z = transformStamped_gimbalEE.transform.translation.z;
-
-        gimbal_frame.pose.orientation.x = transformStamped_gimbalEE.transform.rotation.x;
-        gimbal_frame.pose.orientation.y = transformStamped_gimbalEE.transform.rotation.y;
-        gimbal_frame.pose.orientation.z = transformStamped_gimbalEE.transform.rotation.z;
-        gimbal_frame.pose.orientation.w = transformStamped_gimbalEE.transform.rotation.w;
-
         global_publisher.publish(global_frame);
-        gimbal_publisher.publish(gimbal_frame);
 
         rate.sleep();
         ros::spinOnce();

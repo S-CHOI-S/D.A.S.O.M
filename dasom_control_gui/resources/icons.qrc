@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>MRL_logo_make.png</file>
+        <file>MRL_logo_make_white.png</file>
+    </qresource>
+</RCC>

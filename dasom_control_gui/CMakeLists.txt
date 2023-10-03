@@ -20,6 +20,9 @@ find_package(catkin REQUIRED COMPONENTS
   omni_msgs
 )
 
+find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_library(QWT_LIBRARIES NAMES qwt-qt5 HINTS /usr/lib)
+
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   find_package(Qt5Widgets REQUIRED)
 else()
@@ -31,12 +34,18 @@ set(dasom_control_gui_SRCS
   src/dasom_control_gui.cpp
   src/dasom_gui.cpp
   src/ratio_layouted_frame.cpp
+  src/dasom_frame.cpp
+  src/dasom_node.cpp
+  src/qcgaugewidget.cpp
 )
 
 set(dasom_control_gui_HDRS
   include/dasom_control_gui/dasom_control_gui.h
   include/dasom_control_gui/dasom_gui.h
   include/dasom_control_gui/ratio_layouted_frame.h
+  include/dasom_control_gui/dasom_frame.h
+  include/dasom_control_gui/dasom_node.h
+  include/qcgaugewidget.h
 )
 
 set(dasom_control_gui_UIS
@@ -45,9 +54,8 @@ set(dasom_control_gui_UIS
 )
 
 set(dasom_control_gui_RESOURCES
-#  resources/icons.qrc
-#  resources/images.qrc
-  src/img.qrc
+  resources/icons.qrc
+  resources/resources.qrc
 )
 
 set(dasom_control_gui_INCLUDE_DIRECTORIES
@@ -83,13 +91,14 @@ else()
 endif()
 set(CMAKE_CURRENT_BINARY_DIR "${_cmake_current_binary_dir}")
 
-include_directories(${dasom_control_gui_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
+include_directories(${dasom_control_gui_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS} /usr/include/qwt)
 
-#add_executable(my_cpp_node src/my_cpp_node.cpp)
+add_executable(dasom_app src/dasom_app.cpp ${dasom_control_gui_SRCS} ${dasom_control_gui_MOCS} ${dasom_control_gui_UIS_H} ${dasom_control_gui_RESOURCES})
 add_library(${PROJECT_NAME} ${dasom_control_gui_SRCS} ${dasom_control_gui_MOCS} ${dasom_control_gui_UIS_H} ${dasom_control_gui_RESOURCES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} Qt5::Widgets ${QWT_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(dasom_app Qt5::Widgets ${QWT_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+  target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Core)
 else()
   target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 endif()

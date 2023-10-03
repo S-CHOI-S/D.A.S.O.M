@@ -1,4 +1,5 @@
 <launch>
     <node pkg="setting_tf2" type="tf_broadcaster" name="tf_broadcaster" output="screen"/>
     <node pkg="setting_tf2" type="tf_listener" name="tf_listener" output="screen"/>
+    <node pkg="setting_tf2" type="tf_listener2" name="tf_listener2" output="screen"/>
 </launch>

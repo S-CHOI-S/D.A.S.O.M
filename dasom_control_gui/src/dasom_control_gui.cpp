@@ -2,8 +2,6 @@
   Copyright 2018
 */
 #include <dasom_control_gui/dasom_control_gui.h>
-#include <pluginlib/class_list_macros.h>
-#include <QStringList>
 
 double PI = 3.141592;
 
@@ -24,13 +22,20 @@ void DasomRQT::initPlugin(qt_gui_cpp::PluginContext& context)
   // create QWidget
   widget_ = new QWidget();
   // extend the widget with all attributes and children from UI file
+
+  QString background_path = "background-image: url(" + QString(package_path) + "/resources/424040.png);";
+
+  widget_->setStyleSheet(background_path);
+
   ui_.setupUi(widget_);
 
+  QString MRL_logo_path = QString(package_path) + "/resources/MRL_logo_make_white.png";
+
   QPixmap pixmap;
-  pixmap.load( "/home/choisol/dasom_ws/src/dasom_control_gui/icons/MRL_logo_make_white.png" );
-  int w = ui_.label_makise->width();
-  int h = ui_.label_makise->height();
-  ui_.label_makise->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+  pixmap.load(MRL_logo_path);
+  int w = ui_.MRL_logo->width();
+  int h = ui_.MRL_logo->height();
+  ui_.MRL_logo->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
   // add widget to the user interface
   context.addWidget(widget_);
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +60,6 @@ void DasomRQT::shutdownPlugin()
   publisher.shutdown();
   AngleSubscriber.shutdown();
   ros::shutdown();
-
 }
 
 void DasomRQT::gui_init_callback(const ros::TimerEvent&) 

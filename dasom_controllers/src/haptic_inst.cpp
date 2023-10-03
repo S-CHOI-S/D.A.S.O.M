@@ -189,7 +189,7 @@ void HI::initSubscriber()
     joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/joint_states", 10);
     // joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);  
     // dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_pose", 10);  
-    // dasom_EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_cmd", 10);
+    dasom_EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/palletrone/battery", 10);
     // joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &HI::jointCallback, this, ros::TransportHints().tcpNoDelay());
     // joystick_sub_ = node_handle_.subscribe("/instead_haptic", 10, &HI::joystickCallback, this, ros::TransportHints().tcpNoDelay());
 }
@@ -255,7 +255,7 @@ void HI::solveInverseKinematics()
     js.position.push_back(angle_ref[4]);
     js.position.push_back(angle_ref[5]);
 
-    // dasom_EE_pos_pub_.publish(msg);
+    dasom_EE_cmd_pub_.publish(msg);
     joint_command_pub_.publish(js);
 
     angle_ref_i = angle_ref;
@@ -304,12 +304,12 @@ int main(int argc, char **argv)
     // Init ROS node
     ros::init(argc, argv, "haptic_inst");
     ros::NodeHandle nh;
-    // ros::Publisher haptic_cmd_ = nh.advertise<geometry_msgs::Twist>("/instead_haptic",10);
+    ros::Publisher haptic_cmd_ = nh.advertise<geometry_msgs::Twist>("/palletrone/battery",10);
     HI hi;
     ros::Rate loop_rate(250);
 
-    // geometry_msgs::Twist msg;
-    // double i = 0;
+    geometry_msgs::Twist msg;
+    int i = 0;
 
     nh.setParam("/haptic_node_started", true);
     ROS_WARN("Haptic Device is running!");   
@@ -319,18 +319,18 @@ int main(int argc, char **argv)
         // hi.CommandGenerator();
         // hi.solveInverseKinematics();
 
-        // msg.linear.x = 0 +0.1*sin(i/1000);
-        // msg.linear.y = -0.05; // y축 방향으로 안정적인 거 확인!
-        // msg.linear.z = 0; // z축 방향으로 안정적인 거 확인!
-        // msg.angular.x = 0;
-        // msg.angular.y = 0;
-        // msg.angular.z = 0;
+        msg.linear.x = i%5;
+        msg.linear.y = -0.05; // y축 방향으로 안정적인 거 확인!
+        msg.linear.z = 0; // z축 방향으로 안정적인 거 확인!
+        msg.angular.x = 0;
+        msg.angular.y = 0;
+        msg.angular.z = 0;
 
-        // haptic_cmd_.publish(msg);
+        haptic_cmd_.publish(msg);
 
-        // i++;
-ROS_INFO("X_cmd = %lf",0);
-        ros::spin();
+        i++;
+        ROS_INFO("X_cmd = %lf",0);
+        // ros::spin();
 	    loop_rate.sleep();
     }
     

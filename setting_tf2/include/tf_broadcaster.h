@@ -52,10 +52,15 @@ class TFBroadcaster
   Eigen::VectorXd angle_ref;
   Eigen::VectorXd angle_measured;
 
+  // For optitrack lpf
+  Eigen::VectorXd optitrackQuat;
+  Eigen::VectorXd optitrackQuat_lpf; 
+
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
-  
+  void world2palletrone(Eigen::VectorXd optitrackquat, double r, double p, double y);
+
  private:
   /*****************************************************************************
   ** ROS NodeHandle
@@ -85,30 +90,29 @@ class TFBroadcaster
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
   *****************************************************************************/
-  ros::Subscriber test_sub_;
-  ros::Subscriber joystick_pose_sub_;
-  ros::Subscriber sub_EEpose_; 
-  ros::Subscriber sub_gimbal_tf_;
-  ros::Subscriber gimbal_pose_sub_;                                              
-  ros::Subscriber sub_optitrack_;
+  // ros::Subscriber test_sub_;
+  // ros::Subscriber joystick_pose_sub_;
+
+  // ros::Subscriber sub_gimbal_tf_;
+  //                                             
+  ros::Subscriber palletrone_optitrack_sub_;
+  ros::Subscriber dasom_EE_pose_sub_; 
+  ros::Subscriber global_fixed_gimbal_pose_sub_;  
 
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
   // For optitrack lpf
-  Eigen::VectorXd optitrackQuat;
-  Eigen::VectorXd optitrackQuat_lpf;   
+  // Eigen::VectorXd optitrackQuat;
+  // Eigen::VectorXd optitrackQuat_lpf;   
 
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
-  void testCallback(const geometry_msgs::Twist &msg);
-  void joystickCallback(const geometry_msgs::Twist &msg);
-  void world2palletrone(Eigen::VectorXd optitrackquat);
-  void optitrackCallback(const geometry_msgs::PoseStamped& msg);
-  void PoseCallback(const geometry_msgs::Twist& msg);
-  void globalgimbalCallback(const geometry_msgs::PoseStamped &msg);
-  void gimbalCallback(const geometry_msgs::PoseStamped& msg);
+
+  void palletroneOptitrackCallback(const geometry_msgs::PoseStamped& msg);
+  void dasomEEPoseCallback(const geometry_msgs::Twist& msg);
+  void globalFixedGimbalPoseCallback(const geometry_msgs::PoseStamped &msg);
 };
 
 #endif //TF_BROADCASTER_H_

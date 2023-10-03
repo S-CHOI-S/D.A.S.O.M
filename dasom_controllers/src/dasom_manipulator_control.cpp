@@ -21,12 +21,12 @@ DasomControl::DasomControl()
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
-  ds_jnt1_ = new DasomJoint(4,1); // admittance cof 4?
-  ds_jnt2_ = new DasomJoint(4,1);
-  ds_jnt3_ = new DasomJoint(4,1);
-  ds_jnt4_ = new DasomJoint(4,1);
-  ds_jnt5_ = new DasomJoint(4,1);
-  ds_jnt6_ = new DasomJoint(4,1);
+  ds_jnt1_ = new DasomJoint(4,4); // admittance cof 4?
+  ds_jnt2_ = new DasomJoint(4,4);
+  ds_jnt3_ = new DasomJoint(4,4);
+  ds_jnt4_ = new DasomJoint(4,4);
+  ds_jnt5_ = new DasomJoint(4,4);
+  ds_jnt6_ = new DasomJoint(4,4);
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -118,9 +118,9 @@ DasomControl::DasomControl()
  
   ros::Rate init_rate(1);
 
-  // ㅁㅁㅁㅁ for Band pass filter
-  wl = 1; // ㅁㅁㅁㅁ 이거 잘 숫자 넣어서 튜닝해보십쇼
-  wh = 2; // 컷오프 프리퀀시 lower랑 higher임.
+  // For bpf
+  wl = 1;
+  wh = 2;
   w = sqrt(wl * wh);
   Q = w / (wh - wl);
   
@@ -153,7 +153,7 @@ void DasomControl::initPublisher()
   joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>(robot_name_ + "/goal_dynamixel_position", 10);
   joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>(robot_name_ + "/measured_dynamixel_position", 10);  
   dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_pose", 10); //use
-  gimbal_pub_ = node_handle_.advertise<geometry_msgs::PoseStamped>(robot_name_ + "/global_gimbal_pose", 10); //use
+  gimbal_pub_ = node_handle_.advertise<geometry_msgs::PoseStamped>(robot_name_ + "/tf/global_fixed_gimbal_EE_pose", 10); //use
   force_pub_ = node_handle_.advertise<geometry_msgs::WrenchStamped>(robot_name_ + "/external_force", 10); //use
 
   // For Test
@@ -166,7 +166,8 @@ void DasomControl::initSubscriber()
   joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &DasomControl::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &DasomControl::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   button_sub_ = node_handle_.subscribe("/phantom/button", 10, &DasomControl::buttonCallback, this, ros::TransportHints().tcpNoDelay());
-  gimbal_cmd_sub_ = node_handle_.subscribe(robot_name_ + "/gimbal_EE_cmd", 10, &DasomControl::gimbalCmdCallback, this, ros::TransportHints().tcpNoDelay()); //use
+  gimbal_cmd_sub_ = node_handle_.subscribe(robot_name_ + "/tf/global_gimbal_command", 10, &DasomControl::gimbalEECmdCallback, this, ros::TransportHints().tcpNoDelay()); //use
+  global_EE_pose_sub_ = node_handle_.subscribe(robot_name_ + "/tf/global_EE_pose", 10, &DasomControl::globalEEPoseCallback, this, ros::TransportHints().tcpNoDelay());
 }
 
 void DasomControl::initServer()
@@ -222,7 +223,7 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       grey_button = false;
       ROS_INFO("Grey: false");
 
-      gimbal_tf = global_EE_tf;
+      gimbal_tf = global_EE_tf; // globalEEPoseCallback
 
       geometry_msgs::PoseStamped gimbal_tf_msg;
 
@@ -261,7 +262,30 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
   }
 }
 
-void DasomControl::gimbalCmdCallback(const geometry_msgs::PoseStamped &msg)
+void DasomControl::globalEEPoseCallback(const geometry_msgs::PoseStamped &msg)
+{
+  global_EE_tf[0] = msg.pose.position.x;
+  global_EE_tf[1] = msg.pose.position.y;
+  global_EE_tf[2] = msg.pose.position.z;
+
+  global_EE_tf[3] = msg.pose.orientation.x;
+  global_EE_tf[4] = msg.pose.orientation.y;
+  global_EE_tf[5] = msg.pose.orientation.z;
+  global_EE_tf[6] = msg.pose.orientation.w;
+
+  double roll, pitch, yaw;
+  tf::Quaternion quat;
+  tf::quaternionMsgToTF(msg.pose.orientation, quat);
+
+  tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+
+  quat.setRPY(roll, pitch, yaw);
+
+  ROS_INFO("globalEEPoseCallback = %lf, %lf, %lf", roll, pitch, yaw);
+}
+
+void DasomControl::gimbalEECmdCallback(const geometry_msgs::PoseStamped &msg)
+// 최종 gimbal command
 {
   gimbal_EE_cmd[0] = msg.pose.position.x;
   gimbal_EE_cmd[1] = msg.pose.position.y;
@@ -271,6 +295,8 @@ void DasomControl::gimbalCmdCallback(const geometry_msgs::PoseStamped &msg)
   tf::quaternionMsgToTF(msg.pose.orientation,quat);
 
   tf::Matrix3x3(quat).getRPY(gimbal_EE_cmd[3], gimbal_EE_cmd[4], gimbal_EE_cmd[5]);
+
+  ROS_WARN("gimbalEECmdCallback = %lf, %lf, %lf", gimbal_EE_cmd[3], gimbal_EE_cmd[4], gimbal_EE_cmd[5]);
 }
 
 bool DasomControl::admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
@@ -313,7 +339,7 @@ bool DasomControl::bandpassCallback(dasom_controllers::bandpassSRV::Request & re
   
   //pf//
   bp_A << - w/ Q, - w*w,
-              1,      0;
+               1,     0;
 
   bp_B << 1, 0;
   bp_B.transpose();
@@ -406,31 +432,36 @@ void DasomControl::AdmittanceControl()
   EE_command[4] = X_ref[4]; // 0
   EE_command[5] = X_ref[5];
 }
-
+double dob_cnt = 0;
 void DasomControl::DOB()
 {
   // d_hat[0] = ds_jnt1_->updateDOB(time_loop, angle_measured[0]);
   // angle_d[0] = angle_ref[0] - d_hat[0];
+  dob_cnt++;
 
-  d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1], angle_d[1]);
-  angle_d[1] = angle_safe[1] - d_hat[1];
-  angle_safe[1] = angle_d[1];
+  if(dob_cnt > 600)
+  {
+    // ROS_WARN("DOB Start!");
+    d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1], angle_d[1]);
+    angle_d[1] = angle_safe[1] - d_hat[1];
+    angle_safe[1] = angle_d[1];
 
-  d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2], angle_d[2]);
-  angle_d[2] = angle_safe[2] - d_hat[2];
-  angle_safe[2] = angle_d[2];
+    d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2], angle_d[2]);
+    angle_d[2] = angle_safe[2] - d_hat[2];
+    angle_safe[2] = angle_d[2];
 
-  d_hat[3] = ds_jnt4_->updateDOB(time_loop, angle_measured[3], angle_d[3]);
-  angle_d[3] = angle_ref[3] - d_hat[3];
-  angle_safe[3] = angle_d[3];
+    d_hat[3] = ds_jnt4_->updateDOB(time_loop, angle_measured[3], angle_d[3]);
+    angle_d[3] = angle_ref[3] - d_hat[3];
+    angle_safe[3] = angle_d[3];
 
-  d_hat[4] = ds_jnt5_->updateDOB(time_loop, angle_measured[4], angle_d[4]);
-  angle_d[4] = angle_ref[4] - d_hat[4];
-  angle_safe[4] = angle_d[4];
+    d_hat[4] = ds_jnt5_->updateDOB(time_loop, angle_measured[4], angle_d[4]);
+    angle_d[4] = angle_ref[4] - d_hat[4];
+    angle_safe[4] = angle_d[4];
 
-  d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_measured[5], angle_d[5]);
-  angle_d[5] = angle_ref[5] - d_hat[5];
-  angle_safe[5] = angle_d[5];
+    d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_measured[5], angle_d[5]);
+    angle_d[5] = angle_ref[5] - d_hat[5];
+    angle_safe[5] = angle_d[5];
+  }
 }
 
 void DasomControl::AngleSafeFunction()
@@ -540,7 +571,7 @@ void DasomControl::SolveInverseKinematics()
 
   angle_ref = InverseKinematics(EE_command_vel_limit);
 
-  FK_pose = EE_pose(angle_measured); //여기
+  FK_pose = EE_pose(angle_measured);
 
   msg.linear.x = FK_pose[0];
   msg.linear.y = FK_pose[1];
@@ -638,11 +669,15 @@ void DasomControl::PublishData()
 
   joint_command_pub_.publish(joint_cmd);
 
+  // ROS_ERROR("==============================================================");
   // ROS_INFO("angle_measured = %lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1],angle_measured[2],angle_measured[3],angle_measured[4],angle_measured[5]);
   // ROS_WARN("================================================");
   // ROS_INFO("angle_ref = %lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0], angle_ref[1],angle_ref[2],angle_ref[3],angle_ref[4],angle_ref[5]);
   // ROS_WARN("================================================");
-  // ROS_INFO("angle_safe = %lf, %lf, %lf, %lf, %lf, %lf", angle_safe[0], angle_safe[1],angle_safe[2],angle_safe[3],angle_safe[4],angle_safe[5]);
+  // // ROS_INFO("angle_safe = %lf, %lf, %lf, %lf, %lf, %lf", angle_safe[0], angle_safe[1],angle_safe[2],angle_safe[3],angle_safe[4],angle_safe[5]);
+  // // ROS_WARN("================================================");
+
+  // ROS_INFO("angle_error = %lf, %lf, %lf, %lf, %lf, %lf", angle_ref[0]-angle_measured[0], angle_ref[1]-angle_measured[1],angle_ref[2]-angle_measured[2],angle_ref[3]-angle_measured[3],angle_ref[4]-angle_measured[4],angle_ref[5]-angle_measured[5]);
   // ROS_WARN("================================================");
 }
 

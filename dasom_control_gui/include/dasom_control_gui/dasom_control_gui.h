@@ -14,7 +14,15 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <image_transport/image_transport.h>
 #include <QImage>
+#include <QLabel>
+#include <QPixmap>
+#include <QFile>
+#include <QFrame>
+#include <pluginlib/class_list_macros.h>
+#include <QStringList>
 #include <omni_msgs/OmniButtonEvent.h>
+
+#define package_path "/home/choisol/dasom_ws/src/dasom_control_gui"
 
 namespace dasom_control_gui {
 

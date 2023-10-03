@@ -120,6 +120,7 @@ class DasomControl : public dasom::DasomWorkbench
   ros::Subscriber joystick_sub_;
   ros::Subscriber button_sub_;
   ros::Subscriber gimbal_cmd_sub_;
+  ros::Subscriber global_EE_pose_sub_;
 
   /*****************************************************************************
   ** ROS Services Clients
@@ -205,7 +206,8 @@ class DasomControl : public dasom::DasomWorkbench
   void jointCallback(const sensor_msgs::JointState::ConstPtr &msg);
   void joystickCallback(const geometry_msgs::Twist &msg);
   void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
-  void gimbalCmdCallback(const geometry_msgs::PoseStamped &msg);
+  void globalEEPoseCallback(const geometry_msgs::PoseStamped &msg);
+  void gimbalEECmdCallback(const geometry_msgs::PoseStamped &msg);
   bool admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
                           dasom_controllers::admittanceSRV::Response &res);
   bool bandpassCallback(dasom_controllers::bandpassSRV::Request  &req,

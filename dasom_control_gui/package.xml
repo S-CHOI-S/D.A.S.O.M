@@ -63,6 +63,7 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rqt_gui</exec_depend>
   <exec_depend>rqt_gui_cpp</exec_depend>
+  <exec_depend>qwt-qt5</exec_depend>
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
