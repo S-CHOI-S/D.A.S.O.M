@@ -109,7 +109,7 @@ void TorqueControl::initMsg()
 
 void TorqueControl::initPublisher()
 {
-  joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/joint_states", 10);
+  joint_states_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/dasom/joint_states", 10);
 }
 
 void TorqueControl::initSubscriber()

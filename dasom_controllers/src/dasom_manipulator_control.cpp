@@ -163,7 +163,7 @@ void DasomControl::initPublisher()
 
 void DasomControl::initSubscriber()
 {
-  joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &DasomControl::jointCallback, this, ros::TransportHints().tcpNoDelay());
+  joint_states_sub_ = node_handle_.subscribe(robot_name_ + "/joint_states", 10, &DasomControl::jointCallback, this, ros::TransportHints().tcpNoDelay());
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &DasomControl::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   button_sub_ = node_handle_.subscribe("/phantom/button", 10, &DasomControl::buttonCallback, this, ros::TransportHints().tcpNoDelay());
   gimbal_cmd_sub_ = node_handle_.subscribe(robot_name_ + "/tf/global_gimbal_command", 10, &DasomControl::gimbalEECmdCallback, this, ros::TransportHints().tcpNoDelay()); //use
@@ -281,7 +281,7 @@ void DasomControl::globalEEPoseCallback(const geometry_msgs::PoseStamped &msg)
 
   quat.setRPY(roll, pitch, yaw);
 
-  ROS_INFO("globalEEPoseCallback = %lf, %lf, %lf", roll, pitch, yaw);
+  // ROS_INFO("globalEEPoseCallback = %lf, %lf, %lf", roll, pitch, yaw);
 }
 
 void DasomControl::gimbalEECmdCallback(const geometry_msgs::PoseStamped &msg)
@@ -296,7 +296,7 @@ void DasomControl::gimbalEECmdCallback(const geometry_msgs::PoseStamped &msg)
 
   tf::Matrix3x3(quat).getRPY(gimbal_EE_cmd[3], gimbal_EE_cmd[4], gimbal_EE_cmd[5]);
 
-  ROS_WARN("gimbalEECmdCallback = %lf, %lf, %lf", gimbal_EE_cmd[3], gimbal_EE_cmd[4], gimbal_EE_cmd[5]);
+  // ROS_WARN("gimbalEECmdCallback = %lf, %lf, %lf", gimbal_EE_cmd[3], gimbal_EE_cmd[4], gimbal_EE_cmd[5]);
 }
 
 bool DasomControl::admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,

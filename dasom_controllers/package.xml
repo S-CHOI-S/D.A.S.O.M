@@ -45,7 +45,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>dynamixel_workbench_msgs</build_depend>
   <build_depend>dasom_description</build_depend>
-  <build_depend>setting_tf2</build_depend>
+  <build_depend>dasom_tf2</build_depend>
   <build_depend>omni_common</build_depend>
   <build_depend>omni_msgs</build_depend>
   <build_export_depend>roscpp</build_export_depend>
@@ -61,10 +61,10 @@
   <depend>dasom_toolbox</depend>
   <depend>serial</depend>
   <build_export_depend>dasom_description</build_export_depend>
-  <build_export_depend>setting_tf2</build_export_depend>
+  <build_export_depend>dasom_tf2</build_export_depend>
   <build_export_depend>omni_common</build_export_depend>
   <exec_depend>dasom_description</exec_depend>
-  <exec_depend>setting_tf2</exec_depend>
+  <exec_depend>dasom_tf2</exec_depend>
   <exec_depend>omni_common</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->

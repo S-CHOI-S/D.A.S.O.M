@@ -53,6 +53,7 @@ namespace dasom
     void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
     void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
     void UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
+    void reInitializePublisher(image_transport::Publisher& publisher);
     void test();
 
   private:
@@ -84,7 +85,7 @@ namespace dasom
     void initCamera(int cam_num);
     cv::Mat flipCamera(cv::Mat frame);
     cv::Mat rotateCamera(cv::Mat frame);
-    void drawCoordinate();
+    cv::Mat drawCoordinate(cv::Mat framw);
   };
 } // namespace DASOM
 

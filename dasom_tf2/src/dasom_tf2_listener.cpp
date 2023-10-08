@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv)
 {
-    ros::init(argc,argv,"tf_listener");
+    ros::init(argc,argv,"dasom_tf2_listener");
     ros::NodeHandle nh;
 
     // For /dasom/global_EE_frame/world
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     
     ros::Publisher global_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/tf/global_EE_pose", 10);
 
-    ros::Rate rate(250);
+    ros::Rate rate(120);
 
     while(nh.ok())
     {

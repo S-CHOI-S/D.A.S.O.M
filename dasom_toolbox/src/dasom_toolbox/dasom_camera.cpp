@@ -39,6 +39,11 @@ void DasomCam::test()
   ROS_INFO("THIS IS DASOM CAMERA!");
 }
 
+void DasomCam::reInitializePublisher(image_transport::Publisher& publisher)
+{
+  cam_pub_ = publisher;
+}
+
 void DasomCam::initCamera(int cam_num)
 {
   std::istringstream video_sourceCmd(std::to_string(cam_num));
@@ -77,7 +82,7 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 
   frame = flipCamera(frame);
 
-  drawCoordinate();
+  frame = drawCoordinate(frame);
   
   imshow("detect",frame);
 
@@ -240,7 +245,7 @@ cv::Mat DasomCam::rotateCamera(cv::Mat frame)
   return rotated_frame;
 }
 
-void DasomCam::drawCoordinate()
+cv::Mat DasomCam::drawCoordinate(cv::Mat frame)
 {
   arrowedLine(frame, cv::Point(30, 450), cv::Point(60, 425), blue, 3, cv::LINE_AA);
   arrowedLine(frame, cv::Point(30, 450), cv::Point(70, 450), red, 3);

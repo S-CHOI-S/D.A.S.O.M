@@ -3120,7 +3120,7 @@ border-radius: 10px;</string>
          <string notr="true">color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
-         <string>Camera: </string>
+         <string>Dasom: </string>
         </property>
        </widget>
        <widget class="QLabel" name="dyn_status">
@@ -3167,7 +3167,7 @@ border-radius: 10px;</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QLabel" name="camera_status">
+       <widget class="QLabel" name="ds_status">
         <property name="geometry">
          <rect>
           <x>122</x>

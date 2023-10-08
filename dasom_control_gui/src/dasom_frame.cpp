@@ -7,16 +7,20 @@ DasomFrame::DasomFrame(QWidget *widget)
 , widget_(widget)
 , private_nh_("~")
 {
-    ui_.setupUi(widget_);
-    // widget_->show();
+  ui_.setupUi(widget_);
+  // widget_->show();
 
-    update_timer_ = new QTimer(this);
-    update_timer_->setInterval(16);
-    update_timer_->start();
-    connect(update_timer_, SIGNAL(timeout()), this, SLOT(onUpdate()));
+  update_timer_ = new QTimer(this);
+  update_timer_->setInterval(16);
+  update_timer_->start();
+  connect(update_timer_, SIGNAL(timeout()), this, SLOT(onUpdate()));
 
-    initWidget();
-    initSubscriber();
+  initWidget();
+  initSubscriber();
+
+  initNodeStatus();
+  setBatteryVoltageGauge();
+  // setEstimatedForcePlot();
 }
 
 DasomFrame::~DasomFrame() 
@@ -36,85 +40,267 @@ void DasomFrame::onUpdate()
 
 void DasomFrame::initSubscriber()
 {
-    palletrone_battery_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::batteryVoltageCallback, this);
-    dasom_node_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::dasomControlNodeCallback, this);
+  palletrone_battery_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::batteryVoltageCallback, this);
+  estimated_force_sub_ = nh_.subscribe("/dasom/estimated_force", 10, &DasomFrame::estimatedForceCallback, this);
+  cam_sub_ = nh_.subscribe("/dasom/camera_image", 10, &DasomFrame::cameraImageCallback, this);
+
+  ds_ctrl_srv_ = nh_.advertiseService("/dasom/node/ds_ctrl", &DasomFrame::dasomControlNodeCallback, this);
+  hpt_ctrl_srv_ = nh_.advertiseService("/dasom/node/hpt_ctrl", &DasomFrame::hapticJoystickNodeCallback, this);
+  dxl_ctrl_srv_ = nh_.advertiseService("/dasom/node/dxl_ctrl", &DasomFrame::dynamixelControlNodeCallback, this);
 }
 
 void DasomFrame::batteryVoltageCallback(const geometry_msgs::Twist &msg)
 {
-    voltage_value = msg.linear.x;
+  voltage_value = msg.linear.x;
+
+  QString voltage = QString::number(voltage_value);
+  voltageLabel->setText(voltage + " V");
+  mSpeedNeedle->setCurrentValue(voltage_value);
 }
 
 void DasomFrame::initWidget()
 {
-    QString background_path = "background-image: url(" + QString(package_path) + "/resources/424040.png);";
-    widget_->setStyleSheet(background_path);
+  QString background_path = "background-image: url(" + QString(package_path) + "/resources/424040.png);";
+  widget_->setStyleSheet(background_path);
 
-    QString MRL_logo_path = QString(package_path) + "/resources/MRL_logo_make_white.png";
-    QPixmap pixmap;
-    pixmap.load(MRL_logo_path);
-    int w = ui_.MRL_logo->width();
-    int h = ui_.MRL_logo->height();
-    ui_.MRL_logo->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+  QString MRL_logo_path = QString(package_path) + "/resources/MRL_logo_make_white.png";
+  QPixmap pixmap;
+  pixmap.load(MRL_logo_path);
+  int w = ui_.MRL_logo->width();
+  int h = ui_.MRL_logo->height();
+  ui_.MRL_logo->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
 
-    QString loading_path = QString(package_path) + "/resources/loading_blue.gif";
-    QPixmap pixmap_load;
-    pixmap_load.load(loading_path);
-    w = ui_.dyn_status->width();
-    h = ui_.dyn_status->height();
-    ui_.dyn_status->setPixmap(pixmap_load.scaled(w,h,Qt::KeepAspectRatio));
-    QMovie movie(loading_path);
-    ui_.dyn_status->setMovie(&movie);
-    ui_.haptic_status->setMovie(&movie);
-    ui_.camera_status->setMovie(&movie);
-    movie.start();
+  QString loading_path = QString(package_path) + "/resources/loading_blue.gif";
+  QPixmap pixmap_load;
+  pixmap_load.load(loading_path);
+  w = ui_.dyn_status->width();
+  h = ui_.dyn_status->height();
+  ui_.dyn_status->setPixmap(pixmap_load.scaled(w,h,Qt::KeepAspectRatio));
+
+  ROS_WARN("init widget callback!");
 }
 
-void DasomFrame::dasomControlNodeCallback(const geometry_msgs::Twist &msg)
+void DasomFrame::initNodeStatus()
 {
-    ds_node_status = msg.linear.x;
-
-    setNodeStatus(ds_node_status);
+  QString loading_path = QString(package_path) + "/resources/loading_blue.gif";
+  movie_ = new QMovie(loading_path);
+  ui_.dyn_status->setMovie(movie_);
+  ui_.haptic_status->setMovie(movie_);
+  ui_.ds_status->setMovie(movie_);
+  movie_->start();
 }
 
-void DasomFrame::setNodeStatus(int node_status)
+bool DasomFrame::dasomControlNodeCallback(std_srvs::SetBool::Request  &req,
+                                          std_srvs::SetBool::Response &res)
+{
+  bool status = req.data;
+
+  res.success = true;
+  
+  if(status) setNodeStatus("ds_status", true);
+  else setNodeStatus("ds_status", false);
+
+  return true;
+}
+
+bool DasomFrame::hapticJoystickNodeCallback(std_srvs::SetBool::Request  &req,
+                                            std_srvs::SetBool::Response &res)
+{
+  bool status = req.data;
+
+  res.success = true;
+  
+  if(status) setNodeStatus("haptic_status", true);
+  else setNodeStatus("haptic_status", false);
+  
+  return true;
+}
+
+bool DasomFrame::dynamixelControlNodeCallback(std_srvs::SetBool::Request  &req,
+                                              std_srvs::SetBool::Response &res)
+{
+  bool status = req.data;
+
+  res.success = true;
+  
+  if(status) setNodeStatus("dyn_status", true);
+  else setNodeStatus("dyn_status", false);
+  
+  return true;
+}
+
+void DasomFrame::setNodeStatus(QString label_name, bool status)
 {
   QString check_path = QString(package_path) + "/resources/check_green.png";
   QString crossmark_path = QString(package_path) + "/resources/crossmark_red.gif";
 
+  if(label_name == "dyn_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.dyn_status->width();
+      int h = ui_.dyn_status->height();
+      ui_.dyn_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.dyn_status->width(), ui_.dyn_status->height()));
+      ui_.dyn_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
   
-//   ui_.haptic_status->setPixmap(pixmap_load.scaled(w,h,Qt::KeepAspectRatio));
-//   ui_.camera_status->setPixmap(pixmap_load.scaled(w,h,Qt::KeepAspectRatio));
-// ROS_ERROR("%d", ds_node_status);
-//     if(node_status < 5)
-//     {
-//         QMovie movie(loading_path);
-//         ROS_INFO("AAAAAA");
-//         ui_.dyn_status->setMovie(&movie);
-//         ROS_INFO("BBBBBB");
-//         ui_.haptic_status->setMovie(&movie);
-//         ROS_INFO("CCCCCC");
-//         ui_.camera_status->setMovie(&movie);
-//         ROS_INFO("DDDDDD");
-//         movie.start();
-//     }
-  
-  
-  QPixmap pixmap_check;
-  pixmap_check.load(check_path);
-  int w = ui_.check_status->width();
-  int h = ui_.check_status->height();
-  ui_.check_status->setPixmap(pixmap_check.scaled(w,h,Qt::KeepAspectRatio));
+  if(label_name == "haptic_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.haptic_status->width();
+      int h = ui_.haptic_status->height();
+      ui_.haptic_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.haptic_status->width(), ui_.haptic_status->height()));
+      ui_.haptic_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
 
-  QPixmap pixmap_crossmark;
-  pixmap_crossmark.load(crossmark_path);
-  w = ui_.crossmark_status->width();
-  h = ui_.crossmark_status->height();
-  ui_.crossmark_status->setPixmap(pixmap_crossmark.scaled(w,h,Qt::KeepAspectRatio));
-  QMovie movie_crossmark(crossmark_path);
-  ui_.crossmark_status->setMovie(&movie_crossmark);
-  movie_crossmark.setSpeed(250);
-  movie_crossmark.start();
+  if(label_name == "ds_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.ds_status->width();
+      int h = ui_.ds_status->height();
+      ui_.ds_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.ds_status->width(), ui_.ds_status->height()));
+      ui_.ds_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
+}
+
+void DasomFrame::cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg)
+{
+  cv_bridge::CvImageConstPtr cv_ptr;
+  try
+  {
+    cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
+
+    // OpenCV 를 QImage로 변환
+    QImage qimage(cv_ptr->image.data,
+                  cv_ptr->image.cols,
+                  cv_ptr->image.rows,
+                  cv_ptr->image.step,
+                  QImage::Format_RGB888);
+
+    // image_frame에 이미지 표시
+    ui_.image_frame->setPixmap(QPixmap::fromImage(qimage));
+  }
+  catch (cv_bridge::Exception& e)
+  {
+    return;
+  }
+}
+
+void DasomFrame::rosNodeStatus()
+{
+  std::vector<std::string> node_names;
+  ros::master::getNodes(node_names);
+
+  std::cout << "Running nodes:" << std::endl;
+  for (const std::string& node_name : node_names)
+  {
+      std::cout << node_name << std::endl;
+  }
+}
+
+void DasomFrame::setBatteryVoltageGauge()
+{
+  QcGaugeWidget *mSpeedGauge = new QcGaugeWidget;
+  mSpeedGauge->setFixedSize(220, 220);
+
+  QcDegreesItem* speedDegreesItem = mSpeedGauge->addDegrees(40);
+  speedDegreesItem->setValueRange(0,24);
+  speedDegreesItem->setStep(4);
+  mSpeedGauge->addColorBand(30);
+
+  QcValuesItem* speedValuesItem = mSpeedGauge->addValues(65);
+  speedValuesItem->setValueRange(0, 24);
+  speedValuesItem->setStep(4);
+
+  QString voltage = QString::number(voltage_value);
+  voltageLabel = mSpeedGauge->addLabel(28);
+  voltageLabel->setText(voltage + " V");
+
+  mSpeedNeedle = mSpeedGauge->addNeedle(25);
+  mSpeedNeedle->setColor(Qt::white);
+  mSpeedNeedle->setValueRange(0,24);
+  
+  ui_.battery_gauge->addWidget(mSpeedGauge);
+
+  mSpeedNeedle->setCurrentValue(voltage_value);
+}
+
+void DasomFrame::setEstimatedForcePlot()
+{
+  QwtPlotCurve *Xcurve = new QwtPlotCurve("Ext Force X");
+  Xcurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+  Xcurve->setPen(QPen(Qt::red, 2));
+
+  // drawEstimatedForcePlot();
+
+  Xcurve->attach(ui_.force_plot);
+
+  QwtLegend *Xlegend = new QwtLegend;
+  Xlegend->setDefaultItemMode(QwtLegendData::ReadOnly);
+  ui_.force_plot->insertLegend(Xlegend, QwtPlot::BottomLegend);
+  ui_.force_plot->setAxisTitle(QwtPlot::xBottom, " ");
+  ui_.force_plot->setAxisScale(QwtPlot::yLeft, -5.0, 5.0);
+}
+
+void DasomFrame::drawEstimatedForcePlot()
+{
+  QVector<QPointF> dataPoints;
+
+  for (int i = 0; i < 50; ++i) 
+  {
+    double x = currentTime + i;
+    double y = estimated_force_x; // estimated_force_x를 사용하여 y 값을 업데이트
+    dataPoints.append(QPointF(x, y));
+  }
+  
+  Xcurve->setSamples(dataPoints);
+
+  ui_.force_plot->replot();
+}
+
+void DasomFrame::estimatedForceCallback(const geometry_msgs::WrenchStamped &msg)
+{
+  estimated_force_x = msg.wrench.force.x;
+  estimated_force_y = msg.wrench.force.y;
+  estimated_force_z = msg.wrench.force.z;
+
+  currentTime += 1;
+
+  ROS_INFO("currentTime = %lf", currentTime);
+
+  // drawEstimatedForcePlot();
 }
 
 } // namespace dasom_control_gui

@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   orocos_kdl
   dasom_toolbox
   dasom_description
-  setting_tf2
+  dasom_tf2
   omni_common
   omni_msgs
   serial
@@ -54,7 +54,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES turtles
-  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs dasom_toolbox dasom_description setting_tf2 omni_common serial
+  CATKIN_DEPENDS roscpp std_msgs dynamixel_workbench_msgs dasom_toolbox dasom_description dasom_tf2 omni_common serial
 #  DEPENDS system_lib
 )
 

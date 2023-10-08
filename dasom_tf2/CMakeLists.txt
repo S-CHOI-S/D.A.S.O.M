@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(setting_tf2)
+project(dasom_tf2)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -206,14 +206,14 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(tf_broadcaster src/tf_broadcaster.cpp)
-add_dependencies(tf_broadcaster ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(tf_broadcaster ${catkin_LIBRARIES})
+add_executable(dasom_tf2_broadcaster src/dasom_tf2_broadcaster.cpp)
+add_dependencies(dasom_tf2_broadcaster ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dasom_tf2_broadcaster ${catkin_LIBRARIES})
 
-add_executable(tf_listener src/tf_listener.cpp)
-add_dependencies(tf_listener ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(tf_listener ${catkin_LIBRARIES})
+add_executable(dasom_tf2_listener src/dasom_tf2_listener.cpp)
+add_dependencies(dasom_tf2_listener ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dasom_tf2_listener ${catkin_LIBRARIES})
 
-add_executable(tf_listener2 src/tf_listener2.cpp)
-add_dependencies(tf_listener2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(tf_listener2 ${catkin_LIBRARIES})
+add_executable(dasom_tf2_listener2 src/dasom_tf2_listener2.cpp)
+add_dependencies(dasom_tf2_listener2 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(dasom_tf2_listener2 ${catkin_LIBRARIES})

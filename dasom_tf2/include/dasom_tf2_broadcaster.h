@@ -59,7 +59,7 @@ class TFBroadcaster
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
-  void world2palletrone(Eigen::VectorXd optitrackquat, double r, double p, double y);
+  void palletroneOptitrackLPF(geometry_msgs::PoseStamped transformstamped);
 
  private:
   /*****************************************************************************

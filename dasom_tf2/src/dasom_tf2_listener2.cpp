@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv)
 {
-    ros::init(argc,argv,"tf_listener2");
+    ros::init(argc,argv,"dasom_tf2_listener2");
     ros::NodeHandle nh;
 
     // For /dasom/gimbal_EE_cmd
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     
     ros::Publisher gimbal_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/tf/global_gimbal_command", 10);
 
-    ros::Rate rate(250);
+    ros::Rate rate(120);
 
     while(nh.ok())
     {
