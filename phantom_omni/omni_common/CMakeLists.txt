@@ -39,3 +39,6 @@ add_executable(omni_state src/omni_state.cpp)
 add_dependencies(omni_state ${catkin_EXPORTED_TARGETS})
 target_link_libraries(omni_state HD HDU rt ncurses ${catkin_LIBRARIES})
 
+add_executable(box src/box.cpp)
+add_dependencies(box ${catkin_EXPORTED_TARGETS})
+target_link_libraries(box HD HDU rt ncurses ${catkin_LIBRARIES})

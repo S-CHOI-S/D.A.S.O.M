@@ -60,6 +60,7 @@ public:
 
 private slots:
   void onUpdate();
+  void drawEstimatedForcePlot();
 
 private:
   ros::NodeHandle nh_;
@@ -69,6 +70,7 @@ private:
   // Ui::DasomRQTWidget ui_;
 
   QTimer* update_timer_;
+  QTimer* dataTimer;
   QMovie *movie_;
 
   QcGaugeWidget *mSpeedGauge;
@@ -84,6 +86,8 @@ private:
   ros::ServiceServer ds_ctrl_srv_;
   ros::ServiceServer hpt_ctrl_srv_;
   ros::ServiceServer dxl_ctrl_srv_;
+
+  QVector<double> yValues;
 
   int ds_node_status = 0;
   int currentTime = 0;
@@ -103,8 +107,9 @@ private:
   void initNodeStatus();
   void setBatteryVoltageGauge();
   void setEstimatedForcePlot();
-  void drawEstimatedForcePlot();
+  // void drawEstimatedForcePlot();
   void estimatedForceCallback(const geometry_msgs::WrenchStamped &msg);
+  double returnEstimatedForceX();
 };
 } // namespace
 #endif // DASOM_FRAME_H

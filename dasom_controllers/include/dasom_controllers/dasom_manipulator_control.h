@@ -26,6 +26,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/WrenchStamped.h>
+#include <std_srvs/SetBool.h>
 #include <dasom_controllers/admittanceSRV.h>
 #include <dasom_controllers/bandpassSRV.h>
 #include <omni_msgs/OmniButtonEvent.h>
@@ -61,6 +62,7 @@ class DasomControl : public dasom::DasomWorkbench
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
+  bool callNodeService(bool staus);
   void CalcExternalForce();
   void DOB();
   void AngleSafeFunction();
@@ -101,6 +103,7 @@ class DasomControl : public dasom::DasomWorkbench
   void initPublisher();
   void initSubscriber();
   void initServer();
+  void initClient();
 
   /*****************************************************************************
   ** ROS Publishers
@@ -127,10 +130,14 @@ class DasomControl : public dasom::DasomWorkbench
   *****************************************************************************/
   ros::ServiceServer admittance_srv_;
   ros::ServiceServer bandpass_srv_;
+  ros::ServiceClient ds_ctrl_srv_;
 
   /*****************************************************************************
   ** Define variables
   *****************************************************************************/
+  // For node status
+  // bool ds_status = false;
+  
   // For init pose
   Eigen::VectorXd initPose;
   Eigen::VectorXd angle_init;

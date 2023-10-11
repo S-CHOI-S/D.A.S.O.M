@@ -20,7 +20,14 @@ DasomFrame::DasomFrame(QWidget *widget)
 
   initNodeStatus();
   setBatteryVoltageGauge();
-  // setEstimatedForcePlot();
+  setEstimatedForcePlot();
+
+  dataTimer = new QTimer(this);
+  dataTimer->setInterval(50);
+  QObject::connect(dataTimer, SIGNAL(timeout()), this, SLOT(drawEstimatedForcePlot()));
+  dataTimer->start();
+
+  // drawEstimatedForcePlot();
 }
 
 DasomFrame::~DasomFrame() 
@@ -259,11 +266,9 @@ void DasomFrame::setBatteryVoltageGauge()
 
 void DasomFrame::setEstimatedForcePlot()
 {
-  QwtPlotCurve *Xcurve = new QwtPlotCurve("Ext Force X");
+  Xcurve = new QwtPlotCurve("Ext Force X");
   Xcurve->setRenderHint(QwtPlotItem::RenderAntialiased);
   Xcurve->setPen(QPen(Qt::red, 2));
-
-  // drawEstimatedForcePlot();
 
   Xcurve->attach(ui_.force_plot);
 
@@ -276,18 +281,32 @@ void DasomFrame::setEstimatedForcePlot()
 
 void DasomFrame::drawEstimatedForcePlot()
 {
-  QVector<QPointF> dataPoints;
+  qDebug() << "Timer timeout event occurred!";
+  ROS_WARN("========================");
 
+  QVector<double> xValues;
   for (int i = 0; i < 50; ++i) 
   {
     double x = currentTime + i;
-    double y = estimated_force_x; // estimated_force_x를 사용하여 y 값을 업데이트
-    dataPoints.append(QPointF(x, y));
+    double y = returnEstimatedForceX();
+    xValues.append(x);
+    // ROS_INFO("time = %lf, value = %lf",x,y);
+    // ROS_WARN("====================================");
+    ROS_INFO("Callback = %lf, Return = %lf", x, returnEstimatedForceX());
   }
-  
-  Xcurve->setSamples(dataPoints);
+  // Xcurve->setSamples(dataPoints);
+  // ui_.force_plot->replot();
 
-  ui_.force_plot->replot();
+  // if (xValues.size() >= 50) 
+  // {    
+    Xcurve->setSamples(xValues, yValues);
+    ui_.force_plot->replot();
+    // xValues.clear(); // x 축 값 초기화
+    // yValues.clear(); // y 축 값 초기화
+  // }
+  ROS_WARN("currentTime = %d, size = %d", currentTime, xValues.size());
+
+  currentTime += 1;
 }
 
 void DasomFrame::estimatedForceCallback(const geometry_msgs::WrenchStamped &msg)
@@ -296,11 +315,21 @@ void DasomFrame::estimatedForceCallback(const geometry_msgs::WrenchStamped &msg)
   estimated_force_y = msg.wrench.force.y;
   estimated_force_z = msg.wrench.force.z;
 
-  currentTime += 1;
+  yValues.append(estimated_force_x);
 
-  ROS_INFO("currentTime = %lf", currentTime);
+  // if(yValues.size() > 50)
+  // {
+  //   yValues.clear();
+  // }
 
-  // drawEstimatedForcePlot();
-}
+  // ROS_INFO("Callback = %lf",estimated_force_x);
 
 } // namespace dasom_control_gui
+
+double DasomFrame::returnEstimatedForceX()
+{
+  // ROS_INFO("Return = %lf",estimated_force_x);
+  return estimated_force_x;
+}
+
+}

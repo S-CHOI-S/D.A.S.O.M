@@ -34,6 +34,7 @@ DasomControl::DasomControl()
   initPublisher();
   initSubscriber();
   initServer();
+  initClient();
 
   ROS_INFO("Dasom Manipulator Control node start");
   ROS_INFO("===========================================");
@@ -174,6 +175,20 @@ void DasomControl::initServer()
 {
   admittance_srv_ = node_handle_.advertiseService(robot_name_ + "/admittance_srv", &DasomControl::admittanceCallback, this);
   bandpass_srv_ = node_handle_.advertiseService(robot_name_ + "/bandpass_srv", &DasomControl::bandpassCallback, this);
+}
+
+void DasomControl::initClient()
+{
+  ds_ctrl_srv_ = node_handle_.serviceClient<std_srvs::SetBool>(robot_name_ + "/node/ds_ctrl");
+}
+
+bool DasomControl::callNodeService(bool status)
+{
+  std_srvs::SetBool srv;
+
+  srv.request.data = status;
+
+  ds_ctrl_srv_.call(srv);
 }
 
 void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -719,6 +734,8 @@ int main(int argc, char **argv)
   // Init ROS node
   ros::init(argc, argv, "DasomControl");
   DasomControl ds_ctrl_;
+
+  ds_ctrl_.callNodeService(true);
 
   ros::Rate init_rate(1);
   ros::spinOnce();
