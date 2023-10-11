@@ -35,9 +35,13 @@
 #include <qwt_dial.h>
 #include "qwt_dial_needle.h"
 
+#include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <std_srvs/SetBool.h>
+
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
 
 #define package_path "/home/choisol/dasom_ws/src/dasom_control_gui"
 
@@ -56,21 +60,24 @@ public:
   double estimated_force_y = 0;
   double estimated_force_z = 0;
 
-  void rosNodeStatus();
-
 private slots:
   void onUpdate();
+  void rosNodeStatus();
   void drawEstimatedForcePlot();
 
 private:
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 
+  ros::Timer setTXT;
+
   QWidget *widget_;
   // Ui::DasomRQTWidget ui_;
 
   QTimer* update_timer_;
   QTimer* dataTimer;
+  QTimer* node_timer_;
+
   QMovie *movie_;
 
   QcGaugeWidget *mSpeedGauge;
@@ -82,10 +89,15 @@ private:
   ros::Subscriber palletrone_battery_sub_;
   ros::Subscriber estimated_force_sub_;
   ros::Subscriber cam_sub_;
+  ros::Subscriber EE_measured_sub_;
+  ros::Subscriber EE_command_sub_;
 
-  ros::ServiceServer ds_ctrl_srv_;
-  ros::ServiceServer hpt_ctrl_srv_;
-  ros::ServiceServer dxl_ctrl_srv_;
+  bool ds = false;
+  bool hpt = false;
+  bool dyn = false;
+  bool ds_found = false;
+  bool hpt_found = false;
+  bool dyn_found = false;
 
   QVector<double> yValues;
 
@@ -93,15 +105,14 @@ private:
   int currentTime = 0;
   double voltage_value = 15;
 
+  Eigen::VectorXd ds_measured_position;
+  Eigen::VectorXd ds_cmd_position;
+
   void initSubscriber();
+  void dsEEMeasuredCallback(const geometry_msgs::Twist &msg);
+  void dsEECommandCallback(const geometry_msgs::Twist &msg);
   void batteryVoltageCallback(const geometry_msgs::Twist &msg);
   void initWidget();
-  bool dasomControlNodeCallback(std_srvs::SetBool::Request  &req,
-                                std_srvs::SetBool::Response &res);
-  bool hapticJoystickNodeCallback(std_srvs::SetBool::Request  &req,
-                                  std_srvs::SetBool::Response &res);
-  bool dynamixelControlNodeCallback(std_srvs::SetBool::Request  &req,
-                                    std_srvs::SetBool::Response &res);
   void setNodeStatus(QString label_name, bool status);
   void cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg);
   void initNodeStatus();
@@ -110,6 +121,8 @@ private:
   // void drawEstimatedForcePlot();
   void estimatedForceCallback(const geometry_msgs::WrenchStamped &msg);
   double returnEstimatedForceX();
+  void setManipulatorTXT(const ros::TimerEvent&);
+  void clickedKillButton();
 };
 } // namespace
 #endif // DASOM_FRAME_H

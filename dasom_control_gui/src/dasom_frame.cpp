@@ -15,6 +15,11 @@ DasomFrame::DasomFrame(QWidget *widget)
   update_timer_->start();
   connect(update_timer_, SIGNAL(timeout()), this, SLOT(onUpdate()));
 
+  node_timer_ = new QTimer(this);
+  node_timer_->setInterval(1000);
+  node_timer_->start();
+  connect(node_timer_, SIGNAL(timeout()), this, SLOT(rosNodeStatus()));
+
   initWidget();
   initSubscriber();
 
@@ -22,10 +27,17 @@ DasomFrame::DasomFrame(QWidget *widget)
   setBatteryVoltageGauge();
   setEstimatedForcePlot();
 
+  ds_measured_position.resize(6);
+  ds_cmd_position.resize(6);
+  ds_measured_position << 0, 0, 0, 0, 0, 0;
+  ds_cmd_position << 0, 0, 0, 0, 0, 0;
+
   dataTimer = new QTimer(this);
   dataTimer->setInterval(50);
   QObject::connect(dataTimer, SIGNAL(timeout()), this, SLOT(drawEstimatedForcePlot()));
   dataTimer->start();
+
+  setTXT = nh_.createTimer(ros::Duration(0.1), &DasomFrame::setManipulatorTXT, this);
 
   // drawEstimatedForcePlot();
 }
@@ -50,10 +62,8 @@ void DasomFrame::initSubscriber()
   palletrone_battery_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::batteryVoltageCallback, this);
   estimated_force_sub_ = nh_.subscribe("/dasom/estimated_force", 10, &DasomFrame::estimatedForceCallback, this);
   cam_sub_ = nh_.subscribe("/dasom/camera_image", 10, &DasomFrame::cameraImageCallback, this);
-
-  ds_ctrl_srv_ = nh_.advertiseService("/dasom/node/ds_ctrl", &DasomFrame::dasomControlNodeCallback, this);
-  hpt_ctrl_srv_ = nh_.advertiseService("/dasom/node/hpt_ctrl", &DasomFrame::hapticJoystickNodeCallback, this);
-  dxl_ctrl_srv_ = nh_.advertiseService("/dasom/node/dxl_ctrl", &DasomFrame::dynamixelControlNodeCallback, this);
+  EE_measured_sub_ = nh_.subscribe("/dasom/EE_pose", 10, &DasomFrame::dsEEMeasuredCallback, this);
+  EE_command_sub_ = nh_.subscribe("/dasom/EE_cmd", 10, &DasomFrame::dsEECommandCallback, this);
 }
 
 void DasomFrame::batteryVoltageCallback(const geometry_msgs::Twist &msg)
@@ -95,45 +105,6 @@ void DasomFrame::initNodeStatus()
   ui_.haptic_status->setMovie(movie_);
   ui_.ds_status->setMovie(movie_);
   movie_->start();
-}
-
-bool DasomFrame::dasomControlNodeCallback(std_srvs::SetBool::Request  &req,
-                                          std_srvs::SetBool::Response &res)
-{
-  bool status = req.data;
-
-  res.success = true;
-  
-  if(status) setNodeStatus("ds_status", true);
-  else setNodeStatus("ds_status", false);
-
-  return true;
-}
-
-bool DasomFrame::hapticJoystickNodeCallback(std_srvs::SetBool::Request  &req,
-                                            std_srvs::SetBool::Response &res)
-{
-  bool status = req.data;
-
-  res.success = true;
-  
-  if(status) setNodeStatus("haptic_status", true);
-  else setNodeStatus("haptic_status", false);
-  
-  return true;
-}
-
-bool DasomFrame::dynamixelControlNodeCallback(std_srvs::SetBool::Request  &req,
-                                              std_srvs::SetBool::Response &res)
-{
-  bool status = req.data;
-
-  res.success = true;
-  
-  if(status) setNodeStatus("dyn_status", true);
-  else setNodeStatus("dyn_status", false);
-  
-  return true;
 }
 
 void DasomFrame::setNodeStatus(QString label_name, bool status)
@@ -230,11 +201,42 @@ void DasomFrame::rosNodeStatus()
   std::vector<std::string> node_names;
   ros::master::getNodes(node_names);
 
-  std::cout << "Running nodes:" << std::endl;
+  std::string ds_node_string = "/dasom_manipulator_control";
+  std::string haptic_node_string = "/omni_haptic_node";
+
+  // std::cout << "Running nodes:" << std::endl;
   for (const std::string& node_name : node_names)
   {
-      std::cout << node_name << std::endl;
+    // std::cout << node_name << std::endl;
+
+    if(node_name == ds_node_string) 
+    {
+      setNodeStatus("ds_status", true);
+      ds = true;
+      ds_found = true;
+    }
+    
+    if(node_name == haptic_node_string)
+    {
+      setNodeStatus("haptic_status", true);
+      hpt = true;
+      hpt_found = true;
+    }
   }
+
+  if((ds_found == false) && (ds == true))
+  {
+    setNodeStatus("ds_status", false);
+  }
+
+  if((hpt_found == false) && (hpt == true))
+  {
+    setNodeStatus("haptic_status", false);
+  }
+
+  ds_found = false;
+  hpt_found = false;
+  dyn_found = false;
 }
 
 void DasomFrame::setBatteryVoltageGauge()
@@ -281,8 +283,8 @@ void DasomFrame::setEstimatedForcePlot()
 
 void DasomFrame::drawEstimatedForcePlot()
 {
-  qDebug() << "Timer timeout event occurred!";
-  ROS_WARN("========================");
+  // qDebug() << "Timer timeout event occurred!";
+  // ROS_WARN("========================");
 
   QVector<double> xValues;
   for (int i = 0; i < 50; ++i) 
@@ -292,7 +294,7 @@ void DasomFrame::drawEstimatedForcePlot()
     xValues.append(x);
     // ROS_INFO("time = %lf, value = %lf",x,y);
     // ROS_WARN("====================================");
-    ROS_INFO("Callback = %lf, Return = %lf", x, returnEstimatedForceX());
+    // ROS_INFO("Callback = %lf, Return = %lf", x, returnEstimatedForceX());
   }
   // Xcurve->setSamples(dataPoints);
   // ui_.force_plot->replot();
@@ -304,7 +306,7 @@ void DasomFrame::drawEstimatedForcePlot()
     // xValues.clear(); // x 축 값 초기화
     // yValues.clear(); // y 축 값 초기화
   // }
-  ROS_WARN("currentTime = %d, size = %d", currentTime, xValues.size());
+  // ROS_WARN("currentTime = %d, size = %d", currentTime, xValues.size());
 
   currentTime += 1;
 }
@@ -330,6 +332,53 @@ double DasomFrame::returnEstimatedForceX()
 {
   // ROS_INFO("Return = %lf",estimated_force_x);
   return estimated_force_x;
+}
+
+void DasomFrame::dsEEMeasuredCallback(const geometry_msgs::Twist &msg)
+{
+  ds_measured_position[0] = msg.linear.x;
+  ds_measured_position[1] = msg.linear.y;
+  ds_measured_position[2] = msg.linear.z;
+  ds_measured_position[3] = msg.angular.x;
+  ds_measured_position[4] = msg.angular.y;
+  ds_measured_position[5] = msg.angular.z;
+}
+
+void DasomFrame::dsEECommandCallback(const geometry_msgs::Twist &msg)
+{
+  ds_cmd_position[0] = msg.linear.x;
+  ds_cmd_position[1] = msg.linear.y;
+  ds_cmd_position[2] = msg.linear.z;
+  ds_cmd_position[3] = msg.angular.x;
+  ds_cmd_position[4] = msg.angular.y;
+  ds_cmd_position[5] = msg.angular.z;
+}
+
+void DasomFrame::setManipulatorTXT(const ros::TimerEvent&) 
+{
+  ui_.txt_measured_x->setText((QString::number(ds_measured_position[0], 'f', 3)));
+  ui_.txt_measured_y->setText((QString::number(ds_measured_position[1], 'f', 3)));
+  ui_.txt_measured_z->setText((QString::number(ds_measured_position[2], 'f', 3)));
+  ui_.txt_measured_roll->setText((QString::number(ds_measured_position[3], 'f', 3)));
+  ui_.txt_measured_pitch->setText((QString::number(ds_measured_position[4], 'f', 3)));
+  ui_.txt_measured_yaw->setText((QString::number(ds_measured_position[5], 'f', 3)));
+
+  ui_.txt_cmd_x->setText((QString::number(ds_cmd_position[0], 'f', 3)));
+  ui_.txt_cmd_y->setText((QString::number(ds_cmd_position[1], 'f', 3)));
+  ui_.txt_cmd_z->setText((QString::number(ds_cmd_position[2], 'f', 3)));
+  ui_.txt_cmd_roll->setText((QString::number(ds_cmd_position[3], 'f', 3)));
+
+  ui_.txt_error_x->setText((QString::number(ds_cmd_position[0] - ds_measured_position[0], 'f', 3)));
+  ui_.txt_error_y->setText((QString::number(ds_cmd_position[1] - ds_measured_position[1], 'f', 3)));
+  ui_.txt_error_z->setText((QString::number(ds_cmd_position[2] - ds_measured_position[2], 'f', 3)));
+  ui_.txt_error_roll->setText((QString::number(ds_cmd_position[3] - ds_measured_position[3], 'f', 3)));
+  ui_.txt_error_pitch->setText((QString::number(ds_cmd_position[4] - ds_measured_position[4], 'f', 3)));
+  ui_.txt_error_yaw->setText((QString::number(ds_cmd_position[5] - ds_measured_position[5], 'f', 3)));
+}
+
+void DasomFrame::clickedKillButton()
+{
+  // ui_.killButton
 }
 
 }

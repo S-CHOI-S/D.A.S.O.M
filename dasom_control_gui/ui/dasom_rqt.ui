@@ -598,7 +598,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="txt_joint1">
+         <widget class="QLineEdit" name="txt_cmd_x_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -628,7 +628,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="txt_joint2">
+         <widget class="QLineEdit" name="txt_cmd_y_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -658,7 +658,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="txt_joint3">
+         <widget class="QLineEdit" name="txt_cmd_z_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -688,7 +688,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QLineEdit" name="txt_joint4">
+         <widget class="QLineEdit" name="txt_cmd_roll_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -718,7 +718,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="QLineEdit" name="txt_joint3_2">
+         <widget class="QLineEdit" name="txt_cmd_pitch_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -748,7 +748,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QLineEdit" name="txt_joint4_2">
+         <widget class="QLineEdit" name="txt_cmd_yaw_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -778,7 +778,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QLineEdit" name="txt_joint1_2">
+         <widget class="QLineEdit" name="txt_measured_x_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -808,7 +808,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLineEdit" name="txt_joint2_2">
+         <widget class="QLineEdit" name="txt_measured_y_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -838,7 +838,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QLineEdit" name="txt_joint3_3">
+         <widget class="QLineEdit" name="txt_measured_z_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -868,7 +868,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="4" column="2">
-         <widget class="QLineEdit" name="txt_joint4_3">
+         <widget class="QLineEdit" name="txt_measured_roll_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -898,7 +898,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="5" column="2">
-         <widget class="QLineEdit" name="txt_joint3_4">
+         <widget class="QLineEdit" name="txt_measured_pitch_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -928,7 +928,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="6" column="2">
-         <widget class="QLineEdit" name="txt_joint4_4">
+         <widget class="QLineEdit" name="txt_measured_yaw_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -958,7 +958,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="1" column="3">
-         <widget class="QLineEdit" name="txt_joint1_3">
+         <widget class="QLineEdit" name="txt_error_x_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -988,7 +988,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="2" column="3">
-         <widget class="QLineEdit" name="txt_joint2_3">
+         <widget class="QLineEdit" name="txt_error_y_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -1018,7 +1018,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="3" column="3">
-         <widget class="QLineEdit" name="txt_joint3_5">
+         <widget class="QLineEdit" name="txt_error_z_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -1048,7 +1048,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="4" column="3">
-         <widget class="QLineEdit" name="txt_joint4_6">
+         <widget class="QLineEdit" name="txt_error_roll_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -1078,7 +1078,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="5" column="3">
-         <widget class="QLineEdit" name="txt_joint3_6">
+         <widget class="QLineEdit" name="txt_error_pitch_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -1108,7 +1108,7 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="6" column="3">
-         <widget class="QLineEdit" name="txt_joint4_5">
+         <widget class="QLineEdit" name="txt_error_yaw_3">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -2313,7 +2313,7 @@ color: rgb(255, 255, 255);</string>
        </layout>
       </widget>
      </widget>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="killButton">
       <property name="geometry">
        <rect>
         <x>1170</x>
