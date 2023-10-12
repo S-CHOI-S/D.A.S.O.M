@@ -164,7 +164,7 @@ void DasomControl::initPublisher()
 void DasomControl::initSubscriber()
 {
   joint_states_sub_ = node_handle_.subscribe(robot_name_ + "/joint_states", 10, &DasomControl::jointCallback, this, ros::TransportHints().tcpNoDelay());
-  joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &DasomControl::joystickCallback, this, ros::TransportHints().tcpNoDelay());
+  joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy/dasom", 10, &DasomControl::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   button_sub_ = node_handle_.subscribe("/phantom/button", 10, &DasomControl::buttonCallback, this, ros::TransportHints().tcpNoDelay());
   gimbal_cmd_sub_ = node_handle_.subscribe(robot_name_ + "/tf/global_gimbal_command", 10, &DasomControl::gimbalEECmdCallback, this, ros::TransportHints().tcpNoDelay()); //use
   global_EE_pose_sub_ = node_handle_.subscribe(robot_name_ + "/tf/global_EE_pose", 10, &DasomControl::globalEEPoseCallback, this, ros::TransportHints().tcpNoDelay());

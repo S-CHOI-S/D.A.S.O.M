@@ -42,3 +42,7 @@ target_link_libraries(omni_state HD HDU rt ncurses ${catkin_LIBRARIES})
 add_executable(box src/box.cpp)
 add_dependencies(box ${catkin_EXPORTED_TARGETS})
 target_link_libraries(box HD HDU rt ncurses ${catkin_LIBRARIES})
+
+add_executable(cylinder src/cylinder.cpp)
+add_dependencies(cylinder ${catkin_EXPORTED_TARGETS})
+target_link_libraries(cylinder HD HDU rt ncurses ${catkin_LIBRARIES})

@@ -706,7 +706,7 @@ int main(int argc, char **argv){
 	ros::Subscriber t265_pos=nh.subscribe("/t265_pos",100,posCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_rot=nh.subscribe("/t265_rot",100,rotCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_odom=nh.subscribe("/rs_t265/odom/sample",100,t265OdomCallback,ros::TransportHints().tcpNoDelay());
-	ros::Subscriber joystick_sub_ = nh.subscribe("/phantom/xyzrpy", 10, joystickCallback, ros::TransportHints().tcpNoDelay()); //추가
+	ros::Subscriber joystick_sub_ = nh.subscribe("/phantom/xyzrpy/palletrone", 10, joystickCallback, ros::TransportHints().tcpNoDelay()); //추가
 
 	
 	ros::Timer timerPublish = nh.createTimer(ros::Duration(1.0/200.0),std::bind(publisherSet));
@@ -887,21 +887,18 @@ void rpyT_ctrl() {
 	}
 	if(position_mode || velocity_mode){
 		if(position_mode){
-			if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
-			{
-				X_d = X_d_base - XY_limit*(((double)Sbus[1]-(double)1500)/(double)500); // 이걸 바꾼다 // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
-				Y_d = Y_d_base + XY_limit*(((double)Sbus[3]-(double)1500)/(double)500); // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+			// if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
+			// {
+			// 	X_d = X_d_base - XY_limit*(((double)Sbus[1]-(double)1500)/(double)500); // 이걸 바꾼다 // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+			// 	Y_d = Y_d_base + XY_limit*(((double)Sbus[3]-(double)1500)/(double)500); // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
 			
-				ROS_INFO("FUTABA MODE!!!");
-			}
-			else
+			// 	ROS_INFO("FUTABA MODE!!!");
+			// }
+			// else
 			// joystick control mode일 때
-			// 만약 joystick의 위치가 일정 범위를 넘어간다면 드론 command를 주는 것으로!
 			{
-				// joystick의 위치가 일정 범위 이내에 있다면 -> 드론이 움직일 필요없음
-				// joystick의 위치가 일정 범위 밖에 있다면 -> 드론이 움직여야 함!
-				X_d = X_d + haptic_command_velocity_limit*((double)haptic_command[0]/(double)0.2)*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
-				Y_d = Y_d + haptic_command_velocity_limit*((double)haptic_command[1]/(double)0.13)*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
+				X_d = X_d + haptic_command_velocity_limit*(double)haptic_command[0]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
+				Y_d = Y_d + haptic_command_velocity_limit*(double)haptic_command[1]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
 				X_d_base = X_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
 				Y_d_base = Y_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
 			
