@@ -179,6 +179,7 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::VectorXd X_cmd;
 
   // For DOB
+  double dob_cnt = 0;
   Eigen::VectorXd d_hat;
 
   // For bpf

@@ -887,14 +887,14 @@ void rpyT_ctrl() {
 	}
 	if(position_mode || velocity_mode){
 		if(position_mode){
-			// if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
-			// {
-			// 	X_d = X_d_base - XY_limit*(((double)Sbus[1]-(double)1500)/(double)500); // 이걸 바꾼다 // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
-			// 	Y_d = Y_d_base + XY_limit*(((double)Sbus[3]-(double)1500)/(double)500); // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+			if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
+			{
+				X_d = X_d_base - XY_limit*(((double)Sbus[1]-(double)1500)/(double)500); // 이걸 바꾼다 // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+				Y_d = Y_d_base + XY_limit*(((double)Sbus[3]-(double)1500)/(double)500); // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
 			
-			// 	ROS_INFO("FUTABA MODE!!!");
-			// }
-			// else
+				ROS_INFO("FUTABA MODE!!!");
+			}
+			else
 			// joystick control mode일 때
 			{
 				X_d = X_d + haptic_command_velocity_limit*(double)haptic_command[0]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
@@ -1654,13 +1654,13 @@ void joystickCallback(const geometry_msgs::Twist &msg) //추가바
 	haptic_command[1] = msg.linear.y; // 대략 -0.15 ~ 0
 	haptic_command[2] = msg.linear.z; // 고려 안 함
 
-	if (fabs(haptic_command[0]) > 0.2)
-	{
-		if(haptic_command[0] > 0) haptic_command[0] = 0.2;
-		else haptic_command[0] = -0.2;
-	}
+	// if (fabs(haptic_command[0]) > 0.2)
+	// {
+	// 	if(haptic_command[0] > 0) haptic_command[0] = 0.2;
+	// 	else haptic_command[0] = -0.2;
+	// }
 
-	if (haptic_command[1] < -0.13) haptic_command[1] = -0.13;
+	// if (haptic_command[1] < -0.13) haptic_command[1] = -0.13;
 
   	// ROS_WARN("JOYhapticmd = %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2]);
 	// ROS_WARN("time_loop = %lf", delta_t.count());

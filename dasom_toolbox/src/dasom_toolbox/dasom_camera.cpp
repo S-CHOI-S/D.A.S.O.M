@@ -61,7 +61,11 @@ void DasomCam::initCamera(int cam_num)
   if(!cap.isOpened())
   {
     ROS_ERROR("[ DasomCam ]: Failed to open Dasom Camera!");
-  } 
+  }
+  else
+  {
+    ROS_WARN("[ DasomCam ]: Successed to open Dasom Camera!");
+  }
 }
 
 void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
@@ -69,22 +73,22 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
   // ROS_INFO("Reading camera frame!");
   cap >> frame;
 
-  gimbalcommand_safe = false;
+  gimbalcommand_safe = false; // ROS_WARN("%lf, %lf, %lf", core[0], core[1], core[2]);
 
   // DetectLightBulb();
 
   // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core[1], 250 - core[0]), 150 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
+  circle(frame, cv::Point(250 - core[1], 250 - core[0]), 150 - core[2], blue, 3, 4, 0);
   
-  // line(frame, point1, point2, color, thickness, line type, shift);
+  // // line(frame, point1, point2, color, thickness, line type, shift);
   line(frame, cv::Point(230 - core[1], 250 - core[0]), cv::Point(270 - core[1], 250 - core[0]), cv::Scalar::all(255), 3, 4, 0);
   line(frame, cv::Point(250 - core[1], 230 - core[0]), cv::Point(250 - core[1], 270 - core[0]), cv::Scalar::all(255), 3, 4, 0);
 
   frame = flipCamera(frame);
 
   frame = drawCoordinate(frame);
-  
-  imshow("detect",frame);
+
+  cv::imshow("D.A.S.O.M End_Effector", frame);
 
   if(!frame.empty())
   {
@@ -94,7 +98,7 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 
     cv::waitKey(1);
   }
-  ros::spinOnce();
+  // ros::spinOnce();
 }
 
 void DasomCam::DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color)
@@ -139,7 +143,6 @@ void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
 void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal)
 {
   cap >> frame;
-  // ROS_ERROR("%lf, %lf", core[0] - gimbal[0], core[2] - gimbal[2]);
 
   // circle(frame, core, radius, color, thickness, line type, shift);
   circle(frame, cv::Point(250 - core[1], 250 - core[0]), 150 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
@@ -250,4 +253,6 @@ cv::Mat DasomCam::drawCoordinate(cv::Mat frame)
   arrowedLine(frame, cv::Point(30, 450), cv::Point(60, 425), blue, 3, cv::LINE_AA);
   arrowedLine(frame, cv::Point(30, 450), cv::Point(70, 450), red, 3);
   arrowedLine(frame, cv::Point(30, 450), cv::Point(30, 410), green, 3);
+
+  return frame;
 }

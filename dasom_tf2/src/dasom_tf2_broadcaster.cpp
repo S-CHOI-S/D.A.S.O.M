@@ -39,7 +39,7 @@ void TFBroadcaster::palletroneOptitrackCallback(const geometry_msgs::PoseStamped
     transformStamped.transform.rotation.z = msg.pose.orientation.z;
     transformStamped.transform.rotation.w = msg.pose.orientation.w;
 
-    // ROS_ERROR("%lf, %lf, %lf, %lf, %lf, %lf, %lf", optitrackQuat[0], optitrackQuat[1], optitrackQuat[2], roll, pitch,yaw);
+    // ROS_ERROR("RAW = %lf, %lf, %lf", msg.pose.position.x, msg.pose.position.y, msg.pose.position.z);
     pubpub.publish(transformStamped);
     palletroneOptitrackLPF(msg);
 
@@ -66,9 +66,9 @@ void TFBroadcaster::palletroneOptitrackLPF(geometry_msgs::PoseStamped msg)
     transformStamped.header.stamp = ros::Time::now();
     transformStamped.header.frame_id = "world";
     transformStamped.child_frame_id = "tf/palletrone_optitrack_lpf";
-    transformStamped.transform.translation.x = ds_jnt_->updateLPF(time_loop, msg.pose.position.x);
-    transformStamped.transform.translation.y = ds_jnt_->updateLPF(time_loop, msg.pose.position.y);
-    transformStamped.transform.translation.z = ds_jnt_->updateLPF(time_loop, msg.pose.position.z);
+    transformStamped.transform.translation.x = msg.pose.position.x;
+    transformStamped.transform.translation.y = msg.pose.position.y;
+    transformStamped.transform.translation.z = msg.pose.position.z;
 
     quat.setRPY(lpf_roll, lpf_pitch, lpf_yaw);
 
@@ -76,6 +76,8 @@ void TFBroadcaster::palletroneOptitrackLPF(geometry_msgs::PoseStamped msg)
     transformStamped.transform.rotation.y = quat.y();
     transformStamped.transform.rotation.z = quat.z();
     transformStamped.transform.rotation.w = quat.w();
+
+    // ROS_ERROR("LPF = %lf, %lf, %lf", transformStamped.transform.translation.x, transformStamped.transform.translation.y, transformStamped.transform.translation.z);
 
     br.sendTransform(transformStamped);
 }

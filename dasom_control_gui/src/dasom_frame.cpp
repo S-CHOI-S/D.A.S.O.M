@@ -187,6 +187,12 @@ void DasomFrame::cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg)
                   cv_ptr->image.step,
                   QImage::Format_RGB888);
 
+    // 이미지가 BGR로 변환된 경우, RGB로 변환
+    if (qimage.format() == QImage::Format_RGB888)
+    {
+      qimage = qimage.rgbSwapped(); // BGR에서 RGB로 변환
+    } 
+
     // image_frame에 이미지 표시
     ui_.image_frame->setPixmap(QPixmap::fromImage(qimage));
   }
@@ -201,13 +207,21 @@ void DasomFrame::rosNodeStatus()
   std::vector<std::string> node_names;
   ros::master::getNodes(node_names);
 
+  std::string dyn_node_string = "/torque_ctrl_6DOF";
   std::string ds_node_string = "/dasom_manipulator_control";
-  std::string haptic_node_string = "/omni_haptic_node";
+  std::string haptic_node_string = "/omni_state";
 
   // std::cout << "Running nodes:" << std::endl;
   for (const std::string& node_name : node_names)
   {
     // std::cout << node_name << std::endl;
+
+    if(node_name == dyn_node_string)
+    {
+      setNodeStatus("dyn_status", true);
+      dyn = true;
+      dyn_found = true;
+    }
 
     if(node_name == ds_node_string) 
     {
@@ -222,6 +236,11 @@ void DasomFrame::rosNodeStatus()
       hpt = true;
       hpt_found = true;
     }
+  }
+
+  if((dyn_found == false) && (dyn == true))
+  {
+    setNodeStatus("dyn_status", false);
   }
 
   if((ds_found == false) && (ds == true))

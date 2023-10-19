@@ -42,11 +42,11 @@ Eigen::Vector3d eigen_palletrone_xyzrpy;
 void commandGenerator()
 {
 	if(abs(pose_msg.pose.position.x - pose_msg_i.pose.position.x) < 0.01) 
-    	xyzrpy.linear.x = pose_msg.pose.position.x + 0.0979452972412;
+    	xyzrpy.linear.x = pose_msg.pose.position.x;
     if(abs(pose_msg.pose.position.y - pose_msg_i.pose.position.y) < 0.01) 
     	xyzrpy.linear.y = pose_msg.pose.position.y;
     if(abs(pose_msg.pose.position.z - pose_msg_i.pose.position.z) < 0.01) 
-    	xyzrpy.linear.z = pose_msg.pose.position.z - 0.0855954589844;
+    	xyzrpy.linear.z = pose_msg.pose.position.z;
     
     xyzrpy.angular.x = 0;
     xyzrpy.angular.y = 0;
@@ -65,9 +65,9 @@ void stateCallback(const omni_msgs::OmniState::ConstPtr& msg)
 	current_position_y = (int) -(msg->pose.position.y);
 	current_position_r = sqrt(pow(current_position_x,2) + pow(current_position_y,2));
 
-	pose_msg.pose.position.x = msg->pose.position.x / 1000.0;
-    pose_msg.pose.position.y = -msg->pose.position.y / 1000.0;
-    pose_msg.pose.position.z = msg->pose.position.z / 1000.0;
+	pose_msg.pose.position.x = msg->pose.position.x / 1000.0 / 2.5;
+    pose_msg.pose.position.y = -msg->pose.position.y / 1000.0 / 2.5;
+    pose_msg.pose.position.z = msg->pose.position.z / 1000.0 / 2.5;
 
 	commandGenerator();
 
@@ -156,6 +156,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "cylinder");
 	ros::NodeHandle n;
+	ROS_WARN("DASOM-Palletrone boundary node start!");
 	force_feedback = n.advertise<omni_msgs::OmniFeedback>("/phantom/force_feedback", 1);
 	haptic_dasom_command_pub_ = n.advertise<geometry_msgs::Twist>("/phantom/xyzrpy/dasom", 1);
 	haptic_palletrone_command_pub_ = n.advertise<geometry_msgs::Twist>("/phantom/xyzrpy/palletrone", 1);

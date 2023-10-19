@@ -14,6 +14,54 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
+#include "ros/ros.h"
+#include <opencv2/opencv.hpp>
+
+int main(int argc, char **argv) 
+{
+    ros::init(argc, argv, "try");
+
+    // 웹캠 열기
+    cv::VideoCapture cap(0);  // 0은 웹캠의 디바이스 번호입니다. 여러 웹캠이 연결된 경우 1, 2 등으로 변경할 수 있습니다.
+
+    // 웹캠 열기에 실패한 경우 오류 메시지 출력
+    if (!cap.isOpened()) {
+        std::cerr << "웹캠을 열 수 없습니다." << std::endl;
+        return -1;
+    }
+
+    // 윈도우 생성
+    // cv::namedWindow("Webcam", cv::WINDOW_NORMAL);
+
+    while (true) {
+        cv::Mat frame;
+        
+        // 웹캠에서 프레임 읽기
+        cap >> frame;
+
+        ROS_INFO("%lf, %lf", frame.rows, frame.cols);
+        
+        // 프레임이 비어 있는 경우 종료
+        if (frame.empty()) {
+            break;
+        }
+        
+        // 화면에 프레임 표시
+        cv::imshow("Webcam", frame);
+
+        // ESC 키를 누르면 루프 종료
+        if (cv::waitKey(1) == 27) {
+            break;
+        }
+    }
+
+    // 윈도우 종료
+    cv::destroyWindow("Webcam");
+
+    return 0;
+}
+
+
 // #include "ros/ros.h"
 // #include <eigen3/Eigen/Core>
 // #include <eigen3/Eigen/Dense>
@@ -524,195 +572,195 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
-#include "ros/ros.h"
-#include "sensor_msgs/JointState.h"
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/jntarray.hpp>
-#include <kdl/frames_io.hpp>
-#include <dasom_toolbox/dasom_joint.h>
-#include <dasom_toolbox/dasom_realsense_d435i.h>
-#include <dasom_toolbox/dasom_camera.h>
-#include <dasom_toolbox/dasom_tf2.h>
-#include <visualization_msgs/Marker.h>
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/WrenchStamped.h>
-#include <tf2_ros/static_transform_broadcaster.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include "tf/transform_datatypes.h"
+// #include "ros/ros.h"
+// #include "sensor_msgs/JointState.h"
+// #include <eigen3/Eigen/Core>
+// #include <eigen3/Eigen/Dense>
+// #include <kdl/chain.hpp>
+// #include <kdl/chaindynparam.hpp>
+// #include <kdl/jntarray.hpp>
+// #include <kdl/frames_io.hpp>
+// #include <dasom_toolbox/dasom_joint.h>
+// #include <dasom_toolbox/dasom_realsense_d435i.h>
+// #include <dasom_toolbox/dasom_camera.h>
+// #include <dasom_toolbox/dasom_tf2.h>
+// #include <visualization_msgs/Marker.h>
+// #include <geometry_msgs/Point.h>
+// #include <geometry_msgs/Twist.h>
+// #include <geometry_msgs/WrenchStamped.h>
+// #include <tf2_ros/static_transform_broadcaster.h>
+// #include <tf2/LinearMath/Quaternion.h>
+// #include "tf/transform_datatypes.h"
 
-#define PI 3.141592
+// #define PI 3.141592
 
-using namespace dasom;
+// using namespace dasom;
 
-double joint = 0;
-double joint2 = 0;
-double i = 0;
+// double joint = 0;
+// double joint2 = 0;
+// double i = 0;
 
-void Callback(const sensor_msgs::JointState &msg)
-{
-    joint = msg.effort[0];
-    joint2 = msg.effort[1] + 0.1*sin(3.14 * i * i - i);
-}
+// void Callback(const sensor_msgs::JointState &msg)
+// {
+//     joint = msg.effort[0];
+//     joint2 = msg.effort[1] + 0.1*sin(3.14 * i * i - i);
+// }
 
-int main(int argc, char **argv)
-{
-    ros::init(argc, argv, "try");
-    ros::NodeHandle nh;
-    ROS_WARN("try node start!");
+// int main(int argc, char **argv)
+// {
+//     ros::init(argc, argv, "try");
+//     ros::NodeHandle nh;
+//     ROS_WARN("try node start!");
 
-    // nh.setParam("/dasom_rviz_started", true);
+//     // nh.setParam("/dasom_rviz_started", true);
 
-    // ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
-    ros::Publisher rs_c_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/color", 10);
-    ros::Publisher rs_d_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/depth", 10);
-    ros::Publisher joint_pub = nh.advertise<geometry_msgs::Twist>("/palletrone/battery", 100);
-    ros::Publisher pubpub = nh.advertise<geometry_msgs::WrenchStamped>("/dasom/estimated_force", 100);
-    ros::Subscriber subs_ = nh.subscribe("/dasom/joint_states", 10, Callback);
-    ros::Subscriber sub;
+//     // ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 100);
+//     ros::Publisher rs_c_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/color", 10);
+//     ros::Publisher rs_d_pub_ = nh.advertise<sensor_msgs::Image>("/dasom/d435i/depth", 10);
+//     ros::Publisher joint_pub = nh.advertise<geometry_msgs::Twist>("/palletrone/battery", 100);
+//     ros::Publisher pubpub = nh.advertise<geometry_msgs::WrenchStamped>("/dasom/estimated_force", 100);
+//     ros::Subscriber subs_ = nh.subscribe("/dasom/joint_states", 10, Callback);
+//     ros::Subscriber sub;
     
-    // For DasomCam
-    image_transport::ImageTransport it(nh);
-    image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
+//     // For DasomCam
+//     image_transport::ImageTransport it(nh);
+//     image_transport::Publisher pub = it.advertise("/dasom/camera_image", 1);
 
-    ros::Rate loop_rate(200);
+//     ros::Rate loop_rate(200);
 
-    double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
-           base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
-    double i = 0;
-    double t = 0;
+//     double joint1 = 0, joint2 = 0, joint3 = 0, joint4 = 0, joint5 = 0, joint6 = 0, 
+//            base_joint_X = 0, base_joint_Y = 0, base_joint_Z = 0;
+//     double i = 0;
+//     double t = 0;
 
-    // sensor_msgs::JointState joint_states;
+//     // sensor_msgs::JointState joint_states;
 
-    Eigen::Vector3d point;
+//     Eigen::Vector3d point;
 
-    point << 0, 0, 0;
+//     point << 0, 0, 0;
 
-    double roll, pitch, yaw;
+//     double roll, pitch, yaw;
 
-    geometry_msgs::PoseStamped msg;
-    geometry_msgs::WrenchStamped joint_states;
+//     geometry_msgs::PoseStamped msg;
+//     geometry_msgs::WrenchStamped joint_states;
 
-    msg.pose.orientation.x = 0;
-    msg.pose.orientation.y = 0;
-    msg.pose.orientation.z = 0.7;
-    msg.pose.orientation.w = 0.7;
+//     msg.pose.orientation.x = 0;
+//     msg.pose.orientation.y = 0;
+//     msg.pose.orientation.z = 0.7;
+//     msg.pose.orientation.w = 0.7;
 
-    tf::Quaternion quat;
-    tf::quaternionMsgToTF(msg.pose.orientation, quat);
+//     tf::Quaternion quat;
+//     tf::quaternionMsgToTF(msg.pose.orientation, quat);
 
-    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+//     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
 
-    ROS_INFO("roll, pitch, yaw = %lf, %lf, %lf", roll, pitch, yaw);
+//     ROS_INFO("roll, pitch, yaw = %lf, %lf, %lf", roll, pitch, yaw);
 
-    roll = PI/2;
-    pitch = 0;
-    yaw = 0;
+//     roll = PI/2;
+//     pitch = 0;
+//     yaw = 0;
 
-    // (PI/2, 0, 0) -> (0.707, 0, 0, 0.707)
+//     // (PI/2, 0, 0) -> (0.707, 0, 0, 0.707)
 
-    quat.setRPY(roll, pitch, yaw);
+//     quat.setRPY(roll, pitch, yaw);
 
-    msg.pose.orientation.x = quat.x();
-    msg.pose.orientation.y = quat.y();
-    msg.pose.orientation.z = quat.z();
-    msg.pose.orientation.w = quat.w();
+//     msg.pose.orientation.x = quat.x();
+//     msg.pose.orientation.y = quat.y();
+//     msg.pose.orientation.z = quat.z();
+//     msg.pose.orientation.w = quat.w();
 
-    ROS_INFO("x, y, z, w = %lf, %lf, %lf, %lf", msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w);
+//     ROS_INFO("x, y, z, w = %lf, %lf, %lf, %lf", msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w);
 
-    // For DasomLPF
-    // DasomJoint ds_joint_(8, 8);
-    // DasomLPF ds_lpf_2(8);
+//     // For DasomLPF
+//     // DasomJoint ds_joint_(8, 8);
+//     // DasomLPF ds_lpf_2(8);
 
-    // For DasomRealSense
-    // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
+//     // For DasomRealSense
+//     // DasomRealSense ds_rs_(point, rs_c_pub_, rs_d_pub_);
 
-    // For DasomCam
-    // DasomCam ds_cam_(pub, 0);
+//     // For DasomCam
+//     // DasomCam ds_cam_(pub, 0);
 
-    // // For DasomTF2
-    // DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
-    double law_data = 0;
-    double raw_data = 0;
-    while (ros::ok())
-    {   
-        // For DasomLPF
-        geometry_msgs::Twist msg;
-        // law_data = 0.1*sin(50 * i * i - i) + 10 * sin(0.005 * 3.14 * 2 / 4 * i);
+//     // // For DasomTF2
+//     // DasomTF2 ds_tf2_(sub,"/dasom/EE_cmd","world","joystickCMD");
+//     double law_data = 0;
+//     double raw_data = 0;
+//     while (ros::ok())
+//     {   
+//         // For DasomLPF
+//         geometry_msgs::Twist msg;
+//         // law_data = 0.1*sin(50 * i * i - i) + 10 * sin(0.005 * 3.14 * 2 / 4 * i);
 
-        // raw_data = 0.1*cos(50 * i * i - i) + 10 * cos(0.005 * 3.14 * 2 / 4 * i);
-        // msg.header.stamp = ros::Time::now();
-        msg.linear.x = 15 + 2 * sin(i/200);
-        // msg.linear.y = law_data;
+//         // raw_data = 0.1*cos(50 * i * i - i) + 10 * cos(0.005 * 3.14 * 2 / 4 * i);
+//         // msg.header.stamp = ros::Time::now();
+//         msg.linear.x = 15 + 2 * sin(i/200);
+//         // msg.linear.y = law_data;
 
-        // msg.angular.x = ds_lpf_2.updateLPF(0.005, raw_data);
-        // msg.angular.y = raw_data;
+//         // msg.angular.x = ds_lpf_2.updateLPF(0.005, raw_data);
+//         // msg.angular.y = raw_data;
 
-        joint_pub.publish(msg);
+//         joint_pub.publish(msg);
 
-        // For DasomRealSense
-        // ds_rs_.test();
-        // ds_rs_.updateCamera();
+//         // For DasomRealSense
+//         // ds_rs_.test();
+//         // ds_rs_.updateCamera();
 
-        // For DasomCam
-        // ds_cam_.UpdateCameraCommand(point);
-        // ds_cam_.DetectLightBulb();
+//         // For DasomCam
+//         // ds_cam_.UpdateCameraCommand(point);
+//         // ds_cam_.DetectLightBulb();
         
-        //update joint_state
-        joint_states.header.stamp = ros::Time::now();
-        // joint_states.name.resize(9);
-        // joint_states.position.resize(9);
-        // joint_states.name[0] = "id_1";
-        joint_states.wrench.force.x = joint1;
-        // joint_states.name[1] = "id_2";
-        // joint_states.position[1] = joint2;
-        // joint_states.name[2] = "id_3";
-        // joint_states.position[2] = joint3;
-        // joint_states.name[3] = "id_4";
-        // joint_states.position[3] = joint4;
-        // joint_states.name[4] = "id_5";
-        // joint_states.position[4] = joint5;
-        // joint_states.name[5] = "id_6";
-        // joint_states.position[5] = joint6;
-        // joint_states.name[6] = "base_joint_X";
-        // joint_states.position[6] = base_joint_X;
-        // joint_states.name[7] = "base_joint_Y";
-        // joint_states.position[7] = base_joint_Y;
-        // joint_states.name[8] = "base_joint_Z";
-        // joint_states.position[8] = base_joint_Z;
+//         //update joint_state
+//         joint_states.header.stamp = ros::Time::now();
+//         // joint_states.name.resize(9);
+//         // joint_states.position.resize(9);
+//         // joint_states.name[0] = "id_1";
+//         joint_states.wrench.force.x = joint1;
+//         // joint_states.name[1] = "id_2";
+//         // joint_states.position[1] = joint2;
+//         // joint_states.name[2] = "id_3";
+//         // joint_states.position[2] = joint3;
+//         // joint_states.name[3] = "id_4";
+//         // joint_states.position[3] = joint4;
+//         // joint_states.name[4] = "id_5";
+//         // joint_states.position[4] = joint5;
+//         // joint_states.name[5] = "id_6";
+//         // joint_states.position[5] = joint6;
+//         // joint_states.name[6] = "base_joint_X";
+//         // joint_states.position[6] = base_joint_X;
+//         // joint_states.name[7] = "base_joint_Y";
+//         // joint_states.position[7] = base_joint_Y;
+//         // joint_states.name[8] = "base_joint_Z";
+//         // joint_states.position[8] = base_joint_Z;
 
-        t = i / 100;
-        joint1 = 3*sin(t);
-        // joint2 = 1 + t;
-        // joint3 = -t;
-        // joint4 = t;
-        // joint5 = 0;
-        // joint6 = 0;
-        // base_joint_X = sin(4*t-PI);
-        // base_joint_Y = sin(4*t-PI);
-        // base_joint_Z = sin(2*t);
+//         t = i / 100;
+//         joint1 = 3*sin(t);
+//         // joint2 = 1 + t;
+//         // joint3 = -t;
+//         // joint4 = t;
+//         // joint5 = 0;
+//         // joint6 = 0;
+//         // base_joint_X = sin(4*t-PI);
+//         // base_joint_Y = sin(4*t-PI);
+//         // base_joint_Z = sin(2*t);
 
-        pubpub.publish(joint_states);
+//         pubpub.publish(joint_states);
 
-        i++;
+//         i++;
 
-        // ROS_ERROR("i: %lf", i);
-        // if(i > 157) break;
+//         // ROS_ERROR("i: %lf", i);
+//         // if(i > 157) break;
 
-        // ROS_INFO("joint1: %lf", joint1);
-        // ROS_INFO("joint2: %lf", joint2);
-        // ROS_INFO("joint3: %lf", joint3);
-        // ROS_INFO("joint4: %lf", joint4);
-        // ROS_WARN("==========================");
+//         // ROS_INFO("joint1: %lf", joint1);
+//         // ROS_INFO("joint2: %lf", joint2);
+//         // ROS_INFO("joint3: %lf", joint3);
+//         // ROS_INFO("joint4: %lf", joint4);
+//         // ROS_WARN("==========================");
 
-        ros::spinOnce();
-        loop_rate.sleep();
+//         ros::spinOnce();
+//         loop_rate.sleep();
         
-    }
-}
+//     }
+// }
 
 //     ///////////////////////////////////////////////////////////
 //     //          3D Marker 그리기, RViz에서 확인 가능          //

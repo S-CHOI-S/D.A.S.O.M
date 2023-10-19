@@ -432,11 +432,9 @@ void DasomControl::AdmittanceControl()
   EE_command[4] = X_ref[4]; // 0
   EE_command[5] = X_ref[5];
 }
-double dob_cnt = 0;
+
 void DasomControl::DOB()
 {
-  // d_hat[0] = ds_jnt1_->updateDOB(time_loop, angle_measured[0]);
-  // angle_d[0] = angle_ref[0] - d_hat[0];
   dob_cnt++;
 
   if(dob_cnt > 600)

@@ -108,7 +108,7 @@ void DasomWorkbench::initializeRobotLinks()
                 KDL::Vector(0,0,0.027325), // link1
                 KDL::Vector(0.00039,-0.03411,0.0), // link2
                 KDL::Vector(-0.00001,-0.06095,0.00226), // link3
-                KDL::Vector(-0.00036,-0.03577,0.02293), // link4
+                KDL::Vector(-0.00033,-0.05253,0.02129), // link4
                 KDL::Vector(0.0434,0.00368,-0.02326), // link5
                 KDL::Vector(-0.04427,-0.06193,-0.00627)  // link6
               };
