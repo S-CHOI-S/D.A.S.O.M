@@ -14,11 +14,11 @@
 
 /* Authors: Sol Choi (Jennifer) */
 
-#include "dasom_controllers/dasom_camera_control.h"
+#include "dasom_controllers/dasom_camera_control_palletrone.h"
 
-DasomCamControl::DasomCamControl()
+DasomCamPalletrone::DasomCamPalletrone()
 : node_handle_(""), it_(node_handle_)
-, DasomCam(pub, 2) // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
+, DasomCam(pub, 4) // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
@@ -29,29 +29,27 @@ DasomCamControl::DasomCamControl()
   initSubscriber();
 
   reInitializePublisher(pub);
-  
-  global_EE_tf.resize(7);
 }
 
-DasomCamControl::~DasomCamControl()
+DasomCamPalletrone::~DasomCamPalletrone()
 {
-  ROS_INFO("Bye [ DasomCamControl ]!");
+  ROS_INFO("Bye [ DasomCamPalletrone ]!");
   ros::shutdown();
 }
 
-void DasomCamControl::initPublisher()
+void DasomCamPalletrone::initPublisher()
 {
-  pub = it_.advertise(robot_name_ + "/camera_image/dasom", 1);
+  pub = it_.advertise(robot_name_ + "/camera_image/palletrone", 1);
 }
 
-void DasomCamControl::initSubscriber()
+void DasomCamPalletrone::initSubscriber()
 {
-  joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &DasomCamControl::joystickCallback, this, ros::TransportHints().tcpNoDelay());
-  button_sub_ = node_handle_.subscribe("/phantom/button", 10, &DasomCamControl::buttonCallback, this, ros::TransportHints().tcpNoDelay());
-  gimbal_sub_ = node_handle_.subscribe("/dasom/global_EE_frame/world", 10, &DasomCamControl::gimbalCallback, this, ros::TransportHints().tcpNoDelay());
+  joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &DasomCamPalletrone::joystickCallback, this, ros::TransportHints().tcpNoDelay());
+  button_sub_ = node_handle_.subscribe("/phantom/button", 10, &DasomCamPalletrone::buttonCallback, this, ros::TransportHints().tcpNoDelay());
+  gimbal_sub_ = node_handle_.subscribe("/dasom/global_EE_frame/world", 10, &DasomCamPalletrone::gimbalCallback, this, ros::TransportHints().tcpNoDelay());
 }
 
-void DasomCamControl::gimbalCallback(const geometry_msgs::PoseStamped &msg)
+void DasomCamPalletrone::gimbalCallback(const geometry_msgs::PoseStamped &msg)
 // global_EE_pose 받아오기
 {
   global_EE_tf[0] = msg.pose.position.x;
@@ -64,14 +62,14 @@ void DasomCamControl::gimbalCallback(const geometry_msgs::PoseStamped &msg)
   global_EE_tf[6] = msg.pose.orientation.w;
 }
 
-void DasomCamControl::joystickCallback(const geometry_msgs::Twist &msg)
+void DasomCamPalletrone::joystickCallback(const geometry_msgs::Twist &msg)
 {
   haptic_position[0] = msg.linear.x;
   haptic_position[1] = msg.linear.y;
   haptic_position[2] = msg.linear.z;
 }
 
-void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
+void DasomCamPalletrone::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
 {
   if(msg.grey_button == 1)
   {
@@ -81,8 +79,6 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
     {
       grey_button++;
       ROS_INFO("Grey 0: Command mode");
-
-      gimbal_position_tf = haptic_position;
 
       grey = false;
     }
@@ -99,7 +95,7 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
   }
 }
 
-void DasomCamControl::update()
+void DasomCamPalletrone::update()
 {
   if(grey_button == 0)
   {
@@ -110,34 +106,34 @@ void DasomCamControl::update()
   else if(grey_button == 1) 
   {
     ROS_INFO("Grey 1: Gimbaling mode");
-    UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf); 
+    // UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf); 
   }
 
   else if(grey_button == 2) 
   {
     ROS_INFO("Grey 2: Gimbaling + Command mode");
-    if(gimbalcommand_safe == false)
-    {
-      UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);
-    }
-    else 
-    {
-      UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf);
-    }
+    // if(gimbalcommand_safe == false)
+    // {
+    //   UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);
+    // }
+    // else 
+    // {
+    //   UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf);
+    // }
   }
 }
 
 int main(int argc, char **argv)
 {
   // Init ROS node
-  ros::init(argc, argv, "dasom_camera_control");
-  DasomCamControl ds_cam_ctrl;
+  ros::init(argc, argv, "dasom_camera_control_palletrone");
+  DasomCamPalletrone ds_cam_pallet;
 
   ros::Rate loop_rate(200);
 
   while (ros::ok())
   {
-    ds_cam_ctrl.update();
+    ds_cam_pallet.update();
 
     ros::spinOnce();
     loop_rate.sleep();

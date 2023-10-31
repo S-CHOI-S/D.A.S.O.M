@@ -153,7 +153,8 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::VectorXd haptic_command;
 
   // For haptic button
-  bool grey_button;
+  bool grey = false;
+  int grey_button = 0;
   bool white_button;
   double gripper_cmd;
 

@@ -61,7 +61,7 @@ void DasomFrame::initSubscriber()
 {
   palletrone_battery_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::batteryVoltageCallback, this);
   estimated_force_sub_ = nh_.subscribe("/dasom/estimated_force", 10, &DasomFrame::estimatedForceCallback, this);
-  cam_sub_ = nh_.subscribe("/dasom/camera_image", 10, &DasomFrame::cameraImageCallback, this);
+  cam_sub_ = nh_.subscribe("/dasom/camera_image/dasom", 10, &DasomFrame::cameraImageCallback, this);
   EE_measured_sub_ = nh_.subscribe("/dasom/EE_pose", 10, &DasomFrame::dsEEMeasuredCallback, this);
   EE_command_sub_ = nh_.subscribe("/dasom/EE_cmd", 10, &DasomFrame::dsEECommandCallback, this);
 }

@@ -218,10 +218,44 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
 {
   if(msg.grey_button == 1) 
   {
-    if(grey_button)
+    // if(grey_button)
+    // {
+    //   grey_button = false;
+    //   ROS_INFO("Grey: false");
+
+    //   gimbal_tf = global_EE_tf; // globalEEPoseCallback
+
+    //   geometry_msgs::PoseStamped gimbal_tf_msg;
+
+    //   gimbal_tf_msg.pose.position.x = gimbal_tf[0];
+    //   gimbal_tf_msg.pose.position.y = gimbal_tf[1];
+    //   gimbal_tf_msg.pose.position.z = gimbal_tf[2];
+
+    //   gimbal_tf_msg.pose.orientation.x = gimbal_tf[3];
+    //   gimbal_tf_msg.pose.orientation.y = gimbal_tf[4];
+    //   gimbal_tf_msg.pose.orientation.z = gimbal_tf[5];
+    //   gimbal_tf_msg.pose.orientation.w = gimbal_tf[6];
+
+    //   gimbal_pub_.publish(gimbal_tf_msg);
+    // }
+    // else
+    // {
+    //   grey_button = true;
+    //   ROS_INFO("Grey: true");
+    // }
+    grey = true;
+
+    if(grey_button == 0 && grey == true)
     {
-      grey_button = false;
-      ROS_INFO("Grey: false");
+      grey_button++;
+      ROS_INFO("Grey 0: Command mode");
+
+      grey = false;
+    }
+    else if(grey_button == 1)
+    {
+      grey_button++;
+      ROS_INFO("Grey 1: Gimbaling mode");
 
       gimbal_tf = global_EE_tf; // globalEEPoseCallback
 
@@ -237,11 +271,14 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       gimbal_tf_msg.pose.orientation.w = gimbal_tf[6];
 
       gimbal_pub_.publish(gimbal_tf_msg);
+
     }
-    else
+    else if(grey_button == 2)
     {
-      grey_button = true;
-      ROS_INFO("Grey: true");
+      grey_button = 0;
+      ROS_INFO("Grey 2: Gimbaling + Command mode");
+
+      // gimbaling + command mode에 대한 코드 작성
     }
   }
 
@@ -609,6 +646,7 @@ void DasomControl::initPoseFunction()
   {
     initPoseFlag = false;
     ROS_WARN("Finished to arrive at the initial pose!");
+    ROS_INFO("Grey 0: Command mode");
     
     ds_jnt1_->initDOB();
     ds_jnt2_->initDOB();
