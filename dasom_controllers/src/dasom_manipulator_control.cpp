@@ -47,7 +47,7 @@ DasomControl::DasomControl()
   initPoseFlag = true; // default = true
   initPose.resize(6,1);
   angle_init.resize(6);
-  initPose << 0, 0.23, 0.30, M_PI/2, 0, 0;
+  initPose << -0.0391781, 0.2, 0.3342381, M_PI/2, 0, 0;
   angle_init = InverseKinematics(initPose);
 
   // For angle control
