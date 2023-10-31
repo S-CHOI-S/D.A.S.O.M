@@ -80,7 +80,7 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
     if(grey_button == 0 && grey == true)
     {
       grey_button++;
-      ROS_INFO("Grey 0: Command mode");
+      ROS_INFO("Grey 1: Gimbaling mode");
 
       gimbal_position_tf = haptic_position;
 
@@ -89,12 +89,12 @@ void DasomCamControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
     else if(grey_button == 1)
     {
       grey_button++;
-      ROS_INFO("Grey 1: Gimbaling mode");
+      ROS_INFO("Grey 2: Gimbaling + Command mode");
     }
     else if(grey_button == 2)
     {
       grey_button = 0;
-      ROS_INFO("Grey 2: Gimbaling + Command mode");
+      ROS_INFO("Grey 0: Command mode");
     }
   }
 }

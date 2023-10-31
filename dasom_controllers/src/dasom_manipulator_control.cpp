@@ -80,7 +80,7 @@ DasomControl::DasomControl()
   haptic_command << 0, 0, 0, 0, 0, 0;
   
   // For haptic button
-  grey_button = true;
+  grey = false;
   white_button = true;
   gripper_cmd = 0;
 
@@ -218,41 +218,8 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
 {
   if(msg.grey_button == 1) 
   {
-    // if(grey_button)
-    // {
-    //   grey_button = false;
-    //   ROS_INFO("Grey: false");
-
-    //   gimbal_tf = global_EE_tf; // globalEEPoseCallback
-
-    //   geometry_msgs::PoseStamped gimbal_tf_msg;
-
-    //   gimbal_tf_msg.pose.position.x = gimbal_tf[0];
-    //   gimbal_tf_msg.pose.position.y = gimbal_tf[1];
-    //   gimbal_tf_msg.pose.position.z = gimbal_tf[2];
-
-    //   gimbal_tf_msg.pose.orientation.x = gimbal_tf[3];
-    //   gimbal_tf_msg.pose.orientation.y = gimbal_tf[4];
-    //   gimbal_tf_msg.pose.orientation.z = gimbal_tf[5];
-    //   gimbal_tf_msg.pose.orientation.w = gimbal_tf[6];
-
-    //   gimbal_pub_.publish(gimbal_tf_msg);
-    // }
-    // else
-    // {
-    //   grey_button = true;
-    //   ROS_INFO("Grey: true");
-    // }
-    grey = true;
-
-    if(grey_button == 0 && grey == true)
-    {
-      grey_button++;
-      ROS_INFO("Grey 0: Command mode");
-
-      grey = false;
-    }
-    else if(grey_button == 1)
+    if(grey_button == 0)
+    // For gimbaling
     {
       grey_button++;
       ROS_INFO("Grey 1: Gimbaling mode");
@@ -271,14 +238,20 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
       gimbal_tf_msg.pose.orientation.w = gimbal_tf[6];
 
       gimbal_pub_.publish(gimbal_tf_msg);
+    }
+    else if(grey_button == 1)
+    // For gimbaling + command mode
+    {
+      grey_button++;
+      ROS_INFO("Grey 2: Gimbaling + Command mode");
 
     }
     else if(grey_button == 2)
+    // For command mode
     {
       grey_button = 0;
-      ROS_INFO("Grey 2: Gimbaling + Command mode");
+      ROS_INFO("Grey 0: Command mode");
 
-      // gimbaling + command mode에 대한 코드 작성
     }
   }
 
@@ -559,15 +532,20 @@ void DasomControl::AngleSafeFunction()
 void DasomControl::CommandGenerator()
 // EE_command: [haptic command](X) [IK command](O)
 {
-  if(grey_button == true) 
+  if(grey_button == 0) 
+  // For command mode
   {
     EE_command = haptic_command + initPose; 
-    // ROS_INFO("Command Mode");
   }
-  else 
+  else if(grey_button == 1)
+  // For gimbaling mode
   {
     EE_command = gimbal_EE_cmd;
-    // ROS_INFO("Gimbaling Mode");
+  }
+  else if(grey_button == 2)
+  // For gimbaling + command mode
+  {
+    EE_command = haptic_command + initPose;
   }
 
   X_ref = EE_command;
