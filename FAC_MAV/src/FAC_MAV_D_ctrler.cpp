@@ -876,6 +876,7 @@ int main(int argc, char **argv){
 	ros::Subscriber t265_pos=nh.subscribe("/t265_pos",100,posCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_rot=nh.subscribe("/t265_rot",100,rotCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_odom=nh.subscribe("/rs_t265/odom/sample",100,t265OdomCallback,ros::TransportHints().tcpNoDelay());
+	ros::Subscriber joystick_sub_ = nh.subscribe("/phantom/xyzrpy/palletrone", 10, joystickCallback, ros::TransportHints().tcpNoDelay());
 	//ros::Subscriber external_force_sub=nh.subscribe("/external_force",1,external_force_Callback,ros::TransportHints().tcpNoDelay());
 	//ros::Subscriber external_torque_sub=nh.subscribe("/external_torque",1,external_torque_Callback,ros::TransportHints().tcpNoDelay());
 	//ros::Subscriber adaptive_external_force_sub=nh.subscribe("/adaptive_external_force",1,adaptive_external_force_Callback,ros::TransportHints().tcpNoDelay());
