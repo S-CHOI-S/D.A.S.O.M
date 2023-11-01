@@ -133,6 +133,8 @@ class DasomControl : public dasom::DasomWorkbench
   *****************************************************************************/
   // For init pose
   Eigen::VectorXd initPose;
+  Eigen::VectorXd haptic_offset;
+  Eigen::VectorXd initPose_for_initPoseFunction;
   Eigen::VectorXd angle_init;
 
   // For angle control
@@ -153,8 +155,7 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::VectorXd haptic_command;
 
   // For haptic button
-  bool grey;
-  int grey_button = 0;
+  int grey_button;
   bool white_button;
   double gripper_cmd;
 

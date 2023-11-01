@@ -47,8 +47,10 @@ DasomControl::DasomControl()
   initPoseFlag = true; // default = true
   initPose.resize(6,1);
   angle_init.resize(6);
-  initPose << -0.0391781, 0.2, 0.3342381, M_PI/2, 0, 0;
-  angle_init = InverseKinematics(initPose);
+  initPose << 0, 0.2, 0.3, M_PI/2, 0, 0;
+  haptic_offset << -0.03917811, 0, 0.0342381, 0, 0, 0;
+  initPose_for_initPoseFunction = initPose + haptic_offset;
+  angle_init = InverseKinematics(initPose_for_initPoseFunction);
 
   // For angle control
   angle_ref.resize(6);
@@ -75,12 +77,12 @@ DasomControl::DasomControl()
   EE_command_vel_limit = initPose;
   
   // For haptic control
-  haptic_initPose.resize(6,1);
+  haptic_initPose.resize(6,1); // Not in use
   haptic_command.resize(6);
   haptic_command << 0, 0, 0, 0, 0, 0;
   
   // For haptic button
-  grey = false;
+  grey_button = 0;
   white_button = true;
   gripper_cmd = 0;
 
@@ -244,14 +246,12 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
     {
       grey_button++;
       ROS_INFO("Grey 2: Gimbaling + Command mode");
-
     }
     else if(grey_button == 2)
     // For command mode
     {
       grey_button = 0;
       ROS_INFO("Grey 0: Command mode");
-
     }
   }
 
@@ -535,7 +535,7 @@ void DasomControl::CommandGenerator()
   if(grey_button == 0) 
   // For command mode
   {
-    EE_command = haptic_command + initPose; 
+    EE_command = haptic_command + initPose;
   }
   else if(grey_button == 1)
   // For gimbaling mode
@@ -545,7 +545,7 @@ void DasomControl::CommandGenerator()
   else if(grey_button == 2)
   // For gimbaling + command mode
   {
-    EE_command = haptic_command + initPose;
+    EE_command = gimbal_EE_cmd + haptic_command;
   }
 
   X_ref = EE_command;
@@ -553,7 +553,7 @@ void DasomControl::CommandGenerator()
 
 void DasomControl::CommandVelocityLimit()
 {
-  double vel_limit = 0.15;  // [m/s]
+  double vel_limit = 0.1;  // [m/s]
 
   for (int i = 0; i < 3; i++)
   {
