@@ -71,9 +71,9 @@ void stateCallback(const omni_msgs::OmniState::ConstPtr& msg)
 
 	commandGenerator();
 
-	RotZ << cos(PI/4),   -sin(PI/4),        0,
-			sin(PI/4),    cos(PI/4),        0,
-				0,            0,            1;
+	RotZ << cos(-PI/4),   -sin(-PI/4),        0,
+			sin(-PI/4),    cos(-PI/4),        0,
+				 0,             0,            1;
 
 	eigen_palletrone_xyzrpy = RotZ * eigen_xyzrpy;
 	eigen_palletrone_xyzrpy[1] = -eigen_palletrone_xyzrpy[1];

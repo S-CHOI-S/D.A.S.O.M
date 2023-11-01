@@ -1,4 +1,4 @@
-//############################################################### CODE UPDATE HISTORY ###########################################################
+ //############################################################### CODE UPDATE HISTORY ###########################################################
 //
 //		         ███╗   ███╗    ██████╗     ██╗     
 //        		 ████╗ ████║    ██╔══██╗    ██║     
@@ -50,11 +50,15 @@
 #include "FAC_MAV/PosCtrlService.h" //ASDF
 #include "FAC_MAV/HoverService.h" //ASDF
 #include "FAC_MAV/FAC_HoverService.h" //ASDF
-
+//-----For CasADi-----//
+// #include <casadi/casadi.hpp>
+// #include "DoubleLinkedList.h"
+// #include <algorithm>
+//--------------------//
 #include "nav_msgs/Odometry.h"
 
 double freq=200;//controller loop frequency
-double pwm_freq=417.3;//pwm signal frequency
+double pwm_freq=428.0;//pwm signal frequency 
 
 std::chrono::duration<double> delta_t;
 int16_t Sbus[10];
@@ -63,7 +67,7 @@ int16_t loop_time;
 std_msgs::Int16MultiArray PWMs_cmd;
 std_msgs::Int32MultiArray PWMs_val;
 std_msgs::Float32MultiArray Force;
-
+std_msgs::Float32 mass_topic;
 sensor_msgs::JointState rac_servo_value;
 sensor_msgs::Imu imu;
 geometry_msgs::Quaternion imu_quaternion;
@@ -96,6 +100,14 @@ std_msgs::Float32 dt;
 geometry_msgs::Vector3 external_force;
 geometry_msgs::Vector3 desired_position_change;
 geometry_msgs::Vector3 reference_position;
+geometry_msgs::Vector3 force_dhat;
+geometry_msgs::Vector3 torque_dhat;
+geometry_msgs::Vector3 non_bias_external_force;
+geometry_msgs::Vector3 external_torque;
+geometry_msgs::Vector3 adaptive_external_force;
+geometry_msgs::Vector3 adaptive_external_torque;
+
+
 
 bool servo_sw=false;
 double theta1_command, theta2_command, theta3_command, theta4_command;
@@ -111,6 +123,7 @@ bool altitude_mode = false;
 bool tilt_mode = false;
 bool ESC_control = false;
 bool admittance_mode = false;
+bool DOB_mode = true;
 //Thruster_cmd
 double F1 = 0;//desired propeller 1 force
 double F2 = 0;//desired propeller 2 force
@@ -181,6 +194,7 @@ int yaw_rotate_count = 0;
 //Admittance control value
 double X_e = 0;
 double Y_e = 0;
+double Z_e = 0;
 double X_r = 0;
 double Y_r = 0;
 double Z_r = 0;
@@ -211,7 +225,7 @@ double Fe_cutoff_freq = 1.0;
 
 static double r_arm = 0.3025;// m // diagonal length between thruster x2
 static double l_servo = 0.035;
-static double mass = 8.2;//2.9;//3.8; 2.365;//(Kg)
+static double mass = 8.0;//	!!!!PLEASE CHECK the position_dob_m!!!!
 static double r2=sqrt(2);
 
 
@@ -254,7 +268,7 @@ double z_c_hat=0.0;
 //Control gains===========================================
 
 //integratior(PID) limitation
-double integ_limit=10;
+double integ_limit=30;
 double z_integ_limit=100;
 double pos_integ_limit=10;
 double vel_integ_limit=10;
@@ -321,11 +335,11 @@ double voltage_old=22.4;
 
 //-DOB----------------------------------------------------
 geometry_msgs::Vector3 dhat;
-double fq_cutoff=0.5;//Q filter Cut-off frequency
+double fq_cutoff=0.1;//Q filter Cut-off frequency
 
 // Nominal MoI
-double J_x = 0.01;
-double J_y = 0.01;
+double J_x = 0.002;
+double J_y = 0.002;
 double J_z = 0.1;
 
 //Roll DOB
@@ -380,6 +394,16 @@ double y_dot_y2=0;
 double y_dot_y3=0;
 
 double tautilde_y_d=0;
+//---External Force Bias Eliminator 
+void external_force_bias_eliminator();
+int eliminator_iter_num=0;
+//int eliminator_integ_num=5000;
+int eliminator_iter_max=5000;
+double F_ex_bias_integrator=0.0;
+double F_ey_bias_integrator=0.0;
+double F_ex_bias=0.0;
+double F_ey_bias=0.0;
+bool measure_external_force_bias=false;
 //--------------------------------------------------------
 //Function------------------------------------------------
 template <class T>
@@ -399,6 +423,10 @@ void posCallback(const geometry_msgs::Vector3& msg);
 void rotCallback(const geometry_msgs::Quaternion& msg);
 void filterCallback(const sensor_msgs::Imu& msg);
 void t265OdomCallback(const nav_msgs::Odometry::ConstPtr& msg);
+//void external_force_Callback(const geometry_msgs::Vector3& msg);
+//void external_torque_Callback(const geometry_msgs::Vector3& msg);
+//void adaptive_external_force_Callback(const geometry_msgs::Vector3& msg);
+//void adaptive_external_torque_Callback(const geometry_msgs::Vector3& msg);
 void setCM();
 void setSA();
 void publisherSet();
@@ -412,9 +440,41 @@ void pid_Gain_Setting();
 void disturbance_Observer();
 void sine_wave_vibration();
 void get_Rotation_matrix();
+void Rotation_matrix();
 void external_force_estimation();
 void admittance_controller();
 void joystickCallback(const geometry_msgs::Twist &msg);
+
+double position_dob_fc=0.1;
+double position_dob_m=8.0;
+
+double dhat_X_ddot = 0;
+double dhat_Y_ddot = 0; 
+double dhat_Z_ddot = 0; 
+double X_tilde_r = 0;
+double Y_tilde_r = 0;
+double Z_tilde_r = 0;
+void position_dob();
+
+void force_dob();
+double force_dob_fc=3.0;
+double force_dob_m = 8.0;
+double dhat_F_X = .0;
+double dhat_F_Y = .0;
+double dhat_F_Z = .0;
+
+double torque_dob_fc=5.0;
+double dhat_tau_r = 0;
+double dhat_tau_p = 0;
+double dhat_tau_y = 0;
+void torque_dob();
+//Mass update-----------------------------
+void mass_update();
+double updated_mass=0.0;
+double mass_x_dot=0.0;
+double mass_x=0.0;
+double mass_y=0.0;
+double mass_lpf_fc=0.1;
 //-------------------------------------------------------
 
 //Publisher Group--------------------------------------
@@ -441,9 +501,13 @@ ros::Publisher angular_Acceleration;
 ros::Publisher sine_wave_data;
 ros::Publisher disturbance;
 ros::Publisher linear_acceleration;
-ros::Publisher External_force_data;
+//ros::Publisher External_force_data;
 ros::Publisher reference_desired_pos_error;
 ros::Publisher reference_pos;
+ros::Publisher force_dhat_pub;
+ros::Publisher torque_dhat_pub;
+ros::Publisher mass_pub;
+ros::Publisher non_bias_external_force_pub;
 //ros::Publisher tau_yaw_thrust;
 //----------------------------------------------------
 
@@ -474,6 +538,11 @@ Eigen::Vector3d cam_att;
 Eigen::Matrix3d Rotz;
 Eigen::Matrix3d Roty;
 Eigen::Matrix3d Rotx;
+//-----------------------------------------------------
+//Rotation_Matrix_for_force_dob--------------------------------------
+Eigen::Matrix3d RotZ;
+Eigen::Matrix3d RotY;
+Eigen::Matrix3d RotX;
 //-----------------------------------------------------
 
 
@@ -542,46 +611,107 @@ double x_az = 0;
 double accel_cutoff_freq = 1.0;
 //-----------------------------------------------------
 //Position DOB-----------------------------------------
-double pos_dob_cutoff_freq=1.0; 
+//double pos_dob_cutoff_freq=1.0;
+double X_tilde_ddot_d=0.0;
+double Y_tilde_ddot_d=0.0;
+double Z_tilde_ddot_d=0.0;
 
 //-----------------------------------------------------
 //추가-------------------------------------------------
 bool position_joystick_control = false; //false: 조종기가 xy 포지션 커맨드 줌. true: 조이스틱이 xy 포지션 커맨드 줌
 Eigen::Vector3d haptic_command; // /phantom/xyzrpy
-double haptic_command_velocity_limit = 0.2; // [m/s]
+double haptic_command_velocity = 0.5; // [m/s]
 double X_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
 double Y_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
 //-----------------------------------------------------
 
 
-Eigen::MatrixXd MinvQ_A(4,4);
-Eigen::MatrixXd MinvQ_B(4,1);
-Eigen::MatrixXd MinvQ_C(1,4);
-Eigen::MatrixXd Q_A(2,2);
-Eigen::MatrixXd Q_B(2,1);
-Eigen::MatrixXd Q_C(1,2);
-Eigen::MatrixXd MinvQ_X_x(4,1);
-Eigen::MatrixXd MinvQ_X_x_dot(4,1);
+Eigen::MatrixXd MinvQ_A(3,3);
+Eigen::MatrixXd MinvQ_B(3,1);
+Eigen::MatrixXd MinvQ_C(1,3);
+Eigen::MatrixXd Q_A(3,3);
+Eigen::MatrixXd Q_B(3,1);
+Eigen::MatrixXd Q_C(1,3);
+Eigen::MatrixXd MinvQ_X_x(3,1);
+Eigen::MatrixXd MinvQ_X_x_dot(3,1);
 Eigen::MatrixXd MinvQ_X_y(1,1);
-Eigen::MatrixXd Q_X_x(2,1);
-Eigen::MatrixXd Q_X_x_dot(2,1);
+Eigen::MatrixXd Q_X_x(3,1);
+Eigen::MatrixXd Q_X_x_dot(3,1);
 Eigen::MatrixXd Q_X_y(1,1);
-Eigen::MatrixXd MinvQ_Y_x(4,1);
-Eigen::MatrixXd MinvQ_Y_x_dot(4,1);
+Eigen::MatrixXd MinvQ_Y_x(3,1);
+Eigen::MatrixXd MinvQ_Y_x_dot(3,1);
 Eigen::MatrixXd MinvQ_Y_y(1,1);
-Eigen::MatrixXd Q_Y_x(2,1);
-Eigen::MatrixXd Q_Y_x_dot(2,1);
+Eigen::MatrixXd Q_Y_x(3,1);
+Eigen::MatrixXd Q_Y_x_dot(3,1);
 Eigen::MatrixXd Q_Y_y(1,1);
+Eigen::MatrixXd MinvQ_Z_x(3,1);
+Eigen::MatrixXd MinvQ_Z_x_dot(3,1);
+Eigen::MatrixXd MinvQ_Z_y(1,1);
+Eigen::MatrixXd Q_Z_x(3,1);
+Eigen::MatrixXd Q_Z_x_dot(3,1);
+Eigen::MatrixXd Q_Z_y(1,1);
 
-double dhat_X = 0;
-double dhat_Y = 0;
-double X_tilde_r = 0;
-double Y_tilde_r = 0;
-void position_dob();
+//--------------force DOB------------------------------
+
+Eigen::MatrixXd MinvQ_F_A(1,1);
+Eigen::MatrixXd MinvQ_F_B(1,1);
+Eigen::MatrixXd MinvQ_F_C(1,1);
+Eigen::MatrixXd Q_F_A(1,1);
+Eigen::MatrixXd Q_F_B(1,1);
+Eigen::MatrixXd Q_F_C(1,1);
+
+Eigen::MatrixXd MinvQ_F_X_x(1,1);
+Eigen::MatrixXd MinvQ_F_X_x_dot(1,1);
+Eigen::MatrixXd MinvQ_F_X_y(1,1);
+Eigen::MatrixXd Q_F_X_x(1,1);
+Eigen::MatrixXd Q_F_X_x_dot(1,1);
+Eigen::MatrixXd Q_F_X_y(1,1);
+Eigen::MatrixXd MinvQ_F_Y_x(1,1);
+Eigen::MatrixXd MinvQ_F_Y_x_dot(1,1);
+Eigen::MatrixXd MinvQ_F_Y_y(1,1);
+Eigen::MatrixXd Q_F_Y_x(1,1);
+Eigen::MatrixXd Q_F_Y_x_dot(1,1);
+Eigen::MatrixXd Q_F_Y_y(1,1);
+Eigen::MatrixXd MinvQ_F_Z_x(1,1);
+Eigen::MatrixXd MinvQ_F_Z_x_dot(1,1);
+Eigen::MatrixXd MinvQ_F_Z_y(1,1);
+Eigen::MatrixXd Q_F_Z_x(1,1);
+Eigen::MatrixXd Q_F_Z_x_dot(1,1);
+Eigen::MatrixXd Q_F_Z_y(1,1);
+//-----------------------------------------------------
+//--------------torque DOB------------------------------
+
+Eigen::MatrixXd MinvQ_T_A(2,2);
+Eigen::MatrixXd MinvQ_T_B(2,1);
+Eigen::MatrixXd MinvQ_T_C_x(1,2);
+Eigen::MatrixXd MinvQ_T_C_y(1,2);
+Eigen::MatrixXd MinvQ_T_C_z(1,2);
+Eigen::MatrixXd Q_T_A(2,2);
+Eigen::MatrixXd Q_T_B(2,1);
+Eigen::MatrixXd Q_T_C(1,2);
+
+Eigen::MatrixXd MinvQ_T_X_x(2,1);
+Eigen::MatrixXd MinvQ_T_X_x_dot(2,1);
+Eigen::MatrixXd MinvQ_T_X_y(1,1);
+Eigen::MatrixXd Q_T_X_x(2,1);
+Eigen::MatrixXd Q_T_X_x_dot(2,1);
+Eigen::MatrixXd Q_T_X_y(1,1);
+Eigen::MatrixXd MinvQ_T_Y_x(2,1);
+Eigen::MatrixXd MinvQ_T_Y_x_dot(2,1);
+Eigen::MatrixXd MinvQ_T_Y_y(1,1);
+Eigen::MatrixXd Q_T_Y_x(2,1);
+Eigen::MatrixXd Q_T_Y_x_dot(2,1);
+Eigen::MatrixXd Q_T_Y_y(1,1);
+Eigen::MatrixXd MinvQ_T_Z_x(2,1);
+Eigen::MatrixXd MinvQ_T_Z_x_dot(2,1);
+Eigen::MatrixXd MinvQ_T_Z_y(1,1);
+Eigen::MatrixXd Q_T_Z_x(2,1);
+Eigen::MatrixXd Q_T_Z_x_dot(2,1);
+Eigen::MatrixXd Q_T_Z_y(1,1);
 //-----------------------------------------------------
 int main(int argc, char **argv){
 	
-    	ros::init(argc, argv,"t3_mav_controller");
+    	ros::init(argc, argv,"t3_mav_d_controller");
 
     	std::string deviceName;
     	ros::NodeHandle params("~");
@@ -656,23 +786,59 @@ int main(int argc, char **argv){
 			tilt_Ip=nh.param<double>("tilt_position_I_gain",0.1);
 			tilt_Dp=nh.param<double>("tilt_position_D_gain",5.0);
 
-	//----------------------------------------------------------
+	//------------------position DoB Q filter------------------
 	
-	MinvQ_A << -(tilt_Pp+r2*tilt_Dp*pos_dob_cutoff_freq)/tilt_Dp, -(tilt_Dp*pow(pos_dob_cutoff_freq,2)+r2*tilt_Pp*pos_dob_cutoff_freq+tilt_Ip)/tilt_Dp, -(tilt_Pp*pow(pos_dob_cutoff_freq,2)+r2*tilt_Ip*pos_dob_cutoff_freq)/tilt_Dp, -(tilt_Ip*pow(pos_dob_cutoff_freq,2))/tilt_Dp,
-	           1.0,   0,   0, 0,
-	             0, 1.0,   0, 0,
-	             0,   0, 1.0, 0;
-	MinvQ_B << 1.0, 0, 0, 0;
-	MinvQ_C << (mass*pos_dob_cutoff_freq)/tilt_Dp, pos_dob_cutoff_freq, (tilt_Pp*pos_dob_cutoff_freq)/tilt_Dp, (tilt_Ip*pos_dob_cutoff_freq)/tilt_Dp;
+	MinvQ_A << -2*position_dob_fc, -2*pow(position_dob_fc,2), -pow(position_dob_fc,3),
+                                  1.0,                       0.0,                     0.0,
+                                  0.0,                       1.0,                     0.0;
 
-	Q_A << -r2*pos_dob_cutoff_freq, -pow(pos_dob_cutoff_freq,2),
-                                   1.0,                           0;
-	Q_B << 1.0, 0;
-	Q_C << 0, pow(pos_dob_cutoff_freq,2);	
+	MinvQ_B << 1.0, 0.0, 0.0;
+	MinvQ_C << position_dob_m*pow(position_dob_fc,3), 0.0, 0.0;
+
+	Q_A << -2*position_dob_fc, -2*pow(position_dob_fc,2), -pow(position_dob_fc,3),
+                              1.0,                       0.0,                     0.0,
+                              0.0,                       1.0,                     0.0;
+	Q_B << 1.0, 0.0, 0.0;
+	Q_C << 0.0, 0.0, pow(position_dob_fc,3);
+
+	//------------------Force DoB Q filter----------------------
+	Q_F_A << -force_dob_fc;
+
+	Q_F_B << 1.0;
+
+	Q_F_C << force_dob_fc;
+
+	MinvQ_F_A << -force_dob_fc;
+
+	MinvQ_F_B << 1.0;
+
+	MinvQ_F_C << force_dob_m*force_dob_fc;
+
+	//------------------Torque DoB Q filter----------------------
+	Q_T_A << -r2*torque_dob_fc, -pow(torque_dob_fc,2),
+			       1.0,		      0.0;
+
+	Q_T_B << 1.0, 0.0;
+
+	Q_T_C << 0.0,  pow(torque_dob_fc,2);
+
+	MinvQ_T_A <<  -r2*torque_dob_fc, -pow(torque_dob_fc,2),
+				    1.0,		   0.0;
+
+	MinvQ_T_B << 1.0, 0.0;
+
+	MinvQ_T_C_x << J_x*pow(torque_dob_fc,2), 				0.0;
+	MinvQ_T_C_y << J_y*pow(torque_dob_fc,2), 				0.0;
+	MinvQ_T_C_z << J_z*pow(torque_dob_fc,2), 				0.0;
+
 	//Set Control Matrix----------------------------------------
 		setCM();
                 F_cmd << 0, 0, 0, 0;
 	//----------------------------------------------------------
+		mass_topic.data=mass;
+	//----------------------------------------------------------
+		
+		
     PWMs = nh.advertise<std_msgs::Int16MultiArray>("PWMs", 1); // PWM 1,2,3,4
     PWM_generator = nh.advertise<std_msgs::Int32MultiArray>("command",1);  // publish to pca9685
     goal_dynamixel_position_  = nh.advertise<sensor_msgs::JointState>("goal_dynamixel_position",100); // desired theta1,2
@@ -681,7 +847,7 @@ int main(int argc, char **argv){
 	Forces = nh.advertise<std_msgs::Float32MultiArray>("Forces",100); // F 1,2,3,4
 	desired_torque = nh.advertise<geometry_msgs::Vector3>("torque_d",100);
 	linear_velocity = nh.advertise<geometry_msgs::Vector3>("lin_vel",100);
-	angular_velocity = nh.advertise<geometry_msgs::Vector3>("gyro",100);
+	angular_velocity = nh.advertise<geometry_msgs::Vector3>("angular_velocity",100);
 	desired_position = nh.advertise<geometry_msgs::Vector3>("pos_d",100);
 	position = nh.advertise<geometry_msgs::Vector3>("pos",100);
 	desired_force = nh.advertise<geometry_msgs::Vector3>("force_d",100);
@@ -692,11 +858,15 @@ int main(int argc, char **argv){
 	Center_of_Mass = nh.advertise<geometry_msgs::Vector3>("Center_of_Mass",100);
 	angular_Acceleration = nh.advertise<geometry_msgs::Vector3>("ang_accel",100);
 	sine_wave_data = nh.advertise<geometry_msgs::Vector3>("sine_wave",100);
-	disturbance = nh.advertise<geometry_msgs::Vector3>("dhat",100);
+	disturbance = nh.advertise<geometry_msgs::Vector3>("att_dhat",100);
 	linear_acceleration = nh.advertise<geometry_msgs::Vector3>("imu_lin_acl",100);
-	External_force_data = nh.advertise<geometry_msgs::Vector3>("external_force",100);
+	///External_force_data = nh.advertise<geometry_msgs::Vector3>("external_force",1);
 	reference_desired_pos_error = nh.advertise<geometry_msgs::Vector3>("pos_e",100);
 	reference_pos = nh.advertise<geometry_msgs::Vector3>("pos_r",100);
+	mass_pub = nh.advertise<std_msgs::Float32>("mass",1);
+	non_bias_external_force_pub = nh.advertise<geometry_msgs::Vector3>("non_bias_external_force",1);
+	force_dhat_pub = nh.advertise<geometry_msgs::Vector3>("force_dhat",1);	
+	torque_dhat_pub = nh.advertise<geometry_msgs::Vector3>("torque_dhat",1);	
 	//tau_yaw_thrust = nh.advertise<geometry_msgs::Vector3>("pos_r",100);
 
     	ros::Subscriber dynamixel_state = nh.subscribe("joint_states",100,jointstateCallback,ros::TransportHints().tcpNoDelay());
@@ -706,8 +876,12 @@ int main(int argc, char **argv){
 	ros::Subscriber t265_pos=nh.subscribe("/t265_pos",100,posCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_rot=nh.subscribe("/t265_rot",100,rotCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_odom=nh.subscribe("/rs_t265/odom/sample",100,t265OdomCallback,ros::TransportHints().tcpNoDelay());
-	ros::Subscriber joystick_sub_ = nh.subscribe("/phantom/xyzrpy/palletrone", 10, joystickCallback, ros::TransportHints().tcpNoDelay()); //추가
-
+	//ros::Subscriber external_force_sub=nh.subscribe("/external_force",1,external_force_Callback,ros::TransportHints().tcpNoDelay());
+	//ros::Subscriber external_torque_sub=nh.subscribe("/external_torque",1,external_torque_Callback,ros::TransportHints().tcpNoDelay());
+	//ros::Subscriber adaptive_external_force_sub=nh.subscribe("/adaptive_external_force",1,adaptive_external_force_Callback,ros::TransportHints().tcpNoDelay());
+	//ros::Subscriber adaptive_external_torque_sub=nh.subscribe("/adaptvie_external_torque",1,adaptive_external_torque_Callback,ros::TransportHints().tcpNoDelay());	
+	
+	
 	
 	ros::Timer timerPublish = nh.createTimer(ros::Duration(1.0/200.0),std::bind(publisherSet));
     ros::spin();
@@ -767,12 +941,12 @@ void publisherSet(){
 		//pwm_Command(1000,1000,1000,Sbus[2],1000,1000,1000,1000);
 
 		rpyT_ctrl();
-	//	pwm_Arm();		
-
+		//pwm_Arm();		
+	
 		//ROS_INFO("Arm mode");	
 	}
 
-//	pwm_Calibration();	
+	//pwm_Calibration();	
 	angle_d.x=r_d;
 	angle_d.y=p_d;
 	angle_d.z=y_d;
@@ -803,15 +977,21 @@ void publisherSet(){
 	delta_time.publish(dt);
 	desired_velocity.publish(desired_lin_vel);
 	Center_of_Mass.publish(CoM);
+	angular_velocity.publish(imu_ang_vel);
 	angular_Acceleration.publish(angular_Accel);
 	sine_wave_data.publish(sine_wave); //not use
-	disturbance.publish(dhat); // not use
-	linear_acceleration.publish(lin_acl);
-	External_force_data.publish(external_force);
+	disturbance.publish(dhat);
+	linear_acceleration.publish(imu_lin_acc);
+	//External_force_data.publish(external_force);
 	reference_desired_pos_error.publish(desired_position_change);
 	reference_pos.publish(reference_position);
 	prev_angular_Vel = imu_ang_vel;
 	prev_lin_vel = lin_vel;
+	mass_pub.publish(mass_topic);
+	non_bias_external_force_pub.publish(non_bias_external_force);
+	force_dhat_pub.publish(force_dhat);
+	torque_dhat_pub.publish(torque_dhat);
+
 }
 
 void setCM(){
@@ -856,13 +1036,13 @@ void rpyT_ctrl() {
 			
 		if(Z_d <-0.7) Z_d=-0.7;
 		if(Z_d > 0) Z_d=0;
-		//Z_d = -altitude_limit*(((double)Sbus[2]-(double)1500)/(double)500)-altitude_limit;
+	//Z_d = -altitude_limit*(((double)Sbus[2]-(double)1500)/(double)500)-altitude_limit;
 	}
 	else{
 		T_d = -T_limit*(((double)Sbus[2]-(double)1500)/(double)500)-T_limit;
 	}
 	//ROS_INFO("%lf",T_d);
-
+	
 	double e_r = 0;
 	double e_p = 0;
 	double e_y = 0;
@@ -874,17 +1054,41 @@ void rpyT_ctrl() {
 		
 	//ROS_INFO("%lf",time_count);
 
-	if(tilt_mode){
-	//	external_force_estimation();
-	//	admittance_controller();
-	//	position_dob();
+	double global_X_ddot = (lin_vel.x - prev_lin_vel.x)/delta_t.count();
+	double global_Y_ddot = (lin_vel.y - prev_lin_vel.y)/delta_t.count();
+	x_ax_dot=-accel_cutoff_freq*x_ax+global_X_ddot;
+	x_ax+=x_ax_dot*delta_t.count();
+	lin_acl.x=accel_cutoff_freq*x_ax;
+	x_ay_dot=-accel_cutoff_freq*x_ay+global_Y_ddot;
+	x_ay+=x_ay_dot*delta_t.count();
+	lin_acl.y=accel_cutoff_freq*x_ay;
+
+	e_Z = Z_d - pos.z;
+	e_Z_i += e_Z * delta_t.count();	
+	if (fabs(e_Z_i) > z_integ_limit) e_Z_i = (e_Z_i / fabs(e_Z_i)) * z_integ_limit;
+
+
+	if(altitude_mode){
+		Z_ddot_d = Pz * e_Z + Iz * e_Z_i - Dz * lin_vel.z;
 	}
 	else{
-		X_e_x1=0;
-		X_e_x2=0;
-		Y_e_x1=0;
-		Y_e_x2=0;
+		e_Z_i = 0;
+		e_Z_dot_i = 0;
+			//ROS_INFO("Manual Thrust!!");
 	}
+
+	if(DOB_mode){
+
+		disturbance_Observer();
+//		force_dob();
+		torque_dob();
+	//	admittance_controller();
+	//`	position_dob();
+	//	ROS_INFO("DOB mode");	
+
+	}
+
+
 	if(position_mode || velocity_mode){
 		if(position_mode){
 			if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
@@ -896,15 +1100,17 @@ void rpyT_ctrl() {
 			}
 			else
 			// joystick control mode일 때
+			// 만약 joystick의 위치가 일정 범위를 넘어간다면 드론 command를 주는 것으로!
 			{
-				X_d = X_d + haptic_command_velocity_limit*(double)haptic_command[0]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
-				Y_d = Y_d + haptic_command_velocity_limit*(double)haptic_command[1]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
+				// joystick의 위치가 일정 범위 이내에 있다면 -> 드론이 움직일 필요없음
+				// joystick의 위치가 일정 범위 밖에 있다면 -> 드론이 움직여야 함!
+				X_d = X_d + haptic_command_velocity*haptic_command[0]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
+				Y_d = Y_d + haptic_command_velocity*haptic_command[1]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
 				X_d_base = X_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
 				Y_d_base = Y_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
 			
 				ROS_WARN("JoYStIcK MOdE :) ");
 			}
-
 
 			e_X = X_d - pos.x;// X_r-pos.x;
 			e_Y = Y_d - pos.y;// Y_r-pos.y; #2023.08.17 update
@@ -916,6 +1122,7 @@ void rpyT_ctrl() {
 			X_dot_d = Pp * e_X + Ip * e_X_i - Dp * lin_vel.x;
 			Y_dot_d = Pp * e_Y + Ip * e_Y_i - Dp * lin_vel.y;
 		}
+
 		if(velocity_mode){
 			X_dot_d = -XYZ_dot_limit*(((double)Sbus[1]-(double)1500)/(double)500);
 			Y_dot_d = XYZ_dot_limit*(((double)Sbus[3]-(double)1500)/(double)500);
@@ -939,10 +1146,14 @@ void rpyT_ctrl() {
 		if(fabs(Y_ddot_d) > XYZ_ddot_limit) Y_ddot_d = (Y_ddot_d/fabs(Y_ddot_d))*XYZ_ddot_limit;
 		
 		if(tilt_mode){
+			
+			X_tilde_ddot_d=X_ddot_d;//-(dhat_F_X/force_dob_m);
+			Y_tilde_ddot_d=Y_ddot_d;//-(dhat_F_Y/force_dob_m);
+			Z_tilde_ddot_d=Z_ddot_d;//-(dhat_F_Z/force_dob_m);
 			r_d = 0.0;
 			p_d = 0.0;
-			F_xd = mass*(X_ddot_d*cos(imu_rpy.z)*cos(imu_rpy.y)+Y_ddot_d*sin(imu_rpy.z)*cos(imu_rpy.y)-(Z_ddot_d)*sin(imu_rpy.y));
-			F_yd = mass*(-X_ddot_d*(cos(imu_rpy.x)*sin(imu_rpy.z)-cos(imu_rpy.z)*sin(imu_rpy.x)*sin(imu_rpy.y))+Y_ddot_d*(cos(imu_rpy.x)*cos(imu_rpy.z)+sin(imu_rpy.x)*sin(imu_rpy.y)*sin(imu_rpy.z))+(Z_ddot_d)*cos(imu_rpy.y)*sin(imu_rpy.x));
+			F_xd = mass*(X_tilde_ddot_d*cos(imu_rpy.z)*cos(imu_rpy.y)+Y_tilde_ddot_d*sin(imu_rpy.z)*cos(imu_rpy.y)-(Z_tilde_ddot_d)*sin(imu_rpy.y));
+			F_yd = mass*(-X_tilde_ddot_d*(cos(imu_rpy.x)*sin(imu_rpy.z)-cos(imu_rpy.z)*sin(imu_rpy.x)*sin(imu_rpy.y))+Y_tilde_ddot_d*(cos(imu_rpy.x)*cos(imu_rpy.z)+sin(imu_rpy.x)*sin(imu_rpy.y)*sin(imu_rpy.z))+(Z_tilde_ddot_d)*cos(imu_rpy.y)*sin(imu_rpy.x));
 
 		if(fabs(F_xd) > F_xd_limit) F_xd = (F_xd/fabs(F_xd))*F_xd_limit;
 		if(fabs(F_yd) > F_yd_limit) F_yd = (F_yd/fabs(F_yd))*F_yd_limit;
@@ -986,14 +1197,11 @@ void rpyT_ctrl() {
 	e_p = p_d - imu_rpy.y;
 	e_y = y_d - imu_rpy.z;
 
-	e_Z = Z_d - pos.z;
 	
 	e_r_i += e_r * delta_t.count();
 	if (fabs(e_r_i) > integ_limit)	e_r_i = (e_r_i / fabs(e_r_i)) * integ_limit;
 	e_p_i += e_p * delta_t.count();
 	if (fabs(e_p_i) > integ_limit)	e_p_i = (e_p_i / fabs(e_p_i)) * integ_limit;
-	e_Z_i += e_Z * delta_t.count();	
-	if (fabs(e_Z_i) > z_integ_limit) e_Z_i = (e_Z_i / fabs(e_Z_i)) * z_integ_limit;
 
 	tau_r_d = Par * e_r + Iar * e_r_i + Dar * (-imu_ang_vel.x);//- (double)0.48; //Pa -> Par
 	tau_p_d = Par * e_p + Iar * e_p_i + Dar * (-imu_ang_vel.y);//+ (double)0.18; //Pa -> Par 
@@ -1002,39 +1210,38 @@ void rpyT_ctrl() {
 	if(fabs(tau_y_d) > tau_y_limit) tau_y_d = tau_y_d/fabs(tau_y_d)*tau_y_limit;
 	
 	if(altitude_mode){
-		Z_ddot_d = Pz * e_Z + Iz * e_Z_i - Dz * lin_vel.z;
 		desired_lin_vel.z = Z_ddot_d; // But this is desired acceleration
-		if(!attitude_mode) F_zd = mass*(X_ddot_d*(sin(imu_rpy.x)*sin(imu_rpy.z)+cos(imu_rpy.x)*cos(imu_rpy.z)*sin(imu_rpy.y))-Y_ddot_d*(cos(imu_rpy.z)*sin(imu_rpy.x)-cos(imu_rpy.x)*sin(imu_rpy.y)*sin(imu_rpy.z))+(Z_ddot_d)*cos(imu_rpy.x)*cos(imu_rpy.y));
-		else F_zd = mass*(Z_ddot_d);
+		if(!attitude_mode) F_zd = mass*(X_tilde_ddot_d*(sin(imu_rpy.x)*sin(imu_rpy.z)+cos(imu_rpy.x)*cos(imu_rpy.z)*sin(imu_rpy.y))-Y_tilde_ddot_d*(cos(imu_rpy.z)*sin(imu_rpy.x)-cos(imu_rpy.x)*sin(imu_rpy.y)*sin(imu_rpy.z))+(Z_tilde_ddot_d)*cos(imu_rpy.x)*cos(imu_rpy.y));
+		else F_zd = mass*(Z_tilde_ddot_d);
 		//ROS_INFO("Altitude");
 	}
 	else{
-		e_Z_i = 0;
-		e_Z_dot_i = 0;
 		F_zd=T_d;
 		//ROS_INFO("Manual Thrust!!");
 	}
-//	if(F_zd > -0.5*mass*g) F_zd = -0.5*mass*g;
-//	if(F_zd <= -1.5*mass*g) F_zd = -1.5*mass*g; //1.5
+
+	if(F_zd >= -0.5*mass*g) F_zd = -0.5*mass*g;
+	if(F_zd <= -2.0*mass*g) F_zd = -2.0*mass*g; 
 	
 
 	//DOB-----------------------------------------------------
 		//disturbance_Observer();
 	//--------------------------------------------------------
-	
-	//tautilde_r_d = tau_r_d - dhat_r;
-	//tautilde_p_d = tau_p_d - dhat_p;
+	//torque_dob();
+	tautilde_r_d = tau_r_d- dhat_tau_r;//dhat_r;// - dhat_tau_r; 
+	tautilde_p_d = tau_p_d- dhat_tau_p;//dhat_p;// - dhat_tau_p;
+	tautilde_y_d = tau_y_d- dhat_tau_y;//dhat_p;// - dhat_tau_p;
 	//u << tau_r_d, tau_p_d, tau_y_d, F_zd;
-	//u << tautilde_r_d, tautilde_p_d, tau_y_d, F_zd;
+	u << tautilde_r_d, tautilde_p_d, tautilde_y_d, F_zd;
 	torque_d.x = tau_r_d;
 	torque_d.y = tau_p_d;
 	torque_d.z = tau_y_d;
-	force_d.x = F_xd;
-	force_d.y = F_yd;
-	force_d.z = F_zd;
+	force_d.x = F_xd - dhat_F_X;
+	force_d.y = F_yd- dhat_F_Y;
+	force_d.z = F_zd-dhat_F_Z;
 
 	
-	u << tau_r_d, tau_p_d, tau_y_d, F_zd;
+//	u << tau_r_d, tau_p_d, tau_y_d, F_zd;
 	//u << tau_r_d, tau_p_d, tau_y_d-tau_y_sin, F_zd;
 	//std::cout << "tau_y_sin : " << tau_y_sin << "    ";	
 	prev_angular_Vel = imu_ang_vel;
@@ -1103,18 +1310,25 @@ void ud_to_PWMs(double tau_r_des, double tau_p_des, double tau_y_des, double Thr
 
 double Force_to_PWM(double F) {
 	double pwm;
-	//double A = -9.8*pow(10.0,-8.0)*pow(voltage,2.0)+3.23*pow(10.0,-6.0)*voltage-1.8*pow(10.0,-5.0);
-	//double B = 0.000243*pow(voltage,2.0)-0.00663*voltage+0.03723;
-	//double C = -0.11063*pow(voltage,2.0)+2.332691*voltage-10.885;
+	double A = -8.1332*pow(10.0,-8.0)*pow(voltage,2.0)+5.5525*pow(10.0,-6.0)*voltage-4.5119*pow(10.0,-5.0);
+	double B = 0.00014354*pow(voltage,2.0)-0.0087694*voltage+0.065575;
+	double C = -0.028531*pow(voltage,2.0)+1.7194*voltage-6.2575;
+	/*
 	double param1 = 710;//-B/(2.0*A);
 	double param2 = 0.00016;//1.0/A;
 	double param3 = 0.00041888;//(pow(B,2.0)-4*A*C)/(4*pow(A,2.0));
 	double param4 = 0.00008;
+	*/
+
+	double param1 = -B/(2.0*A);
+	double param2 = 1.0/A;
+	double param3 = (pow(B,2.0)-4*A*C)/(4*pow(A,2.0));
+	//	double param4 = 0.00008;
 	//Force=A*pwm^2+B*pwm+C
 	// A = 0.00004 / B = -0.0568 / C = 17.546 
 
 	if(param2*F+param3>0){
-		pwm = param1 + sqrt(param2 * F + param3)/param4;
+		pwm = param1 + sqrt(param2 * F + param3);
 		// ROS_INFO("%lf",pwm);
 	}
 	else pwm = 1100.;
@@ -1199,7 +1413,10 @@ void sbusCallback(const std_msgs::Int16MultiArray::ConstPtr& array){
 		Sbus[i]=map<int16_t>(array->data[i], 352, 1696, 1000, 2000);
 	}
 	
-	if(Sbus[4]<1500) kill_mode=true;
+	if(Sbus[4]<1500) {
+		kill_mode=true;
+		tilt_mode=false;
+	}
 	else {
 		kill_mode=false;
 		tilt_mode=true;
@@ -1224,8 +1441,8 @@ void sbusCallback(const std_msgs::Int16MultiArray::ConstPtr& array){
 		position_mode=true;
 	}
 
-	if(Sbus[7]>1500) position_joystick_control = true;
-	else position_joystick_control = false;
+	if(Sbus[7]>1500) DOB_mode=true;
+	else DOB_mode=false;
 
 	if(Sbus[9]>1500) admittance_mode=true;
 	else admittance_mode=true;
@@ -1239,6 +1456,7 @@ void batteryCallback(const std_msgs::Int16& msg){
 	int16_t value=msg.data;
 	voltage=value*5.0/(double)1024/(7440./(30000.+7440.)); //4096
 	double kv=0.08;
+
 	voltage=kv*voltage+(1-kv)*voltage_old;
 	voltage_old=voltage;
 	//ROS_INFO("%f",voltage);
@@ -1278,8 +1496,8 @@ void t265OdomCallback(const nav_msgs::Odometry::ConstPtr& msg){
 	cam_v << t265_lin_vel.x, t265_lin_vel.y, t265_lin_vel.z;
 	
 	
-	R_v << 0, -r2/2, r2/2,
-	    	0, -r2/2, -r2/2,
+	R_v << 0, -r2/2, -r2/2,
+	    	0, r2/2, -r2/2,
 		1, 0, 0;
 	
 	
@@ -1297,6 +1515,29 @@ void t265OdomCallback(const nav_msgs::Odometry::ConstPtr& msg){
 	//ROS_INFO("Linear_velocity - [x: %f  y: %f  z:%f]",cam_v(0),cam_v(1),cam_v(2));
 	//ROS_INFO("Angular_velocity - [x: %f  y: %f  z:%f]",w(0),w(1),w(2));
 }
+/*void external_force_Callback(const geometry_msgs::Vector3& msg){
+	external_force=msg;
+
+	non_bias_external_force.x=external_force.x-F_ex_bias;
+	non_bias_external_force.y=external_force.y-F_ey_bias;
+	non_bias_external_force.z=external_force.z;
+}
+
+void external_torque_Callback(const geometry_msgs::Vector3& msg){
+	external_torque=msg;
+}
+
+void adaptive_external_force_Callback(const geometry_msgs::Vector3& msg){
+	adaptive_external_force=msg;
+
+//	non_bias_external_force.x=external_force.x-f_ex_bias;
+//	non_bias_external_force.y=external_force.y-f_ey_bias;
+//	non_bias_external_force.z=external_force.z;
+}
+
+void adaptive_external_torque_Callback(const geometry_msgs::Vector3& msg){
+	adaptive_external_torque=msg;
+}*/
 
 int32_t pwmMapping(double pwm){
 	return (int32_t)(65535.*pwm/(1./pwm_freq*1000000.));
@@ -1381,10 +1622,10 @@ void pwm_Arm(){
 	PWMs_cmd.data[2] = 1500;
 	PWMs_cmd.data[3] = 1500;
 	PWMs_val.data.resize(16);
-	PWMs_val.data[0] = pwmMapping(1500.);
-	PWMs_val.data[1] = pwmMapping(1500.);
-	PWMs_val.data[2] = pwmMapping(1500.);
-	PWMs_val.data[3] = pwmMapping(1500.);
+	PWMs_val.data[0] = pwmMapping(2100.);
+	PWMs_val.data[1] = pwmMapping(2100.);
+	PWMs_val.data[2] = pwmMapping(2100.);
+	PWMs_val.data[3] = pwmMapping(2100.);
 	PWMs_val.data[4] = -1;
 	PWMs_val.data[5] = -1;
 	PWMs_val.data[6] = -1;
@@ -1402,14 +1643,18 @@ void pwm_Arm(){
 void pwm_Calibration(){
 	//if(Sbus[4]>1500) pwm_Arm();
 	//else pwm_Kill();
-        if(Sbus[6]>1700) pwm_Kill();
-	if(Sbus[6]<1000) pwm_Arm();
+        if(kill_mode==true){
+		pwm_Kill();
+	}
+	else{
+	       	pwm_Max();
+	}
 //ROS_INFO("Sbus[6] : %d", Sbus[6]);	
 }
 
 
 void pid_Gain_Setting(){
-	if(Sbus[7]<=1500){
+	if(!tilt_mode){
 		Par = conv_Pa;
 		Iar = conv_Ia;
 		Dar = conv_Da;
@@ -1472,7 +1717,7 @@ void disturbance_Observer(){
 	double tauhat_r = J_x*pow(fq_cutoff,3)*x_r1;
 
 	//Q transfer function to state space
-	y_dot_r1 = -2*fq_cutoff*y_r1-2*pow(fq_cutoff,2)*y_r2-pow(fq_cutoff,3)*y_r3+tautilde_r_d;
+	y_dot_r1 = -2*fq_cutoff*y_r1-2*pow(fq_cutoff,2)*y_r2-pow(fq_cutoff,3)*y_r3+tautilde_r_d;//tautilde_r_d
 	y_dot_r2 = y_r1;
 	y_dot_r3 = y_r2;
 	y_r1 += y_dot_r1*delta_t.count();
@@ -1494,7 +1739,7 @@ void disturbance_Observer(){
 	double tauhat_p = J_y*pow(fq_cutoff,3)*x_p1;
 
 	//Q transfer function to state space
-	y_dot_p1 = -2*fq_cutoff*y_p1-2*pow(fq_cutoff,2)*y_p2-pow(fq_cutoff,3)*y_p3+tautilde_p_d;
+	y_dot_p1 = -2*fq_cutoff*y_p1-2*pow(fq_cutoff,2)*y_p2-pow(fq_cutoff,3)*y_p3+tautilde_p_d;//tautilde_p_d
 	y_dot_p2 = y_p1;
 	y_dot_p3 = y_p2;
 	y_p1 += y_dot_p1*delta_t.count();
@@ -1555,7 +1800,22 @@ void get_Rotation_matrix(){
                   0, cos(imu_rpy.x), -sin(imu_rpy.x),
                   0, sin(imu_rpy.x),  cos(imu_rpy.x);		  
 }
-void external_force_estimation(){
+
+void Rotation_matrix(){
+	RotZ << cos(imu_lin_acc.z), -sin(imu_lin_acc.z),   0,
+	        sin(imu_lin_acc.z),  cos(imu_lin_acc.z),   0,
+		             0,               0, 1.0;
+
+	RotY << cos(imu_lin_acc.y),   0, sin(imu_lin_acc.y),
+	                     0, 1.0,              0,
+	       -sin(imu_lin_acc.y),   0, cos(imu_lin_acc.y);
+
+	RotX << 1.0,              0,               0,
+                  0, cos(imu_lin_acc.x), -sin(imu_lin_acc.x),
+                  0, sin(imu_lin_acc.x),  cos(imu_lin_acc.x);		  
+}
+/*void external_force_estimation(){ 
+   //----Estimate the external force in external_wrench_nmhe_node 2023.09.09----
 	get_Rotation_matrix();
 		
 	x_ax_dot=-accel_cutoff_freq*x_ax+imu_lin_acc.x;
@@ -1579,88 +1839,201 @@ void external_force_estimation(){
 	Eigen::Vector3d Fe;
 	Eigen::Vector3d body_accel_error;
 
-	body_accel_error << body_x_ddot_error, body_y_ddot_error, body_z_ddot_error;
-	Fe = mass*Rotz*Roty*Rotx*body_accel_error;
-	
-	Fe_x_x_dot = -Fe_cutoff_freq*Fe_x_x+Fe(0);
-	Fe_x_x+=Fe_x_x_dot*delta_t.count();
-	Fe_y_x_dot = -Fe_cutoff_freq*Fe_y_x+Fe(1);
-	Fe_y_x+=Fe_y_x_dot*delta_t.count();
-	Fe_z_x_dot = -Fe_cutoff_freq*Fe_z_x+Fe(2);
-	Fe_z_x+=Fe_z_x_dot*delta_t.count();
-
-	external_force.x=Fe_cutoff_freq*Fe_x_x;
-	external_force.y=Fe_cutoff_freq*Fe_y_x;
-	external_force.z=Fe_cutoff_freq*Fe_z_x;
-
 	if(fabs(external_force.x)<external_force_deadzone) external_force.x=0;
 	if(fabs(external_force.y)<external_force_deadzone) external_force.y=0;
 	if(fabs(external_force.z)<external_force_deadzone) external_force.z=0;
-}
+}*/
 
 void admittance_controller(){
+	/*if(fabs(adaptive_external_force.x)<external_force_deadzone) adaptive_external_force.x=0;
+	if(fabs(adaptive_external_force.y)<external_force_deadzone) adaptive_external_force.y=0;	
+	if(fabs(adaptive_external_force.z)<external_force_deadzone) adaptive_external_force.z=0;*/	
 	
-		X_e_x1_dot=-D/M*X_e_x1-K/M*X_e_x2+external_force.x;
-		X_e_x2_dot=X_e_x1;
-		X_e_x1+=X_e_x1_dot*delta_t.count();
-		X_e_x2+=X_e_x2_dot*delta_t.count();
-		X_e=-1.0/M*X_e_x2;
+	if(fabs(force_dhat.x)<external_force_deadzone) external_force.x=0;
+	if(fabs(force_dhat.y)<external_force_deadzone) external_force.y=0;	
+	if(fabs(force_dhat.z)<external_force_deadzone) external_force.z=0;	
+	X_e_x1_dot=-D/M*X_e_x1-K/M*X_e_x2+external_force.x;
+	X_e_x2_dot=X_e_x1;
+	X_e_x1+=X_e_x1_dot*delta_t.count();
+	X_e_x2+=X_e_x2_dot*delta_t.count();
+	X_e=-1.0/M*X_e_x2;
 	
-		Y_e_x1_dot=-D/M*Y_e_x1-K/M*X_e_x2+external_force.y;
-		Y_e_x2_dot=Y_e_x1;
-		Y_e_x1+=Y_e_x1_dot*delta_t.count();
-		Y_e_x2+=Y_e_x2_dot*delta_t.count();
-		Y_e=-1.0/M*Y_e_x2;
+	Y_e_x1_dot=-D/M*Y_e_x1-K/M*X_e_x2+external_force.y;
+	Y_e_x2_dot=Y_e_x1;
+	Y_e_x1+=Y_e_x1_dot*delta_t.count();
+	Y_e_x2+=Y_e_x2_dot*delta_t.count();
+	Y_e=-1.0/M*Y_e_x2;
 	
-	X_r=X_d-X_e;
-	Y_r=Y_d-Y_e;
+	X_r=X_d;
+	Y_r=Y_d;
 	Z_r=Z_d;
 
-	desired_position_change.x=X_r;
-	desired_position_change.y=Y_r;
+	reference_position.x=X_r;
+	reference_position.y=Y_r;
+	reference_position.z=Z_d;	
 	
 }
-
+/*
 void position_dob(){
 	MinvQ_X_x_dot=MinvQ_A*MinvQ_X_x+MinvQ_B*pos.x;
 	MinvQ_X_x+=MinvQ_X_x_dot*delta_t.count();
 	MinvQ_X_y=MinvQ_C*MinvQ_X_x;
 	
-	Q_X_x_dot=Q_A*Q_X_x+Q_B*X_tilde_r;
+	Q_X_x_dot=Q_A*Q_X_x+Q_B*position_dob_m*X_tilde_ddot_d;
 	Q_X_x+=Q_X_x_dot*delta_t.count();
 	Q_X_y=Q_C*Q_X_x;
-	dhat_X=MinvQ_X_y(0)-Q_X_y(0);
+
+	dhat_X_ddot=(MinvQ_X_y(0)-Q_X_y(0))/position_dob_m;
+
 
 	MinvQ_Y_x_dot=MinvQ_A*MinvQ_Y_x+MinvQ_B*pos.y;
 	MinvQ_Y_x+=MinvQ_Y_x_dot*delta_t.count();
 	MinvQ_Y_y=MinvQ_C*MinvQ_Y_x;
 	
-	Q_Y_x_dot=Q_A*Q_Y_x+Q_B*Y_tilde_r;
+	Q_Y_x_dot=Q_A*Q_Y_x+Q_B*position_dob_m*Y_tilde_ddot_d;
 	Q_Y_x+=Q_Y_x_dot*delta_t.count();
 	Q_Y_y=Q_C*Q_Y_x;
-	dhat_Y=MinvQ_Y_y(0)-Q_Y_y(0);
 
-	X_tilde_r=X_r-dhat_X;
-	Y_tilde_r=Y_r-dhat_Y;
+	dhat_Y_ddot=(MinvQ_Y_y(0)-Q_Y_y(0))/position_dob_m;
+
+	MinvQ_Z_x_dot=MinvQ_A*MinvQ_Z_x+MinvQ_B*pos.z;
+	MinvQ_Z_x+=MinvQ_Z_x_dot*delta_t.count();
+	MinvQ_Z_y=MinvQ_C*MinvQ_Z_x;
 	
-	reference_position.x=X_tilde_r;
-	reference_position.y=Y_tilde_r;
+	Q_Z_x_dot=Q_A*Q_Z_x+Q_B*position_dob_m*(Z_tilde_ddot_d+g);
+	Q_Z_x+=Q_Z_x_dot*delta_t.count();
+	Q_Z_y=Q_C*Q_Z_x;
+
+	dhat_Z_ddot=(MinvQ_Z_y(0)-Q_Z_y(0))/position_dob_m;
+	
+//	X_tilde_r=X_r-dhat_X;
+//	Y_tilde_r=Y_r-dhat_Y;
+//	Z_tilde_r=Z_r-dhat_Z;
+
+	force_dhat.x=dhat_X_ddot*position_dob_m;
+	force_dhat.y=dhat_Y_ddot*position_dob_m;
+	force_dhat.z=dhat_Z_ddot*position_dob_m;
+
+	
+//	reference_position.x=X_tilde_r;
+//	reference_position.y=Y_tilde_r;
+//	reference_position.z=Z_tilde_r;
+} */
+
+
+void force_dob(){
+	//Rotation_matrix();
+	
+	MinvQ_F_X_x_dot=MinvQ_F_A*MinvQ_F_X_x+MinvQ_F_B*imu_lin_acc.x;
+	MinvQ_F_X_x+=MinvQ_F_X_x_dot*delta_t.count();
+	MinvQ_F_X_y=MinvQ_F_C*MinvQ_F_X_x;
+	
+	Q_F_X_x_dot=Q_F_A*Q_F_X_x+Q_F_B*F_xd;
+	Q_F_X_x+=Q_F_X_x_dot*delta_t.count();
+	Q_F_X_y=Q_F_C*Q_F_X_x;
+
+	dhat_F_X=(MinvQ_F_X_y(0)-Q_F_X_y(0));
+
+	MinvQ_F_Y_x_dot=MinvQ_F_A*MinvQ_F_Y_x+MinvQ_F_B*imu_lin_acc.y;
+	MinvQ_F_Y_x+=MinvQ_F_Y_x_dot*delta_t.count();
+	MinvQ_F_Y_y=MinvQ_F_C*MinvQ_F_Y_x;
+	
+	Q_F_Y_x_dot=Q_F_A*Q_F_Y_x+Q_F_B*F_yd;
+	Q_F_Y_x+=Q_F_Y_x_dot*delta_t.count();
+	Q_F_Y_y=Q_F_C*Q_F_Y_x;
+
+	dhat_F_Y=(MinvQ_F_Y_y(0)-Q_F_Y_y(0));
+
+	MinvQ_F_Z_x_dot=MinvQ_F_A*MinvQ_F_Z_x+MinvQ_F_B*imu_lin_acc.z;
+	MinvQ_F_Z_x+=MinvQ_F_Z_x_dot*delta_t.count();
+	MinvQ_F_Z_y=MinvQ_F_C*MinvQ_F_Z_x;
+	
+	Q_F_Z_x_dot=Q_F_A*Q_F_Z_x+Q_F_B*F_zd;
+	Q_F_Z_x+=Q_F_Z_x_dot*delta_t.count();
+	Q_F_Z_y=Q_F_C*Q_F_Z_x;
+
+	dhat_F_Z=(MinvQ_F_Z_y(0)-Q_F_Z_y(0));
+
+	force_dhat.x=dhat_F_X;
+	force_dhat.y=dhat_F_Y;
+	force_dhat.z=dhat_F_Z;	
 }
 
+void torque_dob(){
+	MinvQ_T_X_x_dot=MinvQ_T_A*MinvQ_T_X_x+MinvQ_T_B*imu_ang_vel.x;
+	MinvQ_T_X_x+=MinvQ_T_X_x_dot*delta_t.count();
+	MinvQ_T_X_y=MinvQ_T_C_x*MinvQ_T_X_x;
+	
+	Q_T_X_x_dot=Q_T_A*Q_T_X_x+Q_T_B*tautilde_r_d;
+	Q_T_X_x+=Q_T_X_x_dot*delta_t.count();
+	Q_T_X_y=Q_T_C*Q_T_X_x;
+
+	dhat_tau_r=(MinvQ_T_X_y(0)-Q_T_X_y(0));
+
+	MinvQ_T_Y_x_dot=MinvQ_T_A*MinvQ_T_Y_x+MinvQ_T_B*imu_ang_vel.y;
+	MinvQ_T_Y_x+=MinvQ_T_Y_x_dot*delta_t.count();
+	MinvQ_T_Y_y=MinvQ_T_C_y*MinvQ_T_Y_x;
+	
+	Q_T_Y_x_dot=Q_T_A*Q_T_Y_x+Q_T_B*tautilde_p_d;
+	Q_T_Y_x+=Q_T_Y_x_dot*delta_t.count();
+	Q_T_Y_y=Q_T_C*Q_T_Y_x;
+
+	dhat_tau_p=(MinvQ_T_Y_y(0)-Q_T_Y_y(0));
+
+	MinvQ_T_Z_x_dot=MinvQ_T_A*MinvQ_T_Z_x+MinvQ_T_B*imu_ang_vel.z;
+	MinvQ_T_Z_x+=MinvQ_T_Z_x_dot*delta_t.count();
+	MinvQ_T_Z_y=MinvQ_T_C_z*MinvQ_T_Z_x;
+	
+	Q_T_Z_x_dot=Q_T_A*Q_T_Z_x+Q_T_B*tautilde_y_d;
+	Q_T_Z_x+=Q_T_Z_x_dot*delta_t.count();
+	Q_T_Z_y=Q_T_C*Q_T_Z_x;
+
+	dhat_tau_y=(MinvQ_T_Z_y(0)-Q_T_Z_y(0));
+	
+	torque_dhat.x=dhat_tau_r;
+	torque_dhat.y=dhat_tau_p;
+	torque_dhat.z=dhat_tau_y;
+	
+}
+
+
+
+void external_force_bias_eliminator(){
+	if(!measure_external_force_bias){
+		if(eliminator_iter_num==0){
+			ROS_INFO("Measuring external force bias...");
+		}
+		
+		F_ex_bias_integrator+=external_force.x;
+		F_ey_bias_integrator+=external_force.y;
+		
+		eliminator_iter_num++;
+	}
+	if(eliminator_iter_num==eliminator_iter_max){
+		F_ex_bias = F_ex_bias_integrator/(double)eliminator_iter_max;
+		F_ey_bias = F_ey_bias_integrator/(double)eliminator_iter_max;
+		eliminator_iter_num++;
+		measure_external_force_bias=true;
+		ROS_INFO("Measuring complete!!!");
+	}		
+	
+}
+
+void mass_update()
+{
+	mass_x_dot=-mass_lpf_fc*mass_x+external_force.z/g;
+	mass_x+=mass_x_dot*delta_t.count();
+	mass_y=mass_lpf_fc*mass_x;
+
+	mass_topic.data=mass+mass_y;
+
+}
 
 void joystickCallback(const geometry_msgs::Twist &msg) //추가바
 {
 	haptic_command[0] = msg.linear.x; // 대략 -0.2 ~ 0.2
 	haptic_command[1] = msg.linear.y; // 대략 -0.15 ~ 0
 	haptic_command[2] = msg.linear.z; // 고려 안 함
-
-	// if (fabs(haptic_command[0]) > 0.2)
-	// {
-	// 	if(haptic_command[0] > 0) haptic_command[0] = 0.2;
-	// 	else haptic_command[0] = -0.2;
-	// }
-
-	// if (haptic_command[1] < -0.13) haptic_command[1] = -0.13;
 
   	// ROS_WARN("JOYhapticmd = %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2]);
 	// ROS_WARN("time_loop = %lf", delta_t.count());

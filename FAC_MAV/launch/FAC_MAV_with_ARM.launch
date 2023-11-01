@@ -3,7 +3,7 @@
     <include file="$(find setting_tf2)/launch/tf2_setting.launch">
     </include>
 
-    <!-- Dynamixel Workbench Controller -->
+   <!-- Dynamixel Workbench Controller -->
   <include file="$(find dynamixel_workbench_controllers)/launch/position_control.launch">
         <arg name="device_name"        		default="/dev/ttyU2D2"/>
         <arg name="baud_rate"   		default="4500000"/>
@@ -13,7 +13,7 @@
 	<arg name="position_i_gain"		default="500"/>
 	<arg name="position_d_gain"		default="300"/>
     </include>  
-    
+  
 	<!-- ros_mscl -->
     <include file="$(find microstrain_inertial_driver)/launch/microstrain.launch">
 <!-- 	<arg name="params_file"            default = "" /> -->
@@ -33,10 +33,10 @@
 	  <arg name="use_enu_frame"          default = "false" />
     	</include> 
 
-    <!-- t265 -->
+   <!-- t265 -->
     <include file="$(find realsense2_camera)/launch/rs_t265.launch">
     </include> 
-    
+   
     <!-- rosserial_arduino -->
     <node pkg="rosserial_arduino" type="serial_node.py" name="ros_arduino_PWMs" >
 	<param name="port" value="/dev/ttyARDUINO"/>
@@ -51,9 +51,9 @@
 	<param name="position_integ_limit"	value="3.0"/>
 
 	<!--Center of mass-->
-	<param name="x_center_of_mass"		value="0.001"/>	
-	<param name="y_center_of_mass"		value="-0.025"/>	
-	<param name="z_center_of_mass"		value="-0.085"/>	
+	<param name="x_center_of_mass"		value="-0.0155"/><!-- -0.013-->	
+	<param name="y_center_of_mass"		value="0.016"/>	
+	<param name="z_center_of_mass"		value="-0.055"/> 	
 
 	<!--Conventional flight mode-->
     		<!--Conventional Mode attitude_rp gains-->
@@ -83,9 +83,9 @@
 	
 	<!--Tilt flight mode-->
 		<!--Tilt Mode attitude_r gains-->
-		<param name="tilt_attitude_r_P_gain"	value="8.7"/> <!-- 8.5 -->	
-		<param name="tilt_attitude_r_I_gain"	value="1.2"/> <!-- 1.2 -->
-		<param name="tilt_attitude_r_D_gain"	value="8.4"/> <!-- 8.5 -->
+		<param name="tilt_attitude_r_P_gain"	value="8.5"/> <!-- 10.0 -->	
+		<param name="tilt_attitude_r_I_gain"	value="0.0"/> <!-- 0.0 -->
+		<param name="tilt_attitude_r_D_gain"	value="12.0"/> <!-- 12.0 -->
 		
 		<!--Tilt Mode attitude_p gains-->
 		<param name="tilt_attitude_p_P_gain"	value="0.15"/>	
@@ -109,14 +109,15 @@
 		<param name="tilt_velocity_D_gain"	value="0.2"/>
 
 		<!--Tilt Mode Position gains-->
-		<param name="tilt_position_P_gain"	value="1.5"/>	
-		<param name="tilt_position_I_gain"	value="0.001"/>	
-		<param name="tilt_position_D_gain"	value="2.0"/>	
+		<param name="tilt_position_P_gain"	value="1.0"/>	
+		<param name="tilt_position_I_gain"	value="0.01"/>	
+		<param name="tilt_position_D_gain"	value="4.0"/>	
 
-    <node name="FAC_MAV_node"  pkg="FAC_MAV" type="FAC_MAV_ctrler"  output="screen"/>
-
+    	<node name="FAC_MAV_node"  pkg="FAC_MAV" type="FAC_MAV_ctrler"  output="screen"/>
+<!--	<node name="external_wrench_estimator_node" pkg="external_wrench_nmhe" type="external_wrench_estimator" output="screen"/> -->
 	<node pkg="data_logging" name="data_logging_node" type="data_logging"/>
+	
     
 	<!-- Rosbag -->
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/paletrone/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/ /data_log" /><!-- /angle /desired_angle /Forces /t265_pos /desired_altitude"/> --> 
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/paletrone3/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/ /data_log" /><!-- /angle /desired_angle /Forces /t265_pos /desired_altitude"/> --> 
 </launch>  
