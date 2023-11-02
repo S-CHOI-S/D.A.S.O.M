@@ -182,6 +182,23 @@ void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
   ros::spinOnce();
 }
 
+void DasomCam::UpdateCameraPalletrone()
+{
+  // ROS_INFO("Reading camera frame!");
+  cap >> frame;
+
+  cv::imshow("D.A.S.O.M Workspace", frame);
+
+  if(!frame.empty())
+  {
+    msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
+
+    cam_pub_.publish(msg);
+
+    cv::waitKey(1);
+  }
+}
+
 void DasomCam::DetectLightBulb()
 {
   cv::Mat frame_hsv;

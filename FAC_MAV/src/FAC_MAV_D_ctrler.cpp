@@ -53,7 +53,7 @@
 //-----For CasADi-----//
 // #include <casadi/casadi.hpp>
 // #include "DoubleLinkedList.h"
-// #include <algorithm>
+#include <algorithm>
 //--------------------//
 #include "nav_msgs/Odometry.h"
 
@@ -616,11 +616,12 @@ double X_tilde_ddot_d=0.0;
 double Y_tilde_ddot_d=0.0;
 double Z_tilde_ddot_d=0.0;
 
+
 //-----------------------------------------------------
-//추가-------------------------------------------------
+//추가ASDF-------------------------------------------------
 bool position_joystick_control = false; //false: 조종기가 xy 포지션 커맨드 줌. true: 조이스틱이 xy 포지션 커맨드 줌
-Eigen::Vector3d haptic_command; // /phantom/xyzrpy
-double haptic_command_velocity = 0.5; // [m/s]
+Eigen::Vector3d haptic_command; // /phantom/xyzrpy/palletrone
+double haptic_command_velocity = 0.1; // [m/s]
 double X_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
 double Y_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
 //-----------------------------------------------------
@@ -711,7 +712,7 @@ Eigen::MatrixXd Q_T_Z_y(1,1);
 //-----------------------------------------------------
 int main(int argc, char **argv){
 	
-    	ros::init(argc, argv,"t3_mav_d_controller");
+    	ros::init(argc, argv,"t3_mav_controller");
 
     	std::string deviceName;
     	ros::NodeHandle params("~");
@@ -941,8 +942,8 @@ void publisherSet(){
 		//pwm_Command(Sbus[2],Sbus[2],Sbus[2],Sbus[2],Sbus[2],Sbus[2],Sbus[2],Sbus[2]);
 		//pwm_Command(1000,1000,1000,Sbus[2],1000,1000,1000,1000);
 
-		rpyT_ctrl();
-		//pwm_Arm();		
+		//rpyT_ctrl();
+		pwm_Arm();		
 	
 		//ROS_INFO("Arm mode");	
 	}
@@ -1089,8 +1090,7 @@ void rpyT_ctrl() {
 
 	}
 
-
-	if(position_mode || velocity_mode){
+	if(position_mode || velocity_mode){ //ASDF
 		if(position_mode){
 			if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
 			{
@@ -1123,7 +1123,6 @@ void rpyT_ctrl() {
 			X_dot_d = Pp * e_X + Ip * e_X_i - Dp * lin_vel.x;
 			Y_dot_d = Pp * e_Y + Ip * e_Y_i - Dp * lin_vel.y;
 		}
-
 		if(velocity_mode){
 			X_dot_d = -XYZ_dot_limit*(((double)Sbus[1]-(double)1500)/(double)500);
 			Y_dot_d = XYZ_dot_limit*(((double)Sbus[3]-(double)1500)/(double)500);
@@ -1148,9 +1147,9 @@ void rpyT_ctrl() {
 		
 		if(tilt_mode){
 			
-			X_tilde_ddot_d=X_ddot_d;//-(dhat_F_X/force_dob_m);
-			Y_tilde_ddot_d=Y_ddot_d;//-(dhat_F_Y/force_dob_m);
-			Z_tilde_ddot_d=Z_ddot_d;//-(dhat_F_Z/force_dob_m);
+			X_tilde_ddot_d=X_ddot_d-(dhat_F_X/force_dob_m);
+			Y_tilde_ddot_d=Y_ddot_d-(dhat_F_Y/force_dob_m);
+			Z_tilde_ddot_d=Z_ddot_d-(dhat_F_Z/force_dob_m);
 			r_d = 0.0;
 			p_d = 0.0;
 			F_xd = mass*(X_tilde_ddot_d*cos(imu_rpy.z)*cos(imu_rpy.y)+Y_tilde_ddot_d*sin(imu_rpy.z)*cos(imu_rpy.y)-(Z_tilde_ddot_d)*sin(imu_rpy.y));
@@ -1237,9 +1236,9 @@ void rpyT_ctrl() {
 	torque_d.x = tau_r_d;
 	torque_d.y = tau_p_d;
 	torque_d.z = tau_y_d;
-	force_d.x = F_xd - dhat_F_X;
-	force_d.y = F_yd- dhat_F_Y;
-	force_d.z = F_zd-dhat_F_Z;
+	force_d.x = F_xd;
+	force_d.y = F_yd;
+	force_d.z = F_zd;
 
 	
 //	u << tau_r_d, tau_p_d, tau_y_d, F_zd;
@@ -1623,10 +1622,10 @@ void pwm_Arm(){
 	PWMs_cmd.data[2] = 1500;
 	PWMs_cmd.data[3] = 1500;
 	PWMs_val.data.resize(16);
-	PWMs_val.data[0] = pwmMapping(2100.);
-	PWMs_val.data[1] = pwmMapping(2100.);
-	PWMs_val.data[2] = pwmMapping(2100.);
-	PWMs_val.data[3] = pwmMapping(2100.);
+	PWMs_val.data[0] = pwmMapping(2000.);
+	PWMs_val.data[1] = pwmMapping(2000.);
+	PWMs_val.data[2] = pwmMapping(2000.);
+	PWMs_val.data[3] = pwmMapping(2000.);
 	PWMs_val.data[4] = -1;
 	PWMs_val.data[5] = -1;
 	PWMs_val.data[6] = -1;

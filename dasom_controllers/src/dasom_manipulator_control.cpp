@@ -45,10 +45,12 @@ DasomControl::DasomControl()
   ************************************************************/
   // For init pose
   initPoseFlag = true; // default = true
+  haptic_offset.resize(6,1);
   initPose.resize(6,1);
+  initPose_for_initPoseFunction.resize(6,1);
   angle_init.resize(6);
-  initPose << 0, 0.2, 0.3, M_PI/2, 0, 0;
   haptic_offset << -0.03917811, 0, 0.0342381, 0, 0, 0;
+  initPose << 0, 0.2, 0.3, M_PI/2, 0, 0;
   initPose_for_initPoseFunction = initPose + haptic_offset;
   angle_init = InverseKinematics(initPose_for_initPoseFunction);
 
@@ -74,7 +76,7 @@ DasomControl::DasomControl()
   EE_command_vel_limit.resize(6);
   FK_pose = initPose;
   EE_command = initPose;
-  EE_command_vel_limit = initPose;
+  EE_command_vel_limit = initPose_for_initPoseFunction;
   
   // For haptic control
   haptic_initPose.resize(6,1); // Not in use
@@ -606,7 +608,7 @@ void DasomControl::initPoseFunction()
     }
     else if ((angle_init[i] - angle_ref[i]) < - 0.001) 
     {
-      angle_ref[i] = angle_ref[i] - 0.0005;   //0.01 * time_loop              
+      angle_ref[i] = angle_ref[i] - 0.0005; // 0.01 * time_loop              
     }
     else
     {
@@ -703,9 +705,9 @@ void DasomControl::test()
   first_publisher.linear.x = EE_command_vel_limit[0];
   first_publisher.linear.y = EE_command_vel_limit[1];
   first_publisher.linear.z = EE_command_vel_limit[2];
-  first_publisher.angular.x = X_cmd[0];
-  first_publisher.angular.y = X_cmd[1];
-  first_publisher.angular.z = X_cmd[2];
+  first_publisher.angular.x = initPose_for_initPoseFunction[0];
+  first_publisher.angular.y = initPose_for_initPoseFunction[1];
+  first_publisher.angular.z = initPose_for_initPoseFunction[2];
 
   second_publisher.linear.x = d_hat[1];
   second_publisher.linear.y = angle_ref[1] - angle_measured[1];
@@ -764,10 +766,10 @@ int main(int argc, char **argv)
       ds_ctrl_.SolveInverseKinematics();
       ds_ctrl_.AngleSafeFunction();
       ds_ctrl_.DOB();
-      ds_ctrl_.test();
     }
   
     ds_ctrl_.PublishData();
+    ds_ctrl_.test();
 
     ros::spinOnce();
     loop_rate.sleep();

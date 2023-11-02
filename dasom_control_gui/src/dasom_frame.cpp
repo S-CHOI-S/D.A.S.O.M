@@ -287,47 +287,44 @@ void DasomFrame::setBatteryVoltageGauge()
 
 void DasomFrame::setEstimatedForcePlot()
 {
-  Xcurve = new QwtPlotCurve("Ext Force X");
-  Xcurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-  Xcurve->setPen(QPen(Qt::red, 2));
+  // Xcurve = new QwtPlotCurve("Ext Force X");
+  // Xcurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+  // Xcurve->setPen(QPen(Qt::red, 2));
 
-  Xcurve->attach(ui_.force_plot);
+  // Xcurve->attach(ui_.force_plot);
 
-  QwtLegend *Xlegend = new QwtLegend;
-  Xlegend->setDefaultItemMode(QwtLegendData::ReadOnly);
-  ui_.force_plot->insertLegend(Xlegend, QwtPlot::BottomLegend);
-  ui_.force_plot->setAxisTitle(QwtPlot::xBottom, " ");
-  ui_.force_plot->setAxisScale(QwtPlot::yLeft, -5.0, 5.0);
+  // QwtLegend *Xlegend = new QwtLegend;
+  // Xlegend->setDefaultItemMode(QwtLegendData::ReadOnly);
+  // ui_.force_plot->insertLegend(Xlegend, QwtPlot::BottomLegend);
+  // ui_.force_plot->setAxisTitle(QwtPlot::xBottom, " ");
+  // ui_.force_plot->setAxisScale(QwtPlot::yLeft, -5.0, 5.0);
 }
 
 void DasomFrame::drawEstimatedForcePlot()
 {
-  // qDebug() << "Timer timeout event occurred!";
-  // ROS_WARN("========================");
-
-  QVector<double> xValues;
-  for (int i = 0; i < 50; ++i) 
-  {
-    double x = currentTime + i;
-    double y = returnEstimatedForceX();
-    xValues.append(x);
-    // ROS_INFO("time = %lf, value = %lf",x,y);
-    // ROS_WARN("====================================");
-    // ROS_INFO("Callback = %lf, Return = %lf", x, returnEstimatedForceX());
-  }
-  // Xcurve->setSamples(dataPoints);
-  // ui_.force_plot->replot();
-
-  // if (xValues.size() >= 50) 
-  // {    
-    Xcurve->setSamples(xValues, yValues);
-    ui_.force_plot->replot();
-    // xValues.clear(); // x 축 값 초기화
-    // yValues.clear(); // y 축 값 초기화
+  // QVector<double> xValues;
+  // for (int i = 0; i < 50; ++i) 
+  // {
+  //   double x = currentTime + i;
+  //   double y = returnEstimatedForceX();
+  //   xValues.append(x);
+  //   // ROS_INFO("time = %lf, value = %lf",x,y);
+  //   // ROS_WARN("====================================");
+  //   // ROS_INFO("Callback = %lf, Return = %lf", x, returnEstimatedForceX());
   // }
-  // ROS_WARN("currentTime = %d, size = %d", currentTime, xValues.size());
+  // // Xcurve->setSamples(dataPoints);
+  // // ui_.force_plot->replot();
 
-  currentTime += 1;
+  // // if (xValues.size() >= 50) 
+  // // {    
+  //   Xcurve->setSamples(xValues, yValues);
+  //   ui_.force_plot->replot();
+  //   // xValues.clear(); // x 축 값 초기화
+  //   // yValues.clear(); // y 축 값 초기화
+  // // }
+  // // ROS_WARN("currentTime = %d, size = %d", currentTime, xValues.size());
+
+  // currentTime += 1;
 }
 
 void DasomFrame::estimatedForceCallback(const geometry_msgs::WrenchStamped &msg)
@@ -336,7 +333,7 @@ void DasomFrame::estimatedForceCallback(const geometry_msgs::WrenchStamped &msg)
   estimated_force_y = msg.wrench.force.y;
   estimated_force_z = msg.wrench.force.z;
 
-  yValues.append(estimated_force_x);
+  // yValues.append(estimated_force_x);
 
   // if(yValues.size() > 50)
   // {

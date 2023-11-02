@@ -53,6 +53,7 @@ namespace dasom
     void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
     void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
     void UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
+    void UpdateCameraPalletrone();
     void reInitializePublisher(image_transport::Publisher& publisher);
     void test();
 
