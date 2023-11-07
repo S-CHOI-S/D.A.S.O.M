@@ -36,7 +36,7 @@
 #include <ros/ros.h>
 #include <stdio.h>
 
-#include "dynamixel_workbench_controllers/dynamixel_sdk.h"                                  // Uses Dynamixel SDK library
+#include "dynamixel_workbench_controllers/reboot/dynamixel_sdk.h"                                  // Uses Dynamixel SDK library
 
 // Protocol version
 #define PROTOCOL_VERSION                2.0                 // See which protocol version is used in the Dynamixel

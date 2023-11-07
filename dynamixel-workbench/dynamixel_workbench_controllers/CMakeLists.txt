@@ -18,7 +18,6 @@ find_package(catkin REQUIRED COMPONENTS
   dynamixel_workbench_toolbox
   dasom_description
   dasom_toolbox
-  dynamixel_sdk
 )
 
 ################################################################################
