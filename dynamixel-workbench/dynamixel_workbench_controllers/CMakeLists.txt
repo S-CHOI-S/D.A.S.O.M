@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   dynamixel_workbench_toolbox
   dasom_description
   dasom_toolbox
+  dynamixel_sdk
 )
 
 ################################################################################
@@ -68,10 +69,15 @@ add_executable(torque_ctrl_6DOF src/torque_ctrl_6DOF.cpp)
 add_dependencies(torque_ctrl_6DOF ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(torque_ctrl_6DOF ${catkin_LIBRARIES})
 
+add_executable(reboot src/reboot.cpp)
+add_dependencies(reboot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(reboot ${catkin_LIBRARIES})
+
+
 #################################################################################
 ## Install
 #################################################################################
-install(TARGETS position_control velocity_control multi_port torque_control_icros torque_ctrl_6DOF
+install(TARGETS position_control velocity_control multi_port torque_control_icros torque_ctrl_6DOF reboot
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
