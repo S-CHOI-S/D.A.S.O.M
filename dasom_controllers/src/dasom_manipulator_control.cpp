@@ -108,8 +108,8 @@ DasomControl::DasomControl()
   F_ext << 0, 0, 0, 0, 0, 0;
   F_max << 2.0, 1.0, 0;
   F_min << -2.0, -1.0, 0;
-  hysteresis_max << 0.5, 3, 5, 0, 0, 0;
-  hysteresis_min << -0.5, -3, -5, 0, 0, 0;
+  hysteresis_max << 0.5, 1, 5, 0, 0, 0;
+  hysteresis_min << -0.5, -1, -5, 0, 0, 0;
 
   // For admittance control
   X_ref.resize(6,1);
@@ -402,7 +402,7 @@ void DasomControl::CalcExternalForce()
   bp_X3 += bp_X_dot3 * time_loop;
   bf_F_ext[2] = bp_C.dot(bp_X3) + F_ext[2] * bp_D;
 
-  if(bf_F_ext[2] > 0) bf_F_ext[2] = bf_F_ext[2] * 2.3333;
+  if(bf_F_ext[2] < 0) bf_F_ext[2] = bf_F_ext[2] * 0.8;
 
   if (bf_F_ext[0] <= hysteresis_max[0] && bf_F_ext[0] >= hysteresis_min[0]) bf_F_ext[0] = 0;
   else if (bf_F_ext[0] > hysteresis_max[0]) bf_F_ext[0] -= hysteresis_max[0];
@@ -412,9 +412,9 @@ void DasomControl::CalcExternalForce()
   else if (bf_F_ext[1] > hysteresis_max[1]) bf_F_ext[1] -= hysteresis_max[1];
   else if (bf_F_ext[1] < hysteresis_min[1]) bf_F_ext[1] -= hysteresis_min[1];
 
-  if (bf_F_ext[2] <= hysteresis_max[2] && bf_F_ext[2] >= hysteresis_min[2]) bf_F_ext[2] = 0;
-  else if (bf_F_ext[2] > hysteresis_max[2]) bf_F_ext[2] -= hysteresis_max[2];
-  else if (bf_F_ext[2] < hysteresis_min[2]) bf_F_ext[2] -= hysteresis_min[2];
+  // if (bf_F_ext[2] <= hysteresis_max[2] && bf_F_ext[2] >= hysteresis_min[2]) bf_F_ext[2] = 0;
+  // else if (bf_F_ext[2] > hysteresis_max[2]) bf_F_ext[2] -= hysteresis_max[2];
+  // else if (bf_F_ext[2] < hysteresis_min[2]) bf_F_ext[2] -= hysteresis_min[2];
 
   ext_force.header.stamp = ros::Time::now();
 
@@ -431,8 +431,10 @@ void DasomControl::CalcExternalForce()
 void DasomControl::AdmittanceControl()
 // X_ref: haptic command
 {
+  // 1 15 40(bp 1 4)
   X_cmd[0] = admittanceControlX(time_loop, X_ref[0], bf_F_ext[0]);
 
+  // 0.1 20 0(bp 1 3)
   X_cmd[1] = admittanceControlY(time_loop, X_ref[1], bf_F_ext[1]);
 
   X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], bf_F_ext[2]);
@@ -761,11 +763,11 @@ int main(int argc, char **argv)
     {
       ds_ctrl_.CommandGenerator();
       ds_ctrl_.CalcExternalForce();
-      // ds_ctrl_.AdmittanceControl();
+      ds_ctrl_.AdmittanceControl();
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
       ds_ctrl_.AngleSafeFunction();
-      ds_ctrl_.DOB();
+      // ds_ctrl_.DOB();
     }
   
     ds_ctrl_.PublishData();
