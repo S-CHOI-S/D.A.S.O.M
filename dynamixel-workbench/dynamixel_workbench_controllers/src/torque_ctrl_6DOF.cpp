@@ -70,6 +70,10 @@ TorqueControl::TorqueControl()
     // dxl_wb_->itemWrite(dxl_id_[index], "Feedforward_2nd_Gain", feedforward_2nd_gain);
   }
 
+  dxl_wb_->itemWrite(dxl_id_[0], "Position_P_Gain", 800);
+  dxl_wb_->itemWrite(dxl_id_[0], "Position_I_Gain", 0);
+  dxl_wb_->itemWrite(dxl_id_[0], "Position_D_Gain", 0);
+
   dxl_wb_->itemWrite(dxl_id_[1], "Position_P_Gain", position_p_gain_540);
   dxl_wb_->itemWrite(dxl_id_[1], "Position_I_Gain", position_i_gain_540);
   dxl_wb_->itemWrite(dxl_id_[1], "Position_D_Gain", position_d_gain_540);
@@ -80,6 +84,9 @@ TorqueControl::TorqueControl()
 
   initPublisher();
   initSubscriber();
+
+  dxl_wb_->itemWrite(dxl_id_[0], "Return_Delay_Time", 250);
+
 }
 
 TorqueControl::~TorqueControl()
@@ -115,7 +122,7 @@ void TorqueControl::initPublisher()
 void TorqueControl::initSubscriber()
 {
   joint_command_sub_ = node_handle_.subscribe("/dasom/goal_dynamixel_position", 10, &TorqueControl::goalJointPositionCallback, this);
-  paletrone_sub_ = node_handle_.subscribe("/dasombasePlate/world", 10, &TorqueControl::paletroneCallback, this);
+  // paletrone_sub_ = node_handle_.subscribe("/dasombasePlate/world", 10, &TorqueControl::paletroneCallback, this);
 }
 
 void TorqueControl::jointStatePublish()
@@ -204,16 +211,16 @@ void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::Con
   dxl_wb_->syncWrite("Goal_Position", goal_dxl_position);
 }
 
-void TorqueControl::paletroneCallback(const geometry_msgs::PoseStamped &msg)
-{
-  base_joint_X = msg.pose.position.x;
-  base_joint_Y = msg.pose.position.y;
-  base_joint_Z = msg.pose.position.z;
-
-  tf::Quaternion quat;
-  tf::quaternionMsgToTF(msg.pose.orientation, quat);
-  tf::Matrix3x3(quat).getRPY(base_joint_r, base_joint_p, base_joint_y);
-}
+// void TorqueControl::paletroneCallback(const geometry_msgs::PoseStamped &msg)
+// {
+//   base_joint_X = msg.pose.position.x;
+//   base_joint_Y = msg.pose.position.y;
+//   base_joint_Z = msg.pose.position.z;
+// 
+//   tf::Quaternion quat;
+//  tf::quaternionMsgToTF(msg.pose.orientation, quat);
+//   tf::Matrix3x3(quat).getRPY(base_joint_r, base_joint_p, base_joint_y);
+// }
 
 void TorqueControl::initpose()
 {
