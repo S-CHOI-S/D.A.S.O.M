@@ -367,6 +367,13 @@ bool DasomControl::bandpassCallback(dasom_controllers::bandpassSRV::Request & re
   return true;
 }
 
+double DasomControl::tanh_function(double input_data, double cut_off_force)
+{
+  double data = input_data / cut_off_force * 4;
+  return abs((exp(data) - exp(-data)) / (exp(data) + exp(-data)));
+}
+
+
 void DasomControl::tauLPFforExternalForce()
 {
   tau_measured[0] = ds_jnt1_->updateLPF(time_loop, tau_measured[0]);
@@ -392,7 +399,10 @@ void DasomControl::CalcExternalForce()
   F_ext = JTI * (tau_measured - C_matrix - G_matrix);
 
   // band pass filter
-  bf_F_ext[0] = F_ext[0];
+  // bf_F_ext[0] = F_ext[0];
+  bp_X_dot1 = bp_A * bp_X1 + bp_B * F_ext[0];
+  bp_X1 += bp_X_dot1 * time_loop;
+  bf_F_ext[0] = bp_C.dot(bp_X1) + F_ext[0] * bp_D;
 
   bp_X_dot2 = bp_A * bp_X2 + bp_B * F_ext[1];
   bp_X2 += bp_X_dot2 * time_loop;
@@ -403,6 +413,13 @@ void DasomControl::CalcExternalForce()
   bf_F_ext[2] = bp_C.dot(bp_X3) + F_ext[2] * bp_D;
 
   if(bf_F_ext[2] < 0) bf_F_ext[2] = bf_F_ext[2] * 0.8;
+
+
+  // Hyperbolic tangent
+  bf_F_ext_tanh[0] = tanh_function(bf_F_ext[0], hysteresis_max[0]) * bf_F_ext[0];
+  bf_F_ext_tanh[1] = tanh_function(bf_F_ext[1], hysteresis_max[1]) * bf_F_ext[1];
+  bf_F_ext_tanh[2] = tanh_function(bf_F_ext[2], hysteresis_max[2]) * bf_F_ext[2];
+
 
   if (bf_F_ext[0] <= hysteresis_max[0] && bf_F_ext[0] >= hysteresis_min[0]) bf_F_ext[0] = 0;
   else if (bf_F_ext[0] > hysteresis_max[0]) bf_F_ext[0] -= hysteresis_max[0];
@@ -416,14 +433,19 @@ void DasomControl::CalcExternalForce()
   // else if (bf_F_ext[2] > hysteresis_max[2]) bf_F_ext[2] -= hysteresis_max[2];
   // else if (bf_F_ext[2] < hysteresis_min[2]) bf_F_ext[2] -= hysteresis_min[2];
 
+  //bf_F_ext_tanh: only hyperbolic tangent
+  //bf_F_ext: dead zone!
+
+
+
   ext_force.header.stamp = ros::Time::now();
 
   ext_force.wrench.force.x = F_ext[0];
-  ext_force.wrench.force.y = F_ext[1];
-  ext_force.wrench.force.z = F_ext[2];
-  ext_force.wrench.torque.x = bf_F_ext[0];
+  ext_force.wrench.force.y = bf_F_ext[0];
+  ext_force.wrench.force.z = bf_F_ext_tanh[0];
+  ext_force.wrench.torque.x = F_ext[1];
   ext_force.wrench.torque.y = bf_F_ext[1];
-  ext_force.wrench.torque.z = bf_F_ext[2];
+  ext_force.wrench.torque.z = bf_F_ext_tanh[1];
 
   force_pub_.publish(ext_force);
 }
