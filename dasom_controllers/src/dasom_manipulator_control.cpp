@@ -373,7 +373,6 @@ double DasomControl::tanh_function(double input_data, double cut_off_force)
   return abs((exp(data) - exp(-data)) / (exp(data) + exp(-data)));
 }
 
-
 void DasomControl::tauLPFforExternalForce()
 {
   tau_measured[0] = ds_jnt1_->updateLPF(time_loop, tau_measured[0]);
@@ -414,12 +413,10 @@ void DasomControl::CalcExternalForce()
 
   if(bf_F_ext[2] < 0) bf_F_ext[2] = bf_F_ext[2] * 0.8;
 
-
   // Hyperbolic tangent
   bf_F_ext_tanh[0] = tanh_function(bf_F_ext[0], hysteresis_max[0]) * bf_F_ext[0];
   bf_F_ext_tanh[1] = tanh_function(bf_F_ext[1], hysteresis_max[1]) * bf_F_ext[1];
   bf_F_ext_tanh[2] = tanh_function(bf_F_ext[2], hysteresis_max[2]) * bf_F_ext[2];
-
 
   if (bf_F_ext[0] <= hysteresis_max[0] && bf_F_ext[0] >= hysteresis_min[0]) bf_F_ext[0] = 0;
   else if (bf_F_ext[0] > hysteresis_max[0]) bf_F_ext[0] -= hysteresis_max[0];
@@ -436,8 +433,6 @@ void DasomControl::CalcExternalForce()
   //bf_F_ext_tanh: only hyperbolic tangent
   //bf_F_ext: dead zone!
 
-
-
   ext_force.header.stamp = ros::Time::now();
 
   ext_force.wrench.force.x = F_ext[0];
@@ -453,7 +448,7 @@ void DasomControl::CalcExternalForce()
 void DasomControl::AdmittanceControl()
 // X_ref: haptic command
 {
-  // 1 15 40(bp 1 4)
+  // 1 15 40(bp 1 3)
   X_cmd[0] = admittanceControlX(time_loop, X_ref[0], bf_F_ext[0]);
 
   // 0.1 20 0(bp 1 3)

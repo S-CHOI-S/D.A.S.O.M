@@ -5034,7 +5034,7 @@ color: rgb(255, 255, 255);</string>
         <enum>QFrame::Plain</enum>
        </property>
        <property name="text">
-        <string>Ready for dasom camera image!</string>
+        <string>Ready for palletrone camera image!</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

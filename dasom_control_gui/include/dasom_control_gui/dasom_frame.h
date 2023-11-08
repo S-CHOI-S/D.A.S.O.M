@@ -38,6 +38,7 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/WrenchStamped.h>
+#include <std_msgs/Int16.h>
 #include <std_srvs/SetBool.h>
 
 #include <eigen3/Eigen/Core>
@@ -88,9 +89,11 @@ private:
 
   ros::Subscriber palletrone_battery_sub_;
   ros::Subscriber estimated_force_sub_;
-  ros::Subscriber cam_sub_;
+  ros::Subscriber cam_ds_sub_;
+  ros::Subscriber cam_pt_sub_;
   ros::Subscriber EE_measured_sub_;
   ros::Subscriber EE_command_sub_;
+  ros::Subscriber battery_checker;
 
   bool ds = false;
   bool hpt = false;
@@ -115,6 +118,8 @@ private:
   void initWidget();
   void setNodeStatus(QString label_name, bool status);
   void cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg);
+  void cameraPtImageCallback(const sensor_msgs::Image::ConstPtr& msg);
+  void batteryCallback(const std_msgs::Int16& msg);
   void initNodeStatus();
   void setBatteryVoltageGauge();
   void setEstimatedForcePlot();

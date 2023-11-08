@@ -1,29 +1,18 @@
 /*******************************************************************************
-* Copyright 2017 ROBOTIS CO., LTD.
+* D.A.S.O.M
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
+* Department of Aerial Manipulator System for Object Manipulation
 *
-*     http://www.apache.org/licenses/LICENSE-2.0
+*     https://github.com/S-CHOI-S/D.A.S.O.M.git
 *
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+* Mobile Robotics Lab. (MRL)
+* 	  @ Seoul National University of Science and Technology
+*
+*	  https://mrl.seoultech.ac.kr/index.do
+*
 *******************************************************************************/
 
-/* Author: Ryu Woon Jung (Leon) */
-
-//
-// *********     reboot Example      *********
-//
-//
-// Available Dynamixel model on this example : All models using Protocol 2.0
-// This example is tested with a Dynamixel PRO 54-200, and USB2DYNAMIXEL
-// Be sure that Dynamixel PRO properties are already set as %% ID : 1 / Baudnum : 1 (Baudrate : 57600)
-//
+/* Authors: Sol Choi (Jennifer) */
 
 #if defined(__linux__) || defined(__APPLE__)
 #include <fcntl.h>
@@ -36,10 +25,10 @@
 #include <ros/ros.h>
 #include <stdio.h>
 
-#include "dynamixel_workbench_controllers/reboot/dynamixel_sdk.h"                                  // Uses Dynamixel SDK library
+#include "dynamixel_workbench_controllers/reboot/dynamixel_sdk.h"
 
 // Protocol version
-#define PROTOCOL_VERSION                2.0                 // See which protocol version is used in the Dynamixel
+#define PROTOCOL_VERSION                2.0
 
 // Default setting
 #define DXL_ID                          4                   // Dynamixel ID: 1

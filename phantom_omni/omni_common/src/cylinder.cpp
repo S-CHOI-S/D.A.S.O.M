@@ -4,6 +4,7 @@
 #include "omni_msgs/OmniState.h"
 #include "omni_msgs/OmniFeedback.h"
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/WrenchStamped.h>
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Twist.h>
 #include <signal.h>
@@ -23,6 +24,8 @@ geometry_msgs::Twist palletrone_xyzrpy;
 
 geometry_msgs::PoseStamped pose_msg;
 geometry_msgs::PoseStamped pose_msg_i;
+
+omni_msgs::OmniFeedback ds_feedback;
 
 double core_x = 0;
 double core_y = 0;
@@ -124,6 +127,8 @@ void stateCallback(const omni_msgs::OmniState::ConstPtr& msg)
 		feedback.position = pos;
 		force_feedback.publish(feedback);
 
+		// force_feedback.publish(ds_feedback); // ds_feedback 힘 넣어줄 거면 이거 주석 풀기!
+
 		dasom_xyzrpy = xyzrpy;
 
 		palletrone_xyzrpy.linear.x = 0;
@@ -133,6 +138,19 @@ void stateCallback(const omni_msgs::OmniState::ConstPtr& msg)
 
 	haptic_dasom_command_pub_.publish(dasom_xyzrpy);
 	haptic_palletrone_command_pub_.publish(palletrone_xyzrpy);
+}
+
+void dsForceCallback(const geometry_msgs::WrenchStamped &msg)
+{
+	geometry_msgs::Vector3 torque;
+
+	torque.x = msg.wrench.torque.x;
+	torque.y = msg.wrench.torque.y;
+	torque.z = msg.wrench.torque.z;
+
+	// 만약에 매핑해 줄 거면 여기서!
+
+	ds_feedback.force = torque;
 }
 
 void mySigintHandler(int sig)
@@ -161,6 +179,7 @@ int main(int argc, char **argv)
 	haptic_dasom_command_pub_ = n.advertise<geometry_msgs::Twist>("/phantom/xyzrpy/dasom", 1);
 	haptic_palletrone_command_pub_ = n.advertise<geometry_msgs::Twist>("/phantom/xyzrpy/palletrone", 1);
 	ros::Subscriber sub = n.subscribe("/phantom/state", 1000, stateCallback);
+	ros::Subscriber ds_force_sub = n.subscribe("/dasom/external_force", 1000, dsForceCallback);
 	signal(SIGINT, mySigintHandler);
 	ros::spin();
 	return 0;

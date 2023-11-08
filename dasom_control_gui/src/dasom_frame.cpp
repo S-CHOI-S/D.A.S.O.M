@@ -61,9 +61,11 @@ void DasomFrame::initSubscriber()
 {
   palletrone_battery_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::batteryVoltageCallback, this);
   estimated_force_sub_ = nh_.subscribe("/dasom/estimated_force", 10, &DasomFrame::estimatedForceCallback, this);
-  cam_sub_ = nh_.subscribe("/dasom/camera_image/dasom", 10, &DasomFrame::cameraImageCallback, this);
+  cam_ds_sub_ = nh_.subscribe("/dasom/camera_image/dasom", 10, &DasomFrame::cameraImageCallback, this);
+  cam_pt_sub_ = nh_.subscribe("/dasom/camera_image/palletrone", 10, &DasomFrame::cameraPtImageCallback, this);
   EE_measured_sub_ = nh_.subscribe("/dasom/EE_pose", 10, &DasomFrame::dsEEMeasuredCallback, this);
   EE_command_sub_ = nh_.subscribe("/dasom/EE_cmd", 10, &DasomFrame::dsEECommandCallback, this);
+  battery_checker = nh_.subscribe("/battery", 10, &DasomFrame::batteryCallback, this);
 }
 
 void DasomFrame::batteryVoltageCallback(const geometry_msgs::Twist &msg)
@@ -200,6 +202,40 @@ void DasomFrame::cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg)
   {
     return;
   }
+}
+
+void DasomFrame::cameraPtImageCallback(const sensor_msgs::Image::ConstPtr& msg)
+{
+  cv_bridge::CvImageConstPtr cv_ptr;
+  try
+  {
+    cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
+
+    // OpenCV 를 QImage로 변환
+    QImage qimage(cv_ptr->image.data,
+                  cv_ptr->image.cols,
+                  cv_ptr->image.rows,
+                  cv_ptr->image.step,
+                  QImage::Format_RGB888);
+
+    // 이미지가 BGR로 변환된 경우, RGB로 변환
+    if (qimage.format() == QImage::Format_RGB888)
+    {
+      qimage = qimage.rgbSwapped(); // BGR에서 RGB로 변환
+    } 
+
+    // image_frame에 이미지 표시
+    ui_.image_frame_2->setPixmap(QPixmap::fromImage(qimage));
+  }
+  catch (cv_bridge::Exception& e)
+  {
+    return;
+  }
+}
+
+void DasomFrame::batteryCallback(const std_msgs::Int16& msg)
+{
+	// 여기에 이제 값 받아와서 ui에 집어넣기 하면 됨!
 }
 
 void DasomFrame::rosNodeStatus()
