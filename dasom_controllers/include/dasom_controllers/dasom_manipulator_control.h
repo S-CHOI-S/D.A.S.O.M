@@ -200,6 +200,7 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::Vector2d bp_X_dot2;
   Eigen::Vector2d bp_X_dot3;
   Eigen::Vector3d bf_F_ext;
+  
 
   /*****************************************************************************
   ** Define functions
@@ -217,6 +218,10 @@ class DasomControl : public dasom::DasomWorkbench
                         dasom_controllers::bandpassSRV::Response &res);
   void tauLPFforExternalForce();
   void deleteToolbox();
+
+
+  double tanh_function(double input_data, double cut_off_force);
+  Eigen::Vector3d bf_F_ext_tanh;
 };
 
 #endif //DASOM_MANIPULATOR_CONTROL_H_
