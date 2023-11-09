@@ -254,6 +254,8 @@ void DasomControl::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
     {
       grey_button = 0;
       ROS_INFO("Grey 0: Command mode");
+
+      gimbalcommand_safe = false;
     }
   }
 
@@ -551,6 +553,23 @@ void DasomControl::AngleSafeFunction()
   }
 }
 
+void DasomControl::startGimbalHapticCommand()
+{
+  if(abs(gimbal_EE_cmd[0] - haptic_command[0]) < 0.015 &&
+     abs(gimbal_EE_cmd[1] - haptic_command[1]) < 0.015 &&
+     abs(gimbal_EE_cmd[2] - haptic_command[2]) < 0.015)
+  {
+    cnt_gimbalcommand++;
+
+    if(cnt_gimbalcommand >= 50) gimbalcommand_safe = true;
+  }
+  else
+  {
+    cnt_gimbalcommand = 0;
+    gimbalcommand_safe = false;
+  }
+}
+
 void DasomControl::CommandGenerator()
 // EE_command: [haptic command](X) [IK command](O)
 {
@@ -567,11 +586,18 @@ void DasomControl::CommandGenerator()
   else if(grey_button == 2)
   // For gimbaling + command mode
   {
-    EE_command = gimbal_EE_cmd + haptic_command;
-    // 카메라 했던 것처럼 특정 범위 이내로 들어왔을 때
-    // command mode가 시작되게 만들면 좋을 것 같음!
+    if(!gimbalcommand_safe)
+    {
+      startGimbalHapticCommand();
+      EE_command = gimbal_EE_cmd;
+    }
+    else
+    {
+      EE_command = gimbal_EE_cmd + haptic_command;
+    }
   }
 
+  // For admittance
   X_ref = EE_command;
 }
 

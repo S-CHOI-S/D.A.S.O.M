@@ -1,27 +1,27 @@
 %%
 clear all; close all; clc;
-bag = rosbag("/home/choisol/dasom_ws/src/bag/_2023-11-02-17-23-52.bag");
-% scp paletrone3@192.168.1.10:~/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/_2023-11-02-17-23-52.bag ~/dasom_ws/src/bag
+bag = rosbag("/home/choisol/2023-09-21-19-10-55.bag");
 
 %%
-topic_name = '/pos_d';
-topic_name2 = '/joint_states';
-msg_type = 'geometry_msgs/Vector3';
+topic_name = '/dasom/test_Pub';
+topic_name2 = '/dasom/goal_dynamixel_position';
+msg_type = 'geometry_msgs/Twist';
 msg_type2 = 'sensor_msgs/JointState';
 
 msgs = readMessages(select(bag, 'Topic', topic_name, 'MessageType', msg_type));
 msgs2 = readMessages(select(bag, 'Topic', topic_name2, 'MessageType', msg_type2));
 timestamps = cellfun(@(msg) msg.Header.Stamp.Sec + msg.Header.Stamp.Nsec*1e-9, msgs2);
 
-linear_x_values = cellfun(@(msg) msg.X, msgs);
-linear_y_values = cellfun(@(msg) msg.Y, msgs);
-linear_z_values = cellfun(@(msg) msg.Z, msgs);
+linear_x_values = cellfun(@(msg) msg.Linear.X, msgs);
+linear_y_values = cellfun(@(msg) msg.Linear.Y, msgs);
+linear_z_values = cellfun(@(msg) msg.Linear.Z, msgs);
 
 angular_x_values = cellfun(@(msg) msg.Linear.X, msgs);
 angular_y_values = cellfun(@(msg) msg.Linear.Y, msgs);
 angular_z_values = cellfun(@(msg) msg.Linear.Z, msgs);
 
-plot_data = timeseries([linear_x_values, linear_y_values, linear_z_values], timestamps);
+plot_data = timeseries([linear_x_values, linear_y_values, linear_z_values ...
+                        angular_x_values, angular_y_values, angular_z_values], timestamps);
 
 time_origin = plot_data.Time(1);
 
@@ -62,19 +62,3 @@ xlabel('time[s]')
 ylabel('angle[rad]')
 %ylim([1 1.85]);
 xlim([1 22]);
-
-%%
-signal = plot_data.Data(:,6);
-
-% fourier transform
-N = length(signal);
-X = fft(signal);
-
-% convert data to frequency data
-magnitude = abs(X);
-
-% visualization
-plot(plot_data.Time-time_origin, magnitude)
-xlabel('주파수 (Hz)')
-ylabel('크기')
-title('주파수 영역 데이터')

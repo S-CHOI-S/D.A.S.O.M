@@ -15,48 +15,44 @@
 /* Authors: Sol Choi (Jennifer) */
 
 #include "ros/ros.h"
-#include <opencv2/opencv.hpp>
+#include <geometry_msgs/PoseStamped.h>
 
 int main(int argc, char **argv) 
 {
     ros::init(argc, argv, "try");
+    ros::NodeHandle nh;
 
-    // 웹캠 열기
-    cv::VideoCapture cap(0);  // 0은 웹캠의 디바이스 번호입니다. 여러 웹캠이 연결된 경우 1, 2 등으로 변경할 수 있습니다.
+    ros::Rate rate(200);
 
-    // 웹캠 열기에 실패한 경우 오류 메시지 출력
-    if (!cap.isOpened()) {
-        std::cerr << "웹캠을 열 수 없습니다." << std::endl;
-        return -1;
+    ros::Publisher pub = nh.advertise<geometry_msgs::PoseStamped>("/dasomPalletrone/world", 1);
+
+    geometry_msgs::PoseStamped msg;
+
+    double i = 0;
+
+    ros::Time recording_start_time = ros::Time::now();
+
+    while(ros::ok())
+    {
+        ros::Duration elapsed_time = ros::Time::now() - recording_start_time;
+        msg.header.stamp = ros::Time(elapsed_time.toSec());
+        // msg.header.stamp.sec = ros::Time::now().toSec;
+
+        msg.pose.position.x = 5 * sin(i/200);
+        msg.pose.position.y = 5 * cos(i/200);
+        msg.pose.position.z = 3;
+        msg.pose.orientation.x = 0;
+        msg.pose.orientation.y = 0;
+        msg.pose.orientation.z = 0;
+        msg.pose.orientation.w = 1;
+
+        i++;
+
+        pub.publish(msg);
+
+        ros::spinOnce();
+        rate.sleep();
     }
-
-    // 윈도우 생성
-    // cv::namedWindow("Webcam", cv::WINDOW_NORMAL);
-
-    while (true) {
-        cv::Mat frame;
-        
-        // 웹캠에서 프레임 읽기
-        cap >> frame;
-
-        ROS_INFO("%lf, %lf", frame.rows, frame.cols);
-        
-        // 프레임이 비어 있는 경우 종료
-        if (frame.empty()) {
-            break;
-        }
-        
-        // 화면에 프레임 표시
-        cv::imshow("Webcam", frame);
-
-        // ESC 키를 누르면 루프 종료
-        if (cv::waitKey(1) == 27) {
-            break;
-        }
-    }
-
-    // 윈도우 종료
-    cv::destroyWindow("Webcam");
 
     return 0;
 }

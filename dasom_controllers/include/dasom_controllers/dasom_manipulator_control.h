@@ -163,6 +163,10 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::VectorXd gimbal_tf;
   Eigen::VectorXd gimbal_EE_cmd;
   Eigen::VectorXd global_EE_tf;
+
+  // For gimbaling + command
+  int cnt_gimbalcommand = 0;
+  bool gimbalcommand_safe = false;
   
   // For force estimation
   Eigen::MatrixXd J;
@@ -220,6 +224,7 @@ class DasomControl : public dasom::DasomWorkbench
                         dasom_controllers::bandpassSRV::Response &res);
   double tanh_function(double input_data, double cut_off_force);
   void tauLPFforExternalForce();
+  void startGimbalHapticCommand();
   void deleteToolbox();
 };
 
