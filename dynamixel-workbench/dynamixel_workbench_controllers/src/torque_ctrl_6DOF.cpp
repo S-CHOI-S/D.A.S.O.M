@@ -85,7 +85,8 @@ TorqueControl::TorqueControl()
   initPublisher();
   initSubscriber();
 
-  dxl_wb_->itemWrite(dxl_id_[0], "Return_Delay_Time", 250);
+  dxl_wb_->itemWrite(dxl_id_[0], "Current_Limit", 5);
+
 
 }
 
@@ -122,7 +123,6 @@ void TorqueControl::initPublisher()
 void TorqueControl::initSubscriber()
 {
   joint_command_sub_ = node_handle_.subscribe("/dasom/goal_dynamixel_position", 10, &TorqueControl::goalJointPositionCallback, this);
-  // paletrone_sub_ = node_handle_.subscribe("/dasombasePlate/world", 10, &TorqueControl::paletroneCallback, this);
 }
 
 void TorqueControl::jointStatePublish()
@@ -161,40 +161,7 @@ void TorqueControl::jointStatePublish()
     present_position_[index] = dxl_wb_->convertValue2Radian(dxl_id_[index], present_position[index]);
   }
 
-  if(0 > base_joint_y)
-  {
-    base_joint_y = base_joint_y + 2 * 3.14;
-  }
-  
-  // else if(base_joint_y > 3.1)
-
-  dynamixel_.name.push_back("base_joint_X");
-  dynamixel_.name.push_back("base_joint_Y");
-  dynamixel_.name.push_back("base_joint_Z");
-  dynamixel_.name.push_back("base_joint_y");
-  dynamixel_.name.push_back("base_joint_p");
-  dynamixel_.name.push_back("base_joint_r");
-  dynamixel_.position.push_back(base_joint_X);
-  dynamixel_.position.push_back(base_joint_Y);
-  dynamixel_.position.push_back(base_joint_Z);
-  dynamixel_.position.push_back(base_joint_y);
-  dynamixel_.position.push_back(base_joint_p);
-  dynamixel_.position.push_back(base_joint_r);
-  dynamixel_.effort.push_back(0);
-  dynamixel_.effort.push_back(0);
-  dynamixel_.effort.push_back(0);
-  dynamixel_.effort.push_back(0);
-  dynamixel_.effort.push_back(0);
-  dynamixel_.effort.push_back(0);
-
   joint_states_pub_.publish(dynamixel_);
-  // ROS_INFO("X = %lf", base_joint_X);
-  // ROS_INFO("Y = %lf", base_joint_Y);
-  // ROS_INFO("Z = %lf", base_joint_Z);
-  // ROS_INFO("r = %lf", base_joint_r);
-  // ROS_INFO("p = %lf", base_joint_p);
-  // ROS_INFO("y = %lf", base_joint_y);
-
 }
 
 void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -210,17 +177,6 @@ void TorqueControl::goalJointPositionCallback(const sensor_msgs::JointState::Con
 
   dxl_wb_->syncWrite("Goal_Position", goal_dxl_position);
 }
-
-// void TorqueControl::paletroneCallback(const geometry_msgs::PoseStamped &msg)
-// {
-//   base_joint_X = msg.pose.position.x;
-//   base_joint_Y = msg.pose.position.y;
-//   base_joint_Z = msg.pose.position.z;
-// 
-//   tf::Quaternion quat;
-//  tf::quaternionMsgToTF(msg.pose.orientation, quat);
-//   tf::Matrix3x3(quat).getRPY(base_joint_r, base_joint_p, base_joint_y);
-// }
 
 void TorqueControl::initpose()
 {
