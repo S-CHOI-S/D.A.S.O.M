@@ -567,6 +567,8 @@ void DasomControl::CommandGenerator()
   // For gimbaling + command mode
   {
     EE_command = gimbal_EE_cmd + haptic_command;
+    // 카메라 했던 것처럼 특정 범위 이내로 들어왔을 때
+    // command mode가 시작되게 만들면 좋을 것 같음!
   }
 
   X_ref = EE_command;
