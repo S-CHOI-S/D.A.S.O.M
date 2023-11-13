@@ -53,7 +53,7 @@
 	<!--Center of mass-->
 	<param name="x_center_of_mass"		value="-0.0155"/><!-- -0.013-->	
 	<param name="y_center_of_mass"		value="0.016"/>	
-	<param name="z_center_of_mass"		value="-0.055"/> 	
+	<param name="z_center_of_mass"		value="-0.075"/> 	
 
 	<!--Conventional flight mode-->
     		<!--Conventional Mode attitude_rp gains-->
@@ -83,9 +83,9 @@
 	
 	<!--Tilt flight mode-->
 		<!--Tilt Mode attitude_r gains-->
-		<param name="tilt_attitude_r_P_gain"	value="8.5"/> <!-- 10.0 -->	
+		<param name="tilt_attitude_r_P_gain"	value="14.0"/> <!-- 10.0 -->	
 		<param name="tilt_attitude_r_I_gain"	value="0.0"/> <!-- 0.0 -->
-		<param name="tilt_attitude_r_D_gain"	value="12.0"/> <!-- 12.0 -->
+		<param name="tilt_attitude_r_D_gain"	value="20.0"/> <!-- 12.0 -->
 		
 		<!--Tilt Mode attitude_p gains-->
 		<param name="tilt_attitude_p_P_gain"	value="0.15"/>	
@@ -109,8 +109,8 @@
 		<param name="tilt_velocity_D_gain"	value="0.2"/>
 
 		<!--Tilt Mode Position gains-->
-		<param name="tilt_position_P_gain"	value="1.0"/>	
-		<param name="tilt_position_I_gain"	value="0.01"/>	
+		<param name="tilt_position_P_gain"	value="4.0"/>	
+		<param name="tilt_position_I_gain"	value="0.001"/>	
 		<param name="tilt_position_D_gain"	value="4.0"/>	
 
     	<node name="FAC_MAV_D_ctrler"  pkg="FAC_MAV" type="FAC_MAV_D_ctrler"  output="screen"/>
@@ -120,4 +120,4 @@
     
 	<!-- Rosbag -->
   <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/paletrone3/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/ /data_log" /><!-- /angle /desired_angle /Forces /t265_pos /desired_altitude"/> --> 
-</launch>  
+</launch> 
