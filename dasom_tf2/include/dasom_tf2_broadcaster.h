@@ -56,6 +56,7 @@ class TFBroadcaster
   Eigen::VectorXd optitrackQuat;
   Eigen::VectorXd optitrackQuat_lpf; 
 
+
   /*****************************************************************************
   ** Define functions
   *****************************************************************************/
@@ -82,6 +83,7 @@ class TFBroadcaster
   ** Init Functions
   *****************************************************************************/
   void initSubscriber();
+  void initPublisher();
 
   /*****************************************************************************
   ** ROS Publishers
@@ -94,7 +96,7 @@ class TFBroadcaster
   // ros::Subscriber joystick_pose_sub_;
 
   // ros::Subscriber sub_gimbal_tf_;
-  //                                             
+  //                                            
   ros::Subscriber palletrone_optitrack_sub_;
   ros::Subscriber dasom_EE_pose_sub_; 
   ros::Subscriber global_fixed_gimbal_pose_sub_;  

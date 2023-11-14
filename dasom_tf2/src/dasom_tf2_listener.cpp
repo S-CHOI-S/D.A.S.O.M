@@ -17,8 +17,11 @@ int main(int argc, char** argv)
     tf2_ros::TransformListener tfListener_globalEE(tfBuffer_globalEE);
 
     geometry_msgs::PoseStamped global_frame;
-    
+    geometry_msgs::Twist global_EE_meas_position;
+    double roll, pitch, yaw;
+
     ros::Publisher global_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/tf/global_EE_pose", 10);
+    ros::Publisher global_EE_meas_publisher = nh.advertise<geometry_msgs::Twist>("/dasom/tf/global_EE_meas_pose", 10);
 
     ros::Rate rate(120);
 
@@ -48,6 +51,21 @@ int main(int argc, char** argv)
         global_frame.pose.orientation.w = transformStamped_globalEE.transform.rotation.w;
 
         global_publisher.publish(global_frame);
+
+
+
+
+        global_EE_meas_position.linear = transformStamped_globalEE.transform.translation;
+
+        tf::Quaternion quat;
+        tf::quaternionMsgToTF(global_frame.pose.orientation, quat);
+
+        tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+        global_EE_meas_position.angular.x = roll;
+        global_EE_meas_position.angular.y = pitch;
+        global_EE_meas_position.angular.z = yaw;
+        
+        global_EE_meas_publisher.publish(global_EE_meas_position);
 
         rate.sleep();
         ros::spinOnce();

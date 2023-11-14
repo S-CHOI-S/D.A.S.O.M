@@ -130,6 +130,10 @@ void TFBroadcaster::globalFixedGimbalPoseCallback(const geometry_msgs::PoseStamp
     // ROS_WARN("GIMBAL TF = %lf, %lf, %lf", msg.pose.position.x, msg.pose.position.y, msg.pose.position.z);
 }
 
+void TFBroadcaster::initPublisher()
+{
+}
+
 void TFBroadcaster::initSubscriber()
 {                                          
     palletrone_optitrack_sub_ = node_handle_.subscribe("/dasomPalletrone/world", 10, &TFBroadcaster::palletroneOptitrackCallback, this, ros::TransportHints().tcpNoDelay());
