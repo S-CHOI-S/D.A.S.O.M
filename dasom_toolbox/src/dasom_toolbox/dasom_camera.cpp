@@ -53,18 +53,18 @@ void DasomCam::initCamera(int cam_num)
   // Check if it is indeed a number
   if(!(video_sourceCmd >> video_source))
   {
-    ROS_ERROR("[ DasomCam ]: Failed to load Dasom Camera!");
+    ROS_ERROR("[ DasomCam ]: Failed to load Dasom Camera #%d!", cam_num);
   }
 
   cap = cv::VideoCapture(video_source);
 
   if(!cap.isOpened())
   {
-    ROS_ERROR("[ DasomCam ]: Failed to open Dasom Camera!");
+    ROS_ERROR("[ DasomCam ]: Failed to open Dasom Camera #%d!", cam_num);
   }
   else
   {
-    ROS_WARN("[ DasomCam ]: Successed to open Dasom Camera!");
+    ROS_WARN("[ DasomCam ]: Successed to open Dasom Camera #%d!", cam_num);
   }
 }
 
@@ -88,7 +88,7 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
 
   frame = drawCoordinate(frame);
 
-  cv::imshow("D.A.S.O.M End_Effector", frame);
+  // cv::imshow("D.A.S.O.M End_Effector", frame);
 
   if(!frame.empty())
   {
@@ -187,7 +187,7 @@ void DasomCam::UpdateCameraPalletrone()
   // ROS_INFO("Reading camera frame!");
   cap >> frame;
 
-  cv::imshow("D.A.S.O.M Workspace", frame);
+  // cv::imshow("D.A.S.O.M Workspace", frame);
 
   if(!frame.empty())
   {

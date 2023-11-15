@@ -114,10 +114,9 @@
 		<param name="tilt_position_D_gain"	value="4.0"/>	
 
     	<node name="FAC_MAV_D_ctrler"  pkg="FAC_MAV" type="FAC_MAV_D_ctrler"  output="screen"/>
-<!--	<node name="external_wrench_estimator_node" pkg="external_wrench_nmhe" type="external_wrench_estimator" output="screen"/> -->
-	<node pkg="data_logging" name="data_logging_node" type="data_logging"/>
+	<node pkg="dasom_bag" name="dasom_data_logging" type="dasom_data_logging"/>
 	
     
 	<!-- Rosbag -->
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/paletrone3/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/ /data_log" /><!-- /angle /desired_angle /Forces /t265_pos /desired_altitude"/> --> 
+  <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/paletrone3/dasom_ws/src/dasom_bag/ /data_log" />
 </launch> 

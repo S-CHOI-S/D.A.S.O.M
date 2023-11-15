@@ -35,12 +35,14 @@
 
 #include <tf2/LinearMath/Quaternion.h>
 #include "tf/transform_datatypes.h"
+#include <iostream>
 
 class TorqueControl
 {
  private:
   // ROS NodeHandle
   ros::NodeHandle node_handle_;
+
 
   // ROS Parameters
 
@@ -55,6 +57,10 @@ class TorqueControl
   // ROS Service Server
 
   // ROS Service Client
+
+  // Mode Change Parameters
+  std::vector<float> max_current = {1193, 1193, 1193, 1193, 1193, 1193};
+  std::vector<float> limit_current = {1193, 1193, 1193, 1193, 1193, 1193};
 
   // Dynamixel Workbench Parameters
   DynamixelWorkbench *dxl_wb_;

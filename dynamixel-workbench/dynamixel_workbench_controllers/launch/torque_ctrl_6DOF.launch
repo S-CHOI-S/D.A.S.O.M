@@ -21,6 +21,8 @@
   <arg name="position_i_gain_540"          default="0"/>
   <arg name="position_d_gain_540"          default="1000"/>
 
+  <arg name="effort"                       default="max" />
+
 <!--end-->
   <param name="device_name"                value="$(arg device_name)"/>
   <param name="baud_rate"                  value="$(arg baud_rate)"/>
@@ -38,6 +40,7 @@
   <param name="position_i_gain_540"	   value="$(arg position_i_gain_540)"/>
   <param name="position_d_gain_540"	   value="$(arg position_d_gain_540)"/>
 
+  <param name="effort"	                   value="$(arg effort)"/>
 
   <node name="torque_ctrl_6DOF" pkg="dynamixel_workbench_controllers" type="torque_ctrl_6DOF" required="true" output="screen"/>
 </launch>

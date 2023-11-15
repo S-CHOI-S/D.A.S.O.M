@@ -37,6 +37,8 @@ TorqueControl::TorqueControl()
   double position_i_gain_540	= node_handle_.param<double>("position_i_gain_540", 0);
   double position_d_gain_540	= node_handle_.param<double>("position_d_gain_540", 0);  
 
+  std::string effort = node_handle_.param<std::string>("effort", "max");
+
   dxl_wb_ = new DynamixelWorkbench;
   initpose(); // ADD 이거 실행되면 true로 바뀜
 
@@ -85,9 +87,28 @@ TorqueControl::TorqueControl()
   initPublisher();
   initSubscriber();
 
-  dxl_wb_->itemWrite(dxl_id_[0], "Current_Limit", 5);
-
-
+  if(effort == "max")
+  {
+    for (int index = 0; index < dxl_cnt_; index++)
+    {
+      dxl_wb_->itemWrite(dxl_id_[index], "Current_Limit", max_current[index]);
+      ROS_INFO("Maximum mode!");
+    }
+  }
+  else if (effort == "limit")
+  {
+    for (int index = 0; index < dxl_cnt_; index++)
+    {
+      dxl_wb_->itemWrite(dxl_id_[index], "Current_Limit", limit_current[index]);
+      ROS_INFO("Minimum mode!");
+    }
+  }
+  else 
+  {
+    ROS_ERROR("Invalid mode. try again!");
+    ros::shutdown();
+    return;
+  }
 }
 
 TorqueControl::~TorqueControl()
