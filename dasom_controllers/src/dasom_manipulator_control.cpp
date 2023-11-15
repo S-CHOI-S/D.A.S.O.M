@@ -555,13 +555,13 @@ void DasomControl::AngleSafeFunction()
 
 void DasomControl::startGimbalHapticCommand()
 {
-  if(abs(gimbal_EE_cmd[0] - haptic_command[0]) < 0.015 &&
-     abs(gimbal_EE_cmd[1] - haptic_command[1]) < 0.015 &&
-     abs(gimbal_EE_cmd[2] - haptic_command[2]) < 0.015)
+  if(abs(haptic_command[0]) < 0.02 &&
+     abs(haptic_command[1]) < 0.02 &&
+     abs(haptic_command[2]) < 0.02)
   {
     cnt_gimbalcommand++;
 
-    if(cnt_gimbalcommand >= 50) gimbalcommand_safe = true;
+    if(cnt_gimbalcommand >= 20) gimbalcommand_safe = true;
   }
   else
   {
@@ -813,7 +813,7 @@ int main(int argc, char **argv)
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
       ds_ctrl_.AngleSafeFunction();
-      // ds_ctrl_.DOB();
+      ds_ctrl_.DOB();
     }
   
     ds_ctrl_.PublishData();

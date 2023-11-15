@@ -72,11 +72,14 @@ add_executable(reboot src/reboot.cpp)
 add_dependencies(reboot ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(reboot ${catkin_LIBRARIES})
 
+add_executable(current_limit src/current_limit.cpp)
+add_dependencies(current_limit ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(current_limit ${catkin_LIBRARIES})
 
 #################################################################################
 ## Install
 #################################################################################
-install(TARGETS position_control velocity_control multi_port torque_control_icros torque_ctrl_6DOF reboot
+install(TARGETS position_control velocity_control multi_port torque_control_icros torque_ctrl_6DOF reboot current_limit
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
