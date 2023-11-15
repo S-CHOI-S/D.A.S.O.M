@@ -91,6 +91,19 @@ double dasom_meas_effort3 = 0;
 double dasom_meas_effort4 = 0;
 double dasom_meas_effort5 = 0;
 
+double dasom_des_position0 = 0;
+double dasom_des_position1 = 0;
+double dasom_des_position2 = 0;
+double dasom_des_position3 = 0;
+double dasom_des_position4 = 0;
+double dasom_des_position5 = 0;
+
+double dasom_meas_position0 = 0;
+double dasom_meas_position1 = 0;
+double dasom_meas_position2 = 0;
+double dasom_meas_position3 = 0;
+double dasom_meas_position4 = 0;
+double dasom_meas_position5 = 0;
 
 void pos_callback(const geometry_msgs::Vector3& msg);
 void desired_pos_callback(const geometry_msgs::Vector3& msg);
@@ -134,6 +147,7 @@ void dasom_EE_meas_callback(const geometry_msgs::Twist &msg);
 void dasom_global_fixed_gimbal_EE_pose_callback(const geometry_msgs::PoseStamped &msg);
 void dasom_global_meas_gimbal_EE_pose_callback(const geometry_msgs::Twist &msg);
 void dasom_meas_effort_callback(const sensor_msgs::JointState &msg);
+void dasom_desired_angle_callback(const sensor_msgs::JointState &msg);
 
 
 int main(int argc, char **argv)
@@ -177,6 +191,7 @@ int main(int argc, char **argv)
 	ros::Subscriber dasom_global_fixed_gimbal__EE_pose_sub=nh.subscribe("/dasom/tf/global_fixed_gimbal_EE_pose", 1, dasom_global_fixed_gimbal_EE_pose_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_global_meas_gimbal__EE_pose_sub=nh.subscribe("/dasom/tf/global_EE_meas_pose", 1, dasom_global_meas_gimbal_EE_pose_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_measured_effort_sub=nh.subscribe("/dasom/joint_states", 1, dasom_meas_effort_callback, ros::TransportHints().tcpNoDelay());
+	ros::Subscriber dasom_desired_position_sub=nh.subscribe("/dasom/goal_dynamixel_position", 1, dasom_desired_angle_callback, ros::TransportHints().tcpNoDelay());
 
 	data_log_publisher=nh.advertise<std_msgs::Float64MultiArray>("data_log",10);
 	ros::Timer timerPulish_log=nh.createTimer(ros::Duration(1.0/200.0), std::bind(publisherSet));
@@ -319,6 +334,20 @@ void publisherSet()
 	data_log.data[27] = dasom_meas_effort3;
 	data_log.data[28] = dasom_meas_effort4;
 	data_log.data[29] = dasom_meas_effort5;
+
+	data_log.data[30] = dasom_des_position0;
+	data_log.data[31] = dasom_des_position1;
+	data_log.data[32] = dasom_des_position2;
+	data_log.data[33] = dasom_des_position3;
+	data_log.data[34] = dasom_des_position4;
+	data_log.data[35] = dasom_des_position5;
+
+	data_log.data[36] = dasom_meas_position0;
+	data_log.data[37] = dasom_meas_position1;
+	data_log.data[38] = dasom_meas_position2;
+	data_log.data[39] = dasom_meas_position3;
+	data_log.data[40] = dasom_meas_position4;
+	data_log.data[41] = dasom_meas_position5;
 
 	// data_log.data.push_back(dasom_EE_command.linear.x);
 	// data_log.data.push_back(dasom_EE_command.linear.y);
@@ -559,4 +588,21 @@ void dasom_meas_effort_callback(const sensor_msgs::JointState &msg)
 	dasom_meas_effort3 = msg.effort[3];
 	dasom_meas_effort4 = msg.effort[4];
 	dasom_meas_effort5 = msg.effort[5];
+
+	dasom_meas_position0 = msg.position[0];
+	dasom_meas_position1 = msg.position[1];
+	dasom_meas_position2 = msg.position[2];
+	dasom_meas_position3 = msg.position[3];
+	dasom_meas_position4 = msg.position[4];
+	dasom_meas_position5 = msg.position[5];
+}
+
+void dasom_desired_angle_callback(const sensor_msgs::JointState &msg)
+{
+	dasom_des_position0 = msg.position[0];
+	dasom_des_position1 = msg.position[1];
+	dasom_des_position2 = msg.position[2];
+	dasom_des_position3 = msg.position[3];
+	dasom_des_position4 = msg.position[4];
+	dasom_des_position5 = msg.position[5];
 }
