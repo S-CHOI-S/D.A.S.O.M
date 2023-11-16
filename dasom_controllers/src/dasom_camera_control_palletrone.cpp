@@ -18,7 +18,7 @@
 
 DasomCamPalletrone::DasomCamPalletrone()
 : node_handle_(""), it_(node_handle_)
-, DasomCam(pub, 4) // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
+, DasomCam(pub, 0) // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
