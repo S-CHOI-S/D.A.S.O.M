@@ -70,7 +70,7 @@ void stateCallback(const omni_msgs::OmniState::ConstPtr& msg)
 
 	pose_msg.pose.position.x = msg->pose.position.x / 1000.0 / 2.5;
     pose_msg.pose.position.y = -msg->pose.position.y / 1000.0 / 2.5;
-    pose_msg.pose.position.z = msg->pose.position.z / 1000.0 / 2;
+    pose_msg.pose.position.z = msg->pose.position.z / 1000.0 / 1.5;
 
 	commandGenerator();
 
