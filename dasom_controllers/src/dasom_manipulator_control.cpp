@@ -450,13 +450,13 @@ void DasomControl::CalcExternalForce()
 void DasomControl::AdmittanceControl()
 // X_ref: haptic command
 {
-  // 2 10 6(bp 1 3)
+  // 2 10 6(bp 1 3) // 10 15 10(bp 2 8)
   X_cmd[0] = admittanceControlX(time_loop, X_ref[0], bf_F_ext_tanh[0]);
 
-  // 0.1 3 1(bp 1 3)
+  // 0.1 3 1(bp 1 3) // 5 20 10(bp 2 8)
   X_cmd[1] = admittanceControlY(time_loop, X_ref[1], bf_F_ext_tanh[1]);
 
-  // 2 5 4(bp 1 3)
+  // 2 5 4(bp 1 3) // 5 20 10(bp 2 8)
   X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], bf_F_ext_tanh[2]);
 
   EE_command[0] = X_cmd[0];
@@ -753,16 +753,16 @@ void DasomControl::test()
   first_publisher.linear.x = EE_command_vel_limit[0];
   first_publisher.linear.y = EE_command_vel_limit[1];
   first_publisher.linear.z = EE_command_vel_limit[2];
-  first_publisher.angular.x = initPose_for_initPoseFunction[0];
-  first_publisher.angular.y = initPose_for_initPoseFunction[1];
-  first_publisher.angular.z = initPose_for_initPoseFunction[2];
+  first_publisher.angular.x = EE_command_vel_limit[3];
+  first_publisher.angular.y = EE_command_vel_limit[4];
+  first_publisher.angular.z = EE_command_vel_limit[5];
 
-  second_publisher.linear.x = d_hat[1];
-  second_publisher.linear.y = angle_ref[1] - angle_measured[1];
-  second_publisher.linear.z = angle_ref[1] - angle_measured[1];
-  second_publisher.angular.x = G_matrix[3];
-  second_publisher.angular.y = G_matrix[4];
-  second_publisher.angular.z = G_matrix[5];
+  second_publisher.linear.x = angle_ref[0];
+  second_publisher.linear.y = angle_ref[1];
+  second_publisher.linear.z = angle_ref[2];
+  second_publisher.angular.x = angle_ref[3];
+  second_publisher.angular.y = angle_ref[4];
+  second_publisher.angular.z = angle_ref[5];
 
   test_Pub.publish(first_publisher);
   test_Pub2.publish(second_publisher);
@@ -813,7 +813,7 @@ int main(int argc, char **argv)
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
       ds_ctrl_.AngleSafeFunction();
-      ds_ctrl_.DOB();
+      // ds_ctrl_.DOB();
     }
   
     ds_ctrl_.PublishData();
