@@ -103,19 +103,19 @@ void DasomCamControl::update()
 {
   if(grey_button == 0)
   {
-    ROS_INFO("Grey 0: Command mode");
+    // ROS_INFO("Grey 0: Command mode");
     UpdateCameraCommand(1000 * haptic_position);
   }
 
   else if(grey_button == 1) 
   {
-    ROS_INFO("Grey 1: Gimbaling mode");
+    // ROS_INFO("Grey 1: Gimbaling mode");
     UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf); 
   }
 
   else if(grey_button == 2) 
   {
-    ROS_INFO("Grey 2: Gimbaling + Command mode");
+    // ROS_INFO("Grey 2: Gimbaling + Command mode");
     if(gimbalcommand_safe == false)
     {
       UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);

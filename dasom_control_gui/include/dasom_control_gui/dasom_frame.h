@@ -14,6 +14,7 @@
 #include <QMovie>
 #include <QImage>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/CompressedImage.h>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -117,8 +118,8 @@ private:
   void batteryVoltageCallback(const geometry_msgs::Twist &msg);
   void initWidget();
   void setNodeStatus(QString label_name, bool status);
-  void cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg);
-  void cameraPtImageCallback(const sensor_msgs::Image::ConstPtr& msg);
+  void cameraImageCallback(const sensor_msgs::CompressedImage::ConstPtr& msg);
+  void cameraPtImageCallback(const sensor_msgs::CompressedImage::ConstPtr& msg);
   void batteryCallback(const std_msgs::Int16& msg);
   void initNodeStatus();
   void setBatteryVoltageGauge();

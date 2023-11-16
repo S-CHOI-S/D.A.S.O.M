@@ -61,8 +61,8 @@ void DasomFrame::initSubscriber()
 {
   palletrone_battery_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::batteryVoltageCallback, this);
   estimated_force_sub_ = nh_.subscribe("/dasom/estimated_force", 10, &DasomFrame::estimatedForceCallback, this);
-  cam_ds_sub_ = nh_.subscribe("/dasom/camera_image/dasom", 10, &DasomFrame::cameraImageCallback, this);
-  cam_pt_sub_ = nh_.subscribe("/dasom/camera_image/palletrone", 10, &DasomFrame::cameraPtImageCallback, this);
+  cam_ds_sub_ = nh_.subscribe("/dasom/camera_image/dasom/compressed", 10, &DasomFrame::cameraImageCallback, this);
+  cam_pt_sub_ = nh_.subscribe("/dasom/camera_image/palletrone/compressed", 10, &DasomFrame::cameraPtImageCallback, this);
   EE_measured_sub_ = nh_.subscribe("/dasom/EE_pose", 10, &DasomFrame::dsEEMeasuredCallback, this);
   EE_command_sub_ = nh_.subscribe("/dasom/EE_cmd", 10, &DasomFrame::dsEECommandCallback, this);
   battery_checker = nh_.subscribe("/battery", 10, &DasomFrame::batteryCallback, this);
@@ -175,12 +175,12 @@ void DasomFrame::setNodeStatus(QString label_name, bool status)
   }
 }
 
-void DasomFrame::cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg)
+void DasomFrame::cameraImageCallback(const sensor_msgs::CompressedImage::ConstPtr& msg)
 {
   cv_bridge::CvImageConstPtr cv_ptr;
   try
   {
-    cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
+    cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
 
     // OpenCV 를 QImage로 변환
     QImage qimage(cv_ptr->image.data,
@@ -204,12 +204,12 @@ void DasomFrame::cameraImageCallback(const sensor_msgs::Image::ConstPtr& msg)
   }
 }
 
-void DasomFrame::cameraPtImageCallback(const sensor_msgs::Image::ConstPtr& msg)
+void DasomFrame::cameraPtImageCallback(const sensor_msgs::CompressedImage::ConstPtr& msg)
 {
   cv_bridge::CvImageConstPtr cv_ptr;
   try
   {
-    cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
+    cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
 
     // OpenCV 를 QImage로 변환
     QImage qimage(cv_ptr->image.data,
