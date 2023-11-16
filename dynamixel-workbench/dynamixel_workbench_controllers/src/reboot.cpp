@@ -133,19 +133,23 @@ int main(int argc, char **argv)
   getch();
 
   printf("See the Dynamixel LED flickering\n");
+
   // Try reboot
   // Dynamixel LED will flicker while it reboots
-  dxl_comm_result = packetHandler->reboot(portHandler, DXL_ID, &dxl_error);
-  if (dxl_comm_result != COMM_SUCCESS)
+  for(int i = 1; i < 7; i++)
   {
-    printf("%s\n", packetHandler->getTxRxResult(dxl_comm_result));
+    dxl_comm_result = packetHandler->reboot(portHandler, i, &dxl_error);
+    if (dxl_comm_result != COMM_SUCCESS)
+    {
+      printf("%s\n", packetHandler->getTxRxResult(dxl_comm_result));
+    }
+    else if (dxl_error != 0)
+    {
+      printf("%s\n", packetHandler->getRxPacketError(dxl_error));
+    }
+  
+    printf("[ID:%03d] reboot Succeeded\n", i);
   }
-  else if (dxl_error != 0)
-  {
-    printf("%s\n", packetHandler->getRxPacketError(dxl_error));
-  }
-
-  printf("[ID:%03d] reboot Succeeded\n", DXL_ID);
 
   // Close port
   portHandler->closePort();
