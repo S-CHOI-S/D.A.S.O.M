@@ -31,7 +31,7 @@
 
 // Default setting
 #define BAUDRATE                    1000000
-#define DEVICENAME                  "/dev/ttyUSB0"
+#define DEVICENAME                  "/dev/ttyDASOMU2D2"
 
 // Initialize PortHandler and PacketHandler
 dynamixel::PortHandler *portHandler;
@@ -43,7 +43,7 @@ void setCurrentLimit(uint8_t id, uint16_t limit)
   int dxl_comm_result = packetHandler->write2ByteTxRx(portHandler, id, ADDR_PRO_CURRENT_LIMIT, limit, NULL);
   if (dxl_comm_result != COMM_SUCCESS) 
   {
-    ROS_ERROR("Failed to set current limit: [DXL_ID] = %d");
+    ROS_ERROR("Failed to set current limit: [DXL_ID] = %d", id);
   }
   else ROS_WARN("Successed to set current limit: [DXL_ID] = %d, [Current Limit] = %d", id, limit);
 }
@@ -74,9 +74,9 @@ int main(int argc, char **argv) {
     }
 
     // Set new current limit
-    setCurrentLimit(1, 50);
-    setCurrentLimit(2, 500);
-    setCurrentLimit(3, 500);
+    setCurrentLimit(1, 100);
+    setCurrentLimit(2, 450);
+    setCurrentLimit(3, 350);
     setCurrentLimit(4, 100);
     setCurrentLimit(5, 100);
     setCurrentLimit(6, 100);
