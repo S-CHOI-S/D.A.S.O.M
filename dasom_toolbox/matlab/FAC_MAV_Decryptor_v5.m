@@ -1,5 +1,5 @@
 clear all; close all; clc;
-bag=rosbag("/home/seuk/dasom_ws/src/dasom_bag/bag/2023-11-16-18-42-59.bag");
+bag=rosbag("_2023-11-09-22-34-45.bag");
 % ssh paletrone@192.168.0.37
 % scp paletrone3@192.168.1.10:~/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/_2023-11-02-22-21-59.bag C:\Users\Admin\Documents\MATLAB
 bag_data_log                 =select(bag,'Topic','/data_log');
@@ -147,475 +147,324 @@ for i=1:data_log_msgs_size(1)
 end
 % All in one
 
-%%
 close all
 for a=1
+% Attitude
 
-%
-figure('Name', "D.A.S.O.M global EE position")
-subplot(3,1,1);
+
+figure('Name','Attitude');
+subplot(311)
+plot(data_log_time.Time-time_origin,desired_attitude(:,1),'-','LineWidth',2.0);
+% plot(servoangle_data.Time-time_origin,-servoangle(:,2),'LineWidth',2.0);
 hold on
-plot(data_log_time.Time-time_origin,servo_angle(:,1),'-','LineWidth',2.0);
-plot(data_log_time.Time-time_origin,desired_servo_angle(:,4),'-','LineWidth',2.0);
-legend({'X_{des}','X_{meas}'},'Location','northwest','Orientation','horizontal');
+plot(data_log_time.Time-time_origin,attitude(:,1),'-','LineWidth',2.0);
+legend({'\phi_{F,d}','\phi_F'},'Location','northwest','Orientation','horizontal');
 grid
-title("global position X");
-
-subplot(3,1,2);
-hold on
-plot(data_log_time.Time-time_origin,servo_angle(:,2),'-','LineWidth',2.0);
-plot(data_log_time.Time-time_origin,PWM_cmd(:,1),'-','LineWidth',2.0);
-legend({'Y_{des}','Y_{meas}'},'Location','northwest','Orientation','horizontal');
-grid
-title("global position Y");
-
-subplot(3,1,3);
-hold on
-plot(data_log_time.Time-time_origin,servo_angle(:,3),'-','LineWidth',2.0);
-plot(data_log_time.Time-time_origin,PWM_cmd(:,2),'-','LineWidth',2.0);
-legend({'Z_{des}','Z_{meas}'},'Location','northwest','Orientation','horizontal');
-grid
-title("global position Z");
-
-% subplot(3,1,3);
-% hold on
-% plot(data_log_time.Time-time_origin,servo_angle(:,4),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,2),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint4 angle");
-% 
-% subplot(3,2,4);
-% hold on
-% plot(data_log_time.Time-time_origin,desired_servo_angle(:,1),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,3),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint5 angle");
-% 
-% subplot(3,2,6);
-% hold on
-% plot(data_log_time.Time-time_origin,desired_servo_angle(:,2),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,4),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint6 angle");
-
-
-
-% figure('Name','joint effort');
-% % title('D.A.S.O.M joint effort')
-% subplot(3, 2, 1);
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,5),'-','LineWidth',2.0);
-% title("joint1 effort");
-% grid
-% % plot(servoangle_data.Time-time_origin,-servoangle(:,2),'LineWidth',2.0);
-% %hold on
-% subplot(3, 2, 3);
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,6),'-','LineWidth',2.0);
-% title("joint2 effort");
-% 
-% %legend({'\phi_{F,d}','\phi_F'},'Location','northwest','Orientation','horizontal');
-% grid
-% % xlim([240 265]);
-% %ylim([-0.4 0.4]);
-% subplot(3, 2, 5);
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,7),'-','LineWidth',2.0);
-% grid
-% title("joint3 effort");
-% 
-% % plot(servoangle_data.Time-time_origin,servoangle(:,1),'LineWidth',2.0);
-% %hold on
-% subplot(3, 2, 2);
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,8),'-','LineWidth',2.0);
-% %legend({'\theta_{F,d}','\theta_F'},'Location','northwest','Orientation','horizontal');  
-% grid
-% title("joint4 effort");
-% 
-% % xlim([240 265]);
-% %ylim([-0.4 0.4]);
-% subplot(3, 2, 4);
-% plot(data_log_time.Time-time_origin,desired_torque(:,1),'-','LineWidth',2.0);
-% grid
-% title("joint5 effort");
-% 
-% %hold on
-% subplot(3, 2, 6);
-% plot(data_log_time.Time-time_origin,desired_torque(:,2),'-','LineWidth',2.0);
-% %legend({'\psi_{F,d}','\psi_F'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint6 effort");
-% 
-% 
-% %
-% figure('Name', "joint angle")
-% % title('D.A.S.O.M joint angle')
-% subplot(3,2,1);
-% hold on
-% plot(data_log_time.Time-time_origin,desired_torque(:,3),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,3),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint1 angle");
-% 
-% subplot(3,2,3);
-% hold on
-% plot(data_log_time.Time-time_origin,desired_force(:,1),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,4),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint2 angle");
-% 
-% subplot(3,2,5);
-% hold on
-% plot(data_log_time.Time-time_origin,desired_force(:,2),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,sbus(:,1),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint3 angle");
-% 
-% subplot(3,2,2);
-% hold on
-% plot(data_log_time.Time-time_origin,desired_force(:,3),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,sbus(:,2),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint4 angle");
-% 
-% subplot(3,2,4);
-% hold on
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,1),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,sbus(:,3),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint5 angle");
-% 
-% subplot(3,2,6);
-% hold on
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,2),'-','LineWidth',2.0);
-% plot(data_log_time.Time-time_origin,sbus(:,4),'-','LineWidth',2.0);
-% legend({'\theta_{des}','\theta_{meas}'},'Location','northwest','Orientation','horizontal');
-% grid
-% title("joint6 angle");
-
 % xlim([240 265]);
-%ylim([-pi/2 pi/2]);
-% % Attitude
-% 
-% 
-% figure('Name','Attitude');
-% subplot(311)
-% plot(data_log_time.Time-time_origin,desired_attitude(:,1),'-','LineWidth',2.0);
-% % plot(servoangle_data.Time-time_origin,-servoangle(:,2),'LineWidth',2.0);
+ylim([-0.4 0.4]);
+subplot(312)
+plot(data_log_time.Time-time_origin,desired_attitude(:,2),'-','LineWidth',2.0);
+% plot(servoangle_data.Time-time_origin,servoangle(:,1),'LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,attitude(:,2),'-','LineWidth',2.0);
+legend({'\theta_{F,d}','\theta_F'},'Location','northwest','Orientation','horizontal');  
+grid
+% xlim([240 265]);
+ylim([-0.4 0.4]);
+subplot(313)
+plot(data_log_time.Time-time_origin,desired_attitude(:,3),'-','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,attitude(:,3),'-','LineWidth',2.0);
+legend({'\psi_{F,d}','\psi_F'},'Location','northwest','Orientation','horizontal');
+grid
+% xlim([240 265]);
+ylim([-pi/2 pi/2]);
+
+%  XYZ Position--------------------------------------------------
+figure('Name','Position');
+subplot(3,1,1)
+plot(data_log_time.Time-time_origin,desired_position(:,1),'-.','LineWidth',2.0);
+% plot(lin_vel_data.Time-time_origin,lin_vel(:,1),'-.','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,position(:,1),'LineWidth',2.0);
+% set(gca,'FontSize',15);
+ylabel('$\bf{x}$ \rm\bf{(m)}',Interpreter='latex')
+legend('$^{G}x_d$','$^{G}x$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
+grid
+% xlim([240 265]);
+ylim([-1. 1.]);
+title('Position')%,'FontSize',30)
+subplot(3,1,2)
+plot(data_log_time.Time-time_origin,desired_position(:,2),'-.','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,position(:,2),'LineWidth',2.0);
+% set(gca,'FontSize')%,15);
+xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf{y}$ \rm\bf{(m)}',Interpreter='latex')
+legend('$^{G}y_d$','$^{G}y$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
+grid
+% xlim([60 85]);
+ylim([-1. 1.]);
+subplot(3,1,3)
+plot(data_log_time.Time-time_origin,desired_position(:,3),'-.','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,position(:,3),'LineWidth',2.0);
+% set(gca,'FontSize')%,15);
+xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf{z}$ \rm\bf{(m)}',Interpreter='latex')
+legend('$^{G}y_d$','$^{G}y$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
+grid
+% xlim([60 85]);
+ylim([-2. 1.]);
+
+% Force-------------------------------
+figure('Name','Force');
+% subplot(511)
+% plot(desired_angle_data.Time-time_origin,desired_angle_data.Data(:,3),'-','LineWidth',2.0);
 % hold on
-% plot(data_log_time.Time-time_origin,attitude(:,1),'-','LineWidth',2.0);
-% legend({'\phi_{F,d}','\phi_F'},'Location','northwest','Orientation','horizontal');
-% grid
-% % xlim([240 265]);
-% ylim([-0.4 0.4]);
-% subplot(312)
-% plot(data_log_time.Time-time_origin,desired_attitude(:,2),'-','LineWidth',2.0);
-% % plot(servoangle_data.Time-time_origin,servoangle(:,1),'LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,attitude(:,2),'-','LineWidth',2.0);
-% legend({'\theta_{F,d}','\theta_F'},'Location','northwest','Orientation','horizontal');  
-% grid
-% % xlim([240 265]);
-% ylim([-0.4 0.4]);
-% subplot(313)
-% plot(data_log_time.Time-time_origin,desired_attitude(:,3),'-','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,attitude(:,3),'-','LineWidth',2.0);
+% plot(angle_data.Time-time_origin,angle_data.Data(:,3),'-','LineWidth',2.0);
 % legend({'\psi_{F,d}','\psi_F'},'Location','northwest','Orientation','horizontal');
 % grid
-% % xlim([240 265]);
-% ylim([-pi/2 pi/2]);
-% 
-% %  XYZ Position--------------------------------------------------
-% figure('Name','Position');
-% subplot(3,1,1)
-% plot(data_log_time.Time-time_origin,desired_position(:,1),'-.','LineWidth',2.0);
-% % plot(lin_vel_data.Time-time_origin,lin_vel(:,1),'-.','LineWidth',2.0);
+% xlim([55 70]);
+% ylim([-3.14 3.14]);
+subplot(411)
+plot(data_log_time.Time-time_origin,individual_motor_thrust(:,1),'-','LineWidth',2.0);
+hold on
+title('F_1')
+grid
+% xlim([55 70]);
+% ylim([2 9]);
+subplot(412)
+plot(data_log_time.Time-time_origin,individual_motor_thrust(:,2),'-','LineWidth',2.0);
+hold on
+title('F_2')
+grid
+% xlim([55 70]);
+% ylim([2 9]);
+subplot(413)
+plot(data_log_time.Time-time_origin,individual_motor_thrust(:,3),'-','LineWidth',2.0);
+hold on
+title('F_3')
+grid
+% xlim([55 70]);
+% ylim([2 7]);
+subplot(414)
+plot(data_log_time.Time-time_origin,individual_motor_thrust(:,4),'-','LineWidth',2.0);
+hold on
+title('F_4')
+grid
+% xlim([55 70]);
+% ylim([2 7]);
+% sgtitle('Fixed Yaw')
+
+% PWM--------------------------
+figure('Name','PWM');
+subplot(511)
+plot(data_log_time.Time-time_origin,PWM_cmd(:,1),'-','LineWidth',2.0);
+grid
+% xlim([47 61]);
+ylim([1000 2000]);
+subplot(512)
+plot(data_log_time.Time-time_origin,PWM_cmd(:,2),'-','LineWidth',2.0);
+grid
+% xlim([47 61]);
+ylim([1000 2000]);
+subplot(513)
+plot(data_log_time.Time-time_origin,PWM_cmd(:,3),'-','LineWidth',2.0);
+grid
+% xlim([47 61]);
+ylim([1000 2000]);
+subplot(514)
+plot(data_log_time.Time-time_origin,PWM_cmd(:,4),'-','LineWidth',2.0);
+grid
+% xlim([47 61]);
+ylim([1000 2000]);
+
+subplot(515)
+grid
+plot(data_log_time.Time-time_origin,battery_voltage,'-','LineWidth',2.0);
+title('voltage')
+
+% Sbus---------------------------------------------
+figure('Name','Sbus');
+subplot(421)
+plot(data_log_time.Time-time_origin,sbus(:,1),'-','LineWidth',2.0);
+hold on
+title('Sbus[0],yaw')
+% xlim([38 45]);
+grid
+subplot(423)
+plot(data_log_time.Time-time_origin,sbus(:,2),'-','LineWidth',2.0);
+hold on
+title('Sbus[1],x')
+% xlim([38 45]);
+grid
+subplot(425)
+plot(data_log_time.Time-time_origin,sbus(:,3),'-','LineWidth',2.0);
+hold on
+title('Sbus[2],altitude')
+% xlim([38 45]);
+grid
+subplot(427)
+plot(data_log_time.Time-time_origin,sbus(:,4),'-','LineWidth',2.0);
+hold on
+title('Sbus[3],y')
+% xlim([38 45]);
+grid
+
+subplot(422)
+plot(data_log_time.Time-time_origin,sbus(:,5),'-','LineWidth',2.0);
+hold on
+title('Sbus[4],kill')
+% xlim([38 45]);
+grid
+subplot(424)
+plot(data_log_time.Time-time_origin,sbus(:,6),'-','LineWidth',2.0);
+hold on
+title('Sbus[5],thr,alti')
+% xlim([38 45]);
+grid
+subplot(426)
+plot(data_log_time.Time-time_origin,sbus(:,7),'-','LineWidth',2.0);
+hold on
+title('Sbus[6],att,vel,pos')
+% xlim([38 45]);
+grid
+subplot(428)
+plot(data_log_time.Time-time_origin,sbus(:,8),'-','LineWidth',2.0);
+hold on
+title('Sbus[7],tilt')
+% xlim([38 45]);
+grid
+
+% Linear Velocity plot
+figure('Name','Linear Velocity');
+subplot(311)
+plot(data_log_time.Time-time_origin,desired_linear_velocity(:,1),'-','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,linear_velocity(:,1),'-','LineWidth',2.0);
+% plot(imu_data.Time-time_origin,y(:,1))
+ylabel('$\bf{\dot{x}}$ \rm\bf{(m/s)}',Interpreter='latex')
+legend('$^{G}\dot{x_d}$','$^{G}\dot{x}$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
+title('Velocity')%,'FontSize',30)
+ylim([-2 2]);
+% xlim([60 85]);
+grid
+subplot(312)
+plot(data_log_time.Time-time_origin,desired_linear_velocity(:,2),'-','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,linear_velocity(:,2),'-','LineWidth',2.0);
+ylabel('$\bf{\dot{y}}$ \rm\bf{(m/s)}',Interpreter='latex')
+legend('$^{G}\dot{y_d}$','$^{G}\dot{y}$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
+ylim([-2 2]);
+% xlim([60 85]);
+grid
+subplot(313)
+% plot(desired_lin_vel_data.Time-time_origin,desired_lin_vel(:,3),'-.','LineWidth',2.0);
 % hold on
-% plot(data_log_time.Time-time_origin,position(:,1),'LineWidth',2.0);
-% % set(gca,'FontSize',15);
-% ylabel('$\bf{x}$ \rm\bf{(m)}',Interpreter='latex')
-% legend('$^{G}x_d$','$^{G}x$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
-% grid
-% % xlim([240 265]);
-% ylim([-1. 1.]);
-% title('Position')%,'FontSize',30)
-% subplot(3,1,2)
-% plot(data_log_time.Time-time_origin,desired_position(:,2),'-.','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,position(:,2),'LineWidth',2.0);
-% % set(gca,'FontSize')%,15);
-% xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
-% ylabel('$\bf{y}$ \rm\bf{(m)}',Interpreter='latex')
-% legend('$^{G}y_d$','$^{G}y$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
-% grid
-% % xlim([60 85]);
-% ylim([-1. 1.]);
-% subplot(3,1,3)
-% plot(data_log_time.Time-time_origin,desired_position(:,3),'-.','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,position(:,3),'LineWidth',2.0);
-% % set(gca,'FontSize')%,15);
-% xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
-% ylabel('$\bf{z}$ \rm\bf{(m)}',Interpreter='latex')
-% legend('$^{G}y_d$','$^{G}y$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
-% grid
-% % xlim([60 85]);
-% ylim([-2. 1.]);
-% 
-% % Force-------------------------------
-% figure('Name','Force');
-% % subplot(511)
-% % plot(desired_angle_data.Time-time_origin,desired_angle_data.Data(:,3),'-','LineWidth',2.0);
-% % hold on
-% % plot(angle_data.Time-time_origin,angle_data.Data(:,3),'-','LineWidth',2.0);
-% % legend({'\psi_{F,d}','\psi_F'},'Location','northwest','Orientation','horizontal');
-% % grid
-% % xlim([55 70]);
-% % ylim([-3.14 3.14]);
-% subplot(411)
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,1),'-','LineWidth',2.0);
-% hold on
-% title('F_1')
-% grid
-% % xlim([55 70]);
-% % ylim([2 9]);
-% subplot(412)
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,2),'-','LineWidth',2.0);
-% hold on
-% title('F_2')
-% grid
-% % xlim([55 70]);
-% % ylim([2 9]);
-% subplot(413)
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,3),'-','LineWidth',2.0);
-% hold on
-% title('F_3')
-% grid
-% % xlim([55 70]);
-% % ylim([2 7]);
-% subplot(414)
-% plot(data_log_time.Time-time_origin,individual_motor_thrust(:,4),'-','LineWidth',2.0);
-% hold on
-% title('F_4')
-% grid
-% % xlim([55 70]);
-% % ylim([2 7]);
-% % sgtitle('Fixed Yaw')
-% 
-% % PWM--------------------------
-% figure('Name','PWM');
-% subplot(511)
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,1),'-','LineWidth',2.0);
-% grid
-% % xlim([47 61]);
-% ylim([1000 2000]);
-% subplot(512)
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,2),'-','LineWidth',2.0);
-% grid
-% % xlim([47 61]);
-% ylim([1000 2000]);
-% subplot(513)
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,3),'-','LineWidth',2.0);
-% grid
-% % xlim([47 61]);
-% ylim([1000 2000]);
-% subplot(514)
-% plot(data_log_time.Time-time_origin,PWM_cmd(:,4),'-','LineWidth',2.0);
-% grid
-% % xlim([47 61]);
-% ylim([1000 2000]);
-% 
-% subplot(515)
-% grid
-% plot(data_log_time.Time-time_origin,battery_voltage,'-','LineWidth',2.0);
-% title('voltage')
-% 
-% % Sbus---------------------------------------------
-% figure('Name','Sbus');
-% subplot(421)
-% plot(data_log_time.Time-time_origin,sbus(:,1),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[0],yaw')
-% % xlim([38 45]);
-% grid
-% subplot(423)
-% plot(data_log_time.Time-time_origin,sbus(:,2),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[1],x')
-% % xlim([38 45]);
-% grid
-% subplot(425)
-% plot(data_log_time.Time-time_origin,sbus(:,3),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[2],altitude')
-% % xlim([38 45]);
-% grid
-% subplot(427)
-% plot(data_log_time.Time-time_origin,sbus(:,4),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[3],y')
-% % xlim([38 45]);
-% grid
-% 
-% subplot(422)
-% plot(data_log_time.Time-time_origin,sbus(:,5),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[4],kill')
-% % xlim([38 45]);
-% grid
-% subplot(424)
-% plot(data_log_time.Time-time_origin,sbus(:,6),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[5],thr,alti')
-% % xlim([38 45]);
-% grid
-% subplot(426)
-% plot(data_log_time.Time-time_origin,sbus(:,7),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[6],att,vel,pos')
-% % xlim([38 45]);
-% grid
-% subplot(428)
-% plot(data_log_time.Time-time_origin,sbus(:,8),'-','LineWidth',2.0);
-% hold on
-% title('Sbus[7],tilt')
-% % xlim([38 45]);
-% grid
-% 
-% % Linear Velocity plot
-% figure('Name','Linear Velocity');
-% subplot(311)
-% plot(data_log_time.Time-time_origin,desired_linear_velocity(:,1),'-','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,linear_velocity(:,1),'-','LineWidth',2.0);
-% % plot(imu_data.Time-time_origin,y(:,1))
-% ylabel('$\bf{\dot{x}}$ \rm\bf{(m/s)}',Interpreter='latex')
-% legend('$^{G}\dot{x_d}$','$^{G}\dot{x}$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
-% title('Velocity')%,'FontSize',30)
-% ylim([-2 2]);
-% % xlim([60 85]);
-% grid
-% subplot(312)
-% plot(data_log_time.Time-time_origin,desired_linear_velocity(:,2),'-','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,linear_velocity(:,2),'-','LineWidth',2.0);
-% ylabel('$\bf{\dot{y}}$ \rm\bf{(m/s)}',Interpreter='latex')
-% legend('$^{G}\dot{y_d}$','$^{G}\dot{y}$','Interpreter','latex','Orientation','horizontal')%,FontSize=20);
-% ylim([-2 2]);
-% % xlim([60 85]);
-% grid
-% subplot(313)
-% % plot(desired_lin_vel_data.Time-time_origin,desired_lin_vel(:,3),'-.','LineWidth',2.0);
-% % hold on
-% plot(data_log_time.Time-time_origin,linear_velocity(:,3),'-','LineWidth',2.0);
-% % ylim([-15 15]);
-% % xlim([30 55]);
-% grid
-% % Servo Angle---------------------------------------------------------------
-% figure('Name','Servo Angle');
-% subplot(4,1,1)
-% plot(data_log_time.Time-time_origin,desired_servo_angle(:,1),'-.','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,servo_angle(:,1),'LineWidth',2.0);
-% % set(gca,'FontSize',15);
-% ylabel('$\bf\theta_1 (rad)$',Interpreter='latex')%,'FontSize',24)
-% legend('\theta_{1,d}','\theta_1','Orientation','horizontal')%,FontSize=20);
-% grid
-% % xlim([60 85]);
-% ylim([-.4 .4]);
-% title('Servo Angle')%,'FontSize',30)
-% subplot(4,1,2)
-% plot(data_log_time.Time-time_origin,desired_servo_angle(:,2),'-.','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,servo_angle(:,2),'LineWidth',2.0);
-% % set(gca,'FontSize',15);
-% xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
-% ylabel('$\bf\theta_2 (rad)$',Interpreter='latex')%,'FontSize',24)
-% grid
-% % xlim([60 85]);
-% ylim([-.4 .4]);
-% legend('\theta_{2,d}','\theta_2','Orientation','horizontal')%,FontSize=20);
-% subplot(4,1,3)
-% plot(data_log_time.Time-time_origin,desired_servo_angle(:,3),'-.','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,servo_angle(:,3),'LineWidth',2.0);
-% % set(gca,'FontSize',15);
-% xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
-% ylabel('$\bf\theta_3 (rad)$',Interpreter='latex')%,'FontSize',24)
-% grid
-% % xlim([60 85]);
-% ylim([-.4 .4]);
-% legend('\theta_{3,d}','\theta_3','Orientation','horizontal')%,FontSize=20);
-% subplot(4,1,4)
-% plot(data_log_time.Time-time_origin,desired_servo_angle(:,4),'-.','LineWidth',2.0);
-% hold on
-% plot(data_log_time.Time-time_origin,servo_angle(:,4),'LineWidth',2.0);
-% % set(gca,'FontSize',15);
-% xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
-% ylabel('$\bf\theta_4 (rad)$',Interpreter='latex')%,'FontSize',24)
-% grid
-% % xlim([60 85]);
-% ylim([-.4 .4]);
-% legend('\theta_{4,d}','\theta_4','Orientation','horizontal')%,FontSize=20);
-% 
-% 
-% % Desired_value------------------------------
-% figure('Name','Desired Value');
-% subplot(321)
-% plot(data_log_time.Time-time_origin,desired_torque(:,1),'-','LineWidth',2.0);
-% hold on
-% grid
-% % xlim([55 70]);
-% ylim([-3 3]);
-% title('\tau_{r,d}')
-% subplot(323)
-% plot(data_log_time.Time-time_origin,desired_torque(:,2),'-','LineWidth',2.0);
-% hold on
-% grid
-% % xlim([55 70]);
-% ylim([-3 3]);
-% title('\tau_{p,d}')
-% subplot(325)
-% plot(data_log_time.Time-time_origin,desired_torque(:,3),'-','LineWidth',2.0);
-% hold on
-% grid
-% % xlim([55 70]);
-% ylim([-3 3]);
-% title('\tau_{y,d}')
-% 
-% subplot(322)
-% plot(data_log_time.Time-time_origin,desired_force(:,1),'-','LineWidth',2.0);
-% hold on
-% grid
-% % xlim([55 70]);
-% % ylim([-3.14 3.14]);
-% title('F_{x,d}')
-% subplot(324)
-% plot(data_log_time.Time-time_origin,desired_force(:,2),'-','LineWidth',2.0);
-% hold on
-% grid
-% % xlim([55 70]);
-% % ylim([-3.14 3.14]);
-% title('F_{y,d}')
-% subplot(326)
-% plot(data_log_time.Time-time_origin,desired_force(:,3),'-','LineWidth',2.0);
-% hold on
-% grid
-% % xlim([55 70]);
-% % ylim([-3.14 3.14]);
-% title('F_{z,d}')
-% sgtitle('Published Desired Torque & Force')
-% 
-% % dt-----------------------------------------
-% figure('Name','dt');
-% plot(data_log_time.Time-time_origin,delta_t(:,1),'.');
-% grid
+plot(data_log_time.Time-time_origin,linear_velocity(:,3),'-','LineWidth',2.0);
+% ylim([-15 15]);
+% xlim([30 55]);
+grid
+% Servo Angle---------------------------------------------------------------
+figure('Name','Servo Angle');
+subplot(4,1,1)
+plot(data_log_time.Time-time_origin,desired_servo_angle(:,1),'-.','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,servo_angle(:,1),'LineWidth',2.0);
+% set(gca,'FontSize',15);
+ylabel('$\bf\theta_1 (rad)$',Interpreter='latex')%,'FontSize',24)
+legend('\theta_{1,d}','\theta_1','Orientation','horizontal')%,FontSize=20);
+grid
+% xlim([60 85]);
+ylim([-.4 .4]);
+title('Servo Angle')%,'FontSize',30)
+subplot(4,1,2)
+plot(data_log_time.Time-time_origin,desired_servo_angle(:,2),'-.','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,servo_angle(:,2),'LineWidth',2.0);
+% set(gca,'FontSize',15);
+xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf\theta_2 (rad)$',Interpreter='latex')%,'FontSize',24)
+grid
+% xlim([60 85]);
+ylim([-.4 .4]);
+legend('\theta_{2,d}','\theta_2','Orientation','horizontal')%,FontSize=20);
+subplot(4,1,3)
+plot(data_log_time.Time-time_origin,desired_servo_angle(:,3),'-.','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,servo_angle(:,3),'LineWidth',2.0);
+% set(gca,'FontSize',15);
+xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf\theta_3 (rad)$',Interpreter='latex')%,'FontSize',24)
+grid
+% xlim([60 85]);
+ylim([-.4 .4]);
+legend('\theta_{3,d}','\theta_3','Orientation','horizontal')%,FontSize=20);
+subplot(4,1,4)
+plot(data_log_time.Time-time_origin,desired_servo_angle(:,4),'-.','LineWidth',2.0);
+hold on
+plot(data_log_time.Time-time_origin,servo_angle(:,4),'LineWidth',2.0);
+% set(gca,'FontSize',15);
+xlabel('$\bf{Time (sec)}$',Interpreter='latex')%,'FontSize',24)
+ylabel('$\bf\theta_4 (rad)$',Interpreter='latex')%,'FontSize',24)
+grid
+% xlim([60 85]);
+ylim([-.4 .4]);
+legend('\theta_{4,d}','\theta_4','Orientation','horizontal')%,FontSize=20);
+
+
+% Desired_value------------------------------
+figure('Name','Desired Value');
+subplot(321)
+plot(data_log_time.Time-time_origin,desired_torque(:,1),'-','LineWidth',2.0);
+hold on
+grid
+% xlim([55 70]);
+ylim([-3 3]);
+title('\tau_{r,d}')
+subplot(323)
+plot(data_log_time.Time-time_origin,desired_torque(:,2),'-','LineWidth',2.0);
+hold on
+grid
+% xlim([55 70]);
+ylim([-3 3]);
+title('\tau_{p,d}')
+subplot(325)
+plot(data_log_time.Time-time_origin,desired_torque(:,3),'-','LineWidth',2.0);
+hold on
+grid
+% xlim([55 70]);
+ylim([-3 3]);
+title('\tau_{y,d}')
+
+subplot(322)
+plot(data_log_time.Time-time_origin,desired_force(:,1),'-','LineWidth',2.0);
+hold on
+grid
+% xlim([55 70]);
+% ylim([-3.14 3.14]);
+title('F_{x,d}')
+subplot(324)
+plot(data_log_time.Time-time_origin,desired_force(:,2),'-','LineWidth',2.0);
+hold on
+grid
+% xlim([55 70]);
+% ylim([-3.14 3.14]);
+title('F_{y,d}')
+subplot(326)
+plot(data_log_time.Time-time_origin,desired_force(:,3),'-','LineWidth',2.0);
+hold on
+grid
+% xlim([55 70]);
+% ylim([-3.14 3.14]);
+title('F_{z,d}')
+sgtitle('Published Desired Torque & Force')
+
+% dt-----------------------------------------
+figure('Name','dt');
+plot(data_log_time.Time-time_origin,delta_t(:,1),'.');
+grid
 end
 
 %%
