@@ -202,13 +202,6 @@ void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
   tau_measured[3] = msg->effort.at(3); 
   tau_measured[4] = msg->effort.at(4); 
   tau_measured[5] = msg->effort.at(5);
-
-  // tau_measured[0] = msg->effort.at(0); 
-  // tau_measured[1] = 0.3*3.53*msg->effort.at(1)-0.3; 
-  // tau_measured[2] = 1.3*msg->effort.at(2)-0.3; 
-  // tau_measured[3] = msg->effort.at(3)+0.09; 
-  // tau_measured[4] = msg->effort.at(4)+0.01; 
-  // tau_measured[5] = msg->effort.at(5);
 }
 
 void DasomControl::joystickCallback(const geometry_msgs::Twist &msg)

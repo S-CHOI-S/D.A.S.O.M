@@ -1261,7 +1261,7 @@ color: rgb(255, 255, 255);</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../resources/loading_blue.svg</pixmap>
+         <pixmap>../../../../.designer/resources/loading_blue.svg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -1288,7 +1288,7 @@ color: rgb(255, 255, 255);</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../resources/loading_blue.svg</pixmap>
+         <pixmap>../../../../.designer/resources/loading_blue.svg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -1315,7 +1315,7 @@ color: rgb(255, 255, 255);</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../resources/loading_blue.svg</pixmap>
+         <pixmap>../../../../.designer/resources/loading_blue.svg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -2450,7 +2450,7 @@ border-radius: 10px;</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>../icons/MRL_logo_make_white.png</pixmap>
+       <pixmap>../../../../.designer/icons/MRL_logo_make_white.png</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -3136,7 +3136,7 @@ border-radius: 10px;</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../resources/loading_blue.svg</pixmap>
+         <pixmap>../../../../.designer/resources/loading_blue.svg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -3158,7 +3158,7 @@ border-radius: 10px;</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../resources/loading_blue.svg</pixmap>
+         <pixmap>../../../../.designer/resources/loading_blue.svg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -3180,7 +3180,7 @@ border-radius: 10px;</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../resources/loading_blue.svg</pixmap>
+         <pixmap>../../../../.designer/resources/loading_blue.svg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -4942,10 +4942,10 @@ color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>50</y>
-         <width>517</width>
-         <height>342</height>
+         <x>12</x>
+         <y>37</y>
+         <width>518</width>
+         <height>381</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -5057,7 +5057,7 @@ color: rgb(255, 255, 255);</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>../resources/check_green.gif</pixmap>
+       <pixmap>../../../../.designer/resources/check_green.gif</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -5076,7 +5076,7 @@ color: rgb(255, 255, 255);</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>../resources/check_green.gif</pixmap>
+       <pixmap>../../../../.designer/resources/check_green.gif</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>

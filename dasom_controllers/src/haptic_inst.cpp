@@ -189,7 +189,8 @@ void HI::initSubscriber()
     joint_command_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/joint_states", 10);
     // joint_measured_pub_ = node_handle_.advertise<sensor_msgs::JointState>("/measured_dynamixel_position", 10);  
     // dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/dasom/EE_pose", 10);  
-    dasom_EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/palletrone/battery", 10);
+    dasom_EE_cmd_pub_ = node_handle_.advertise<geometry_msgs::Twist>("/phantom/xyzrpy", 10);
+    haptic_button_pub_ = node_handle_.advertise<omni_msgs::OmniButtonEvent>("/phantom/button", 10);
     // joint_states_sub_ = node_handle_.subscribe("/joint_states", 10, &HI::jointCallback, this, ros::TransportHints().tcpNoDelay());
     // joystick_sub_ = node_handle_.subscribe("/instead_haptic", 10, &HI::joystickCallback, this, ros::TransportHints().tcpNoDelay());
 }
@@ -233,9 +234,9 @@ void HI::solveInverseKinematics()
     // ROS_WARN("======================================================================================");
     // ROS_ERROR("%lf, %lf, %lf, %lf, %lf, %lf", angle_measured[0], angle_measured[1], angle_measured[2], angle_measured[3], angle_measured[4], angle_measured[5]);
 
-    msg.linear.x = FK_pose[0];
-    msg.linear.y = FK_pose[1];
-    msg.linear.z = FK_pose[2];
+    msg.linear.x = haptic_command[0];
+    msg.linear.y = haptic_command[1];
+    msg.linear.z = haptic_command[2];
     msg.angular.x = FK_pose[3];
     msg.angular.y = FK_pose[4];
     msg.angular.z = FK_pose[5];
@@ -262,7 +263,7 @@ void HI::solveInverseKinematics()
   
 }
 
-
+int td = 0;
 double i = 0;
 void HI::CommandGenerator()
 {
@@ -270,9 +271,9 @@ void HI::CommandGenerator()
 
     i++;
 
-    msg__.linear.x = 0 +0.1*sin(i/1000);
-    msg__.linear.y = -0.1+0.1*sin(i/1000); // y축 방향으로 안정적인 거 확인!
-    msg__.linear.z = 0+0.06*sin(i/1000); // z축 방향으로 안정적인 거 확인!
+    msg__.linear.x =0.1*sin(i/1000);
+    msg__.linear.y =0.1*sin(i/1000); // y축 방향으로 안정적인 거 확인!
+    msg__.linear.z = 0.1*sin(i/1000); // z축 방향으로 안정적인 거 확인!
     msg__.angular.x = 0;
     msg__.angular.y = 0;
     msg__.angular.z = 0;
@@ -290,13 +291,24 @@ void HI::CommandGenerator()
 
     // tf::Matrix3x3(quat).getRPY(haptic_command[3], haptic_command[4], haptic_command[5]);
     
-    haptic_command = haptic_command + initPose;
+    // haptic_command = haptic_command + initPose;
 
     ROS_WARN("================================");
     ROS_INFO("X_cmd = %lf",haptic_command[0]);
     ROS_INFO("Y_cmd = %lf",haptic_command[1]);
     ROS_INFO("Z_cmd = %lf",haptic_command[2]);
-  
+
+    omni_msgs::OmniButtonEvent button;
+
+    if(td % 3500 == 0)
+    {
+        button.grey_button = 0;
+        button.grey_button = 1;
+    }
+    
+    td++;
+
+    haptic_button_pub_.publish(button);
 }
 
 int main(int argc, char **argv)
@@ -316,20 +328,20 @@ int main(int argc, char **argv)
 
     while(ros::ok())
     {
-        // hi.CommandGenerator();
-        // hi.solveInverseKinematics();
+        hi.CommandGenerator();
+        hi.solveInverseKinematics();
 
-        msg.linear.x = i%5;
-        msg.linear.y = -0.05; // y축 방향으로 안정적인 거 확인!
-        msg.linear.z = 0; // z축 방향으로 안정적인 거 확인!
-        msg.angular.x = 0;
-        msg.angular.y = 0;
-        msg.angular.z = 0;
+        // msg.linear.x = i%5;
+        // msg.linear.y = -0.05; // y축 방향으로 안정적인 거 확인!
+        // msg.linear.z = 0; // z축 방향으로 안정적인 거 확인!
+        // msg.angular.x = 0;
+        // msg.angular.y = 0;
+        // msg.angular.z = 0;
 
-        haptic_cmd_.publish(msg);
+        // haptic_cmd_.publish(msg);
 
-        i++;
-        ROS_INFO("X_cmd = %lf",0);
+        // i++;
+        // ROS_INFO("X_cmd = %lf",0);
         // ros::spin();
 	    loop_rate.sleep();
     }

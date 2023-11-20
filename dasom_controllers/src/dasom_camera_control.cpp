@@ -18,7 +18,7 @@
 
 DasomCamControl::DasomCamControl()
 : node_handle_(""), it_(node_handle_)
-, DasomCam(pub, 2) // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
+, DasomCam(pub, 0) // camera cam이면 0, 다른 webcam이면 그거에 맞춰서!
 {
   robot_name_ = node_handle_.param<std::string>("robot_name", "dasom");
 
@@ -48,7 +48,7 @@ void DasomCamControl::initSubscriber()
 {
   joystick_sub_ = node_handle_.subscribe("/phantom/xyzrpy", 10, &DasomCamControl::joystickCallback, this, ros::TransportHints().tcpNoDelay());
   button_sub_ = node_handle_.subscribe("/phantom/button", 10, &DasomCamControl::buttonCallback, this, ros::TransportHints().tcpNoDelay());
-  gimbal_sub_ = node_handle_.subscribe("/dasom/global_EE_frame/world", 10, &DasomCamControl::gimbalCallback, this, ros::TransportHints().tcpNoDelay());
+  gimbal_sub_ = node_handle_.subscribe("/dasom/tf/global_fixed_gimbal_EE_pose", 10, &DasomCamControl::gimbalCallback, this, ros::TransportHints().tcpNoDelay());
 }
 
 void DasomCamControl::gimbalCallback(const geometry_msgs::PoseStamped &msg)
@@ -118,11 +118,11 @@ void DasomCamControl::update()
     // ROS_INFO("Grey 2: Gimbaling + Command mode");
     if(gimbalcommand_safe == false)
     {
-      UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);
+      UpdateCameraGimbalCommandSafety(1000 * haptic_position, 1000 * gimbal_position_tf);
     }
     else 
     {
-      UpdateCameraGimbal(1000 * haptic_position, 1000 * gimbal_position_tf);
+      UpdateCameraGimbalCommand(1000 * haptic_position, 1000 * gimbal_position_tf);
     }
   }
 }

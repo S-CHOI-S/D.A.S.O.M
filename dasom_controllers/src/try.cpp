@@ -15,47 +15,133 @@
 /* Authors: Sol Choi (Jennifer) */
 
 #include "ros/ros.h"
-#include <geometry_msgs/PoseStamped.h>
+#include <opencv2/opencv.hpp>
 
-int main(int argc, char **argv) 
-{
+cv::Mat image;
+
+void mouseCallback(int event, int x, int y, int flags, void* param) {
+    if (event == cv::EVENT_LBUTTONDOWN) {
+        // 클릭한 지점의 픽셀 값을 읽어옴
+        cv::Vec3b hsv = image.at<cv::Vec3b>(y, x);
+
+        // HSV 값을 출력
+        std::cout << "Clicked HSV values at (" << x << ", " << y << "): "
+                  << "H=" << static_cast<int>(hsv[0]) << ", "
+                  << "S=" << static_cast<int>(hsv[1]) << ", "
+                  << "V=" << static_cast<int>(hsv[2]) << std::endl;
+    }
+}
+
+int main(int argc, char **argv) {
     ros::init(argc, argv, "try");
     ros::NodeHandle nh;
 
     ros::Rate rate(200);
 
-    ros::Publisher pub = nh.advertise<geometry_msgs::PoseStamped>("/dasomPalletrone/world", 1);
+    // 이미지 파일 읽기
+    cv::Mat image = cv::imread("/home/choisol/image.png");
 
-    geometry_msgs::PoseStamped msg;
-
-    double i = 0;
-
-    ros::Time recording_start_time = ros::Time::now();
-
-    while(ros::ok())
-    {
-        ros::Duration elapsed_time = ros::Time::now() - recording_start_time;
-        msg.header.stamp = ros::Time(elapsed_time.toSec());
-        // msg.header.stamp.sec = ros::Time::now().toSec;
-
-        msg.pose.position.x = 5 * sin(i/200);
-        msg.pose.position.y = 5 * cos(i/200);
-        msg.pose.position.z = 3;
-        msg.pose.orientation.x = 0;
-        msg.pose.orientation.y = 0;
-        msg.pose.orientation.z = 0;
-        msg.pose.orientation.w = 1;
-
-        i++;
-
-        pub.publish(msg);
-
-        ros::spinOnce();
-        rate.sleep();
+    if (image.empty()) {
+        std::cerr << "Image not found or cannot be read." << std::endl;
+        return -1;
     }
+
+    // // 이미지 창 생성 및 마우스 콜백 함수 등록
+    // cv::namedWindow("Image", cv::WINDOW_NORMAL);  // 크기 조절을 위해 WINDOW_NORMAL 플래그 사용
+    // cv::resizeWindow("Image", image.cols / 2, image.rows / 2);  // 이미지 크기를 50%로 조절
+    // cv::setMouseCallback("Image", mouseCallback);
+
+    // // 무한 루프
+    // while (true) {
+    //     // 이미지를 창에 표시
+    //     cv::imshow("Image", image);
+
+    //     // 키 입력을 기다림
+    //     int key = cv::waitKey(10);
+
+    //     // 'q' 키를 누르면 종료
+    //     if (key == 'q') {
+    //         break;
+    //     }
+    // }
+
+    // 이미지를 HSV 색 공간으로 변환
+    cv::Mat hsvImage;
+    cv::cvtColor(image, hsvImage, cv::COLOR_BGR2HSV);
+
+    // 색상 범위 지정 (노란색 예시)
+    cv::Scalar lower_yellow = cv::Scalar(30, 80, 100);  // HSV에서의 하한 범위
+    cv::Scalar upper_yellow = cv::Scalar(50, 255, 255);  // HSV에서의 상한 범위
+
+    // 지정된 색상 범위에 속하는 픽셀을 흰색으로 마스킹
+    cv::Mat mask;
+    cv::inRange(hsvImage, lower_yellow, upper_yellow, mask);
+
+    // 원본 이미지에서 마스크를 적용하여 노란색을 추출
+    cv::Mat result;
+    cv::bitwise_and(image, image, result, mask);
+
+    // 이미지 크기 조절 (가로 800, 세로 자동 조절)
+    cv::resize(image, image, cv::Size(700, 850), 0, 0, cv::INTER_LINEAR);
+    cv::resize(mask, mask, cv::Size(700, 850), 0, 0, cv::INTER_LINEAR);
+    cv::resize(result, result, cv::Size(700, 850), 0, 0, cv::INTER_LINEAR);
+
+    // 원본 이미지, 마스크, 추출된 이미지를 각각 표시
+    cv::imshow("Original Image", image);
+    cv::imshow("Mask", mask);
+    cv::imshow("Yellow Color Extraction", result);
+
+    cv::waitKey(0);
+    cv::destroyAllWindows();
 
     return 0;
 }
+
+
+
+
+
+// #include <geometry_msgs/PoseStamped.h>
+
+// int main(int argc, char **argv) 
+// {
+//     ros::init(argc, argv, "try");
+//     ros::NodeHandle nh;
+
+//     ros::Rate rate(200);
+
+//     ros::Publisher pub = nh.advertise<geometry_msgs::PoseStamped>("/dasomPalletrone/world", 1);
+
+//     geometry_msgs::PoseStamped msg;
+
+//     double i = 0;
+
+//     ros::Time recording_start_time = ros::Time::now();
+
+//     while(ros::ok())
+//     {
+//         ros::Duration elapsed_time = ros::Time::now() - recording_start_time;
+//         msg.header.stamp = ros::Time(elapsed_time.toSec());
+//         // msg.header.stamp.sec = ros::Time::now().toSec;
+
+//         msg.pose.position.x = 5 * sin(i/200);
+//         msg.pose.position.y = 5 * cos(i/200);
+//         msg.pose.position.z = 3;
+//         msg.pose.orientation.x = 0;
+//         msg.pose.orientation.y = 0;
+//         msg.pose.orientation.z = 0;
+//         msg.pose.orientation.w = 1;
+
+//         i++;
+
+//         pub.publish(msg);
+
+//         ros::spinOnce();
+//         rate.sleep();
+//     }
+
+//     return 0;
+// }
 
 
 // #include "ros/ros.h"

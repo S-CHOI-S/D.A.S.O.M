@@ -16,6 +16,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_msgs/TFMessage.h>
 #include "tf/transform_datatypes.h"
+#include <omni_msgs/OmniButtonEvent.h>
 
 #define PI 3.141592 //56359
 
@@ -221,6 +222,7 @@ class HI
   ros::Publisher joint_measured_pub_;
   ros::Publisher dasom_EE_pos_pub_;
   ros::Publisher dasom_EE_cmd_pub_;
+  ros::Publisher haptic_button_pub_;
   
   ros::Subscriber joint_states_sub_;
   ros::Subscriber joystick_sub_;

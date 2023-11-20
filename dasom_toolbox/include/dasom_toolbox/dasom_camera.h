@@ -30,6 +30,8 @@
 #define blue cv::Scalar(255,0,0)
 #define green cv::Scalar(0,255,0)
 #define red cv::Scalar(0,0,255)
+#define orange cv::Scalar(34,128,242)
+#define pink cv::Scalar(243,109,247)
 
 namespace dasom
 {
@@ -48,14 +50,13 @@ namespace dasom
     /*****************************************************************************
     ** Define functions
     *****************************************************************************/
-    void DetectLightBulb();
+    void test();
+    void reInitializePublisher(image_transport::Publisher& publisher);
     void UpdateCameraCommand(Eigen::Vector3d core);
-    void DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
     void UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal);
+    void UpdateCameraGimbalCommandSafety(Eigen::Vector3d core, Eigen::Vector3d gimbal);
     void UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d gimbal);
     void UpdateCameraPalletrone();
-    void reInitializePublisher(image_transport::Publisher& publisher);
-    void test();
 
   private:
     /*****************************************************************************
@@ -86,8 +87,15 @@ namespace dasom
     void initCamera(int cam_num);
     cv::Mat flipCamera(cv::Mat frame);
     cv::Mat rotateCamera(cv::Mat frame);
-    cv::Mat drawCoordinate(cv::Mat framw);
+    cv::Mat drawCoordinate(cv::Mat frame);
     cv::Mat drawHapticJoystick(cv::Mat frame, Eigen::Vector3d core);
+    cv::Mat drawHapticPosition(cv::Mat frame, Eigen::Vector3d core);
+    cv::Mat drawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color);
+    cv::Mat drawMovingGimbalCross(cv::Mat frame, Eigen::Vector3d core);
+    cv::Mat drawPalletroneCoordinate(cv::Mat frame);
+    cv::Mat drawManipulatorWorkspace(cv::Mat frame);
+    cv::Mat drawPalletroneWorkspace(cv::Mat frame);
+    void DetectLightBulb();
   };
 } // namespace DASOM
 

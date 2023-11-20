@@ -4,6 +4,6 @@
   <param name="robot_name"    value="$(arg robot_name)"/>
 
   <node name="dasom_camera_control" pkg="dasom_controllers" type="dasom_camera_control" required="true" output="screen"/>
-  <node name="dasom_camera_control_palletrone" pkg="dasom_controllers" type="dasom_camera_control_palletrone" required="true" output="screen"/>
+<!--  <node name="dasom_camera_control_palletrone" pkg="dasom_controllers" type="dasom_camera_control_palletrone" required="true" output="screen"/>-->
 
 </launch>
