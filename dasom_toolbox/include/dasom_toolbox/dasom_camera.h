@@ -87,6 +87,7 @@ namespace dasom
     cv::Mat flipCamera(cv::Mat frame);
     cv::Mat rotateCamera(cv::Mat frame);
     cv::Mat drawCoordinate(cv::Mat framw);
+    cv::Mat drawHapticJoystick(cv::Mat frame, Eigen::Vector3d core);
   };
 } // namespace DASOM
 

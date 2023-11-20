@@ -622,7 +622,7 @@ double Z_tilde_ddot_d=0.0;
 //Dasom-------------------------------------------------
 bool position_joystick_control = false; //false: 조종기가 xy 포지션 커맨드 줌. true: 조이스틱이 xy 포지션 커맨드 줌
 Eigen::Vector3d haptic_command; // /phantom/xyzrpy
-double haptic_command_velocity = 0.01; // [m/s]
+double haptic_command_velocity = 0.03; // [m/s]
 double X_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
 double Y_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
 //-----------------------------------------------------
@@ -1113,6 +1113,11 @@ void rpyT_ctrl() {
 				Y_d = Y_d + haptic_command_velocity*haptic_command[1]*delta_t.count(); // haptic에서 들어오는 cmd를 normalize해 줌
 				X_d_base = X_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
 				Y_d_base = Y_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
+
+ROS_INFO("haptic_command_velocity = %lf", haptic_command_velocity);
+ROS_INFO("haptic_command[0] = %lf", haptic_command[0]);
+ROS_INFO("haptic_command[1] = %lf", haptic_command[1]);
+ROS_INFO("result = %lf", haptic_command_velocity*haptic_command[0]*delta_t.count());
 			
 				ROS_WARN("JoYStIcK MOdE :) ");
 			}

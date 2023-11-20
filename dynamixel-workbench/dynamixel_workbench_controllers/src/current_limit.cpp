@@ -31,7 +31,7 @@
 
 // Default setting
 #define BAUDRATE                    1000000
-#define DEVICENAME                  "/dev/ttyDASOMU2D2"
+#define DEVICENAME                  "/dev/ttyUSB0"
 
 // Initialize PortHandler and PacketHandler
 dynamixel::PortHandler *portHandler;
@@ -74,12 +74,18 @@ int main(int argc, char **argv) {
     }
 
     // Set new current limit
-    setCurrentLimit(1, 100);
-    setCurrentLimit(2, 450);
-    setCurrentLimit(3, 350);
-    setCurrentLimit(4, 100);
-    setCurrentLimit(5, 100);
-    setCurrentLimit(6, 100);
+    // setCurrentLimit(1, 100);
+    // setCurrentLimit(2, 450);
+    // setCurrentLimit(3, 350);
+    // setCurrentLimit(4, 100);
+    // setCurrentLimit(5, 100);
+    // setCurrentLimit(6, 100);
+    setCurrentLimit(1, 1000);
+    setCurrentLimit(2, 1000);
+    setCurrentLimit(3, 1000);
+    setCurrentLimit(4, 1000);
+    setCurrentLimit(5, 1000);
+    setCurrentLimit(6, 1000);
 
     // Close port
     portHandler->closePort();

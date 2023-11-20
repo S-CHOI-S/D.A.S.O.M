@@ -74,22 +74,18 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
   cap >> frame;
 
   gimbalcommand_safe = false; // ROS_WARN("%lf, %lf, %lf", core[0], core[1], core[2]);
-
-  // DetectLightBulb();
-
-  // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core[0], 250 - core[1]), 150 - core[2], blue, 3, 4, 0);
   
-  // // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - core[0], 250 - core[1]), cv::Point(270 - core[0], 250 - core[1]), cv::Scalar::all(255), 3, 4, 0);
-  line(frame, cv::Point(250 - core[0], 230 - core[1]), cv::Point(250 - core[0], 270 - core[1]), cv::Scalar::all(255), 3, 4, 0);
-
   // frame = flipCamera(frame);
 
   frame = rotateCamera(frame);
   cv::flip(frame, frame, -1);
+
+  DetectLightBulb();
+
   frame = drawCoordinate(frame);
-  
+
+  frame = drawHapticJoystick(frame, core);
+
   // cv::imshow("D.A.S.O.M End_Effector", frame);
 
   if(!frame.empty())
@@ -103,14 +99,26 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
   // ros::spinOnce();
 }
 
+cv::Mat DasomCam::drawHapticJoystick(cv::Mat frame, Eigen::Vector3d core)
+{
+  // circle(frame, core, radius, color, thickness, line type, shift);
+  circle(frame, cv::Point(240, 320), 180 + core[2], blue, 3, 4, 0);
+  
+  // line(frame, point1, point2, color, thickness, line type, shift);
+  line(frame, cv::Point(220, 320), cv::Point(260, 320), cv::Scalar::all(255), 3, 4, 0);
+  line(frame, cv::Point(240, 300), cv::Point(240, 340), cv::Scalar::all(255), 3, 4, 0);
+
+  return frame;
+}
+
 void DasomCam::DrawGimbalCross(Eigen::Vector3d gimbal, cv::Scalar color)
 {
   // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - gimbal[0], 250 - gimbal[1]), cv::Point(270 - gimbal[0], 250 - gimbal[1]), color, 3, 4, 0);
-  line(frame, cv::Point(250 - gimbal[0], 230 - gimbal[1]), cv::Point(250 - gimbal[0], 270 - gimbal[1]), color, 3, 4, 0);
+  line(frame, cv::Point(220, 320), cv::Point(260, 320), color, 3, 4, 0);
+  line(frame, cv::Point(240, 300), cv::Point(240, 340), color, 3, 4, 0);
 
   // putText(frame, string, Point(x,y), font face, font scale, color, thickness, line type, bottom left origin);
-  putText(frame, "gimbal", cv::Point(210 - gimbal[0], 290 - gimbal[1]), 3, 0.7, color, 1, 8);
+  putText(frame, "gimbal", cv::Point(203, 360), 3, 0.7, color, 1, 8);
 }
 
 void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
@@ -120,18 +128,16 @@ void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
   i = 0;
   ROS_WARN("i = %d", i);
 
-  DrawGimbalCross(gimbal, white);
-
-  // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core[0], 250 - core[1]), 150 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
-  
-  // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - core[0], 250 - core[1]), cv::Point(270 - core[0], 250 - core[1]), cv::Scalar::all(255), 3, 4, 0);
-  line(frame, cv::Point(250 - core[0], 230 - core[1]), cv::Point(250 - core[0], 270 - core[1]), cv::Scalar::all(255), 3, 4, 0);
-
   frame = rotateCamera(frame); 
   cv::flip(frame, frame, -1);
+
+  DetectLightBulb();
+
   frame = drawCoordinate(frame);
+
+  frame = drawHapticJoystick(frame, core);
+
+  DrawGimbalCross(gimbal, white);
 
   if(!frame.empty())
   {
@@ -148,12 +154,18 @@ void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
 {
   cap >> frame;
 
-  // circle(frame, core, radius, color, thickness, line type, shift);
-  circle(frame, cv::Point(250 - core[0], 250 - core[1]), 150 - core[2], cv::Scalar(255,0,0), 3, 4, 0);
+  frame = rotateCamera(frame);
+  cv::flip(frame, frame, -1);
   
-  // line(frame, point1, point2, color, thickness, line type, shift);
-  line(frame, cv::Point(230 - core[0], 250 - core[1]), cv::Point(270 - core[0], 250 - core[1]), cv::Scalar::all(255), 3, 4, 0);
-  line(frame, cv::Point(250 - core[0], 230 - core[1]), cv::Point(250 - core[0], 270 - core[1]), cv::Scalar::all(255), 3, 4, 0);
+  DetectLightBulb();
+
+  frame = drawCoordinate(frame);
+
+  frame = drawHapticJoystick(frame, core);
+
+  // draw moving gimbal
+  line(frame, cv::Point(220-core[1], 230+core[0]), cv::Point(260-core[1], 230+core[0]), blue, 3, 4, 0);
+  line(frame, cv::Point(240-core[1], 210+core[0]), cv::Point(240-core[1], 250+core[0]), blue, 3, 4, 0);
 
   if(abs(core[1] - gimbal[1]) < 3 && abs(core[0] - gimbal[0]) < 3)
   {
@@ -172,10 +184,6 @@ void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
     i = 0;
     gimbalcommand_safe = false;
   }
-
-  frame = rotateCamera(frame);
-  cv::flip(frame, frame, -1);
-  frame = drawCoordinate(frame);
   
   if(!frame.empty())
   {
@@ -193,7 +201,7 @@ void DasomCam::UpdateCameraPalletrone()
   // ROS_INFO("Reading camera frame!");
   cap >> frame;
 
-  // cv::imshow("D.A.S.O.M Workspace", frame);
+  frame = flipCamera(frame);
 
   if(!frame.empty())
   {
@@ -273,9 +281,9 @@ cv::Mat DasomCam::rotateCamera(cv::Mat frame)
 
 cv::Mat DasomCam::drawCoordinate(cv::Mat frame)
 {
-  arrowedLine(frame, cv::Point(30, 450), cv::Point(60, 425), blue, 3, cv::LINE_AA);
-  arrowedLine(frame, cv::Point(30, 450), cv::Point(70, 450), green, 3);
-  arrowedLine(frame, cv::Point(30, 450), cv::Point(30, 410), red, 3);
+  arrowedLine(frame, cv::Point(20, 470), cv::Point(50, 445), blue, 3, cv::LINE_AA);
+  arrowedLine(frame, cv::Point(20, 470), cv::Point(60, 470), green, 3);
+  arrowedLine(frame, cv::Point(20, 470), cv::Point(20, 430), red, 3);
 
   return frame;
 }

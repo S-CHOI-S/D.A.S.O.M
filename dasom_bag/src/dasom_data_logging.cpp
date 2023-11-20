@@ -61,7 +61,7 @@ geometry_msgs::Vector3 imu_lin_acc;
 // dasom
 geometry_msgs::Twist dasom_EE_command;
 geometry_msgs::Twist dasom_EE_measured;
-geometry_msgs::PoseStamped dasom_global_fixed_gimbal_EE_pose;
+geometry_msgs::Twist dasom_global_EE_command;
 geometry_msgs::Twist dasom_global_meas_gimbal_EE_pose;
 sensor_msgs::JointState dasom_meas_effort;
 
@@ -144,7 +144,7 @@ void publisherSet();
 // dasom
 void dasom_EE_cmd_callback(const geometry_msgs::Twist &msg);
 void dasom_EE_meas_callback(const geometry_msgs::Twist &msg);
-void dasom_global_fixed_gimbal_EE_pose_callback(const geometry_msgs::PoseStamped &msg);
+void dasom_global_EE_command_callback(const geometry_msgs::Twist &msg);
 void dasom_global_meas_gimbal_EE_pose_callback(const geometry_msgs::Twist &msg);
 void dasom_meas_effort_callback(const sensor_msgs::JointState &msg);
 void dasom_desired_angle_callback(const sensor_msgs::JointState &msg);
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 	// Dasom
 	ros::Subscriber dasom_EE_cmd_position_sub=nh.subscribe("/dasom/EE_command",1,dasom_EE_cmd_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_EE_meas_position_sub=nh.subscribe("/dasom/EE_pose",1,dasom_EE_meas_callback, ros::TransportHints().tcpNoDelay());
-	ros::Subscriber dasom_global_fixed_gimbal__EE_pose_sub=nh.subscribe("/dasom/tf/global_fixed_gimbal_EE_pose", 1, dasom_global_fixed_gimbal_EE_pose_callback, ros::TransportHints().tcpNoDelay());
+	ros::Subscriber dasom_global_EE_cmd_sub=nh.subscribe("/dasom/tf/global_EE_cmd", 1, dasom_global_EE_command_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_global_meas_gimbal__EE_pose_sub=nh.subscribe("/dasom/tf/global_EE_meas_pose", 1, dasom_global_meas_gimbal_EE_pose_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_measured_effort_sub=nh.subscribe("/dasom/joint_states", 1, dasom_meas_effort_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_desired_position_sub=nh.subscribe("/dasom/goal_dynamixel_position", 1, dasom_desired_angle_callback, ros::TransportHints().tcpNoDelay());
@@ -307,6 +307,7 @@ void publisherSet()
 	data_log.data[3] = dasom_EE_command.angular.x;
 	data_log.data[4] = dasom_EE_command.angular.y;
 	data_log.data[5] = dasom_EE_command.angular.z;
+
 	data_log.data[6] = dasom_EE_measured.linear.x;
 	data_log.data[7] = dasom_EE_measured.linear.y;
 	data_log.data[8] = dasom_EE_measured.linear.z;
@@ -314,19 +315,19 @@ void publisherSet()
 	data_log.data[10] = dasom_EE_measured.angular.y;
 	data_log.data[11] = dasom_EE_measured.angular.z;
 
-	data_log.data[12] = dasom_global_fixed_gimbal_EE_pose.pose.position.x;
-	data_log.data[13] = dasom_global_fixed_gimbal_EE_pose.pose.position.y;
-	data_log.data[14] = dasom_global_fixed_gimbal_EE_pose.pose.position.z;
-	data_log.data[15] = dasom_global_fixed_gimbal_EE_pose.pose.orientation.x;
-	data_log.data[16] = dasom_global_fixed_gimbal_EE_pose.pose.orientation.y;
-	data_log.data[17] = dasom_global_fixed_gimbal_EE_pose.pose.orientation.z;
-	data_log.data[18] = dasom_global_fixed_gimbal_EE_pose.pose.orientation.w;
+	data_log.data[12] = dasom_global_EE_command.linear.x;
+	data_log.data[13] = dasom_global_EE_command.linear.y;
+	data_log.data[14] = dasom_global_EE_command.linear.z;
+	data_log.data[15] = dasom_global_EE_command.angular.x;
+	data_log.data[16] = dasom_global_EE_command.angular.y;
+	data_log.data[17] = dasom_global_EE_command.angular.z;
 
-	data_log.data[19] = dasom_global_meas_gimbal_EE_pose.linear.x;
-	data_log.data[20] = dasom_global_meas_gimbal_EE_pose.linear.y;
-	data_log.data[21] = dasom_global_meas_gimbal_EE_pose.linear.z;
-	data_log.data[22] = dasom_global_meas_gimbal_EE_pose.angular.x;
-	data_log.data[23] = dasom_global_meas_gimbal_EE_pose.angular.y;
+	data_log.data[18] = dasom_global_meas_gimbal_EE_pose.linear.x;
+	data_log.data[19] = dasom_global_meas_gimbal_EE_pose.linear.y;
+	data_log.data[20] = dasom_global_meas_gimbal_EE_pose.linear.z;
+	data_log.data[21] = dasom_global_meas_gimbal_EE_pose.angular.x;
+	data_log.data[22] = dasom_global_meas_gimbal_EE_pose.angular.y;
+	data_log.data[23] = dasom_global_meas_gimbal_EE_pose.angular.z;
 
 	data_log.data[24] = dasom_meas_effort0;
 	data_log.data[25] = dasom_meas_effort1;
@@ -349,39 +350,16 @@ void publisherSet()
 	data_log.data[40] = dasom_meas_position4;
 	data_log.data[41] = dasom_meas_position5;
 
-	// data_log.data.push_back(dasom_EE_command.linear.x);
-	// data_log.data.push_back(dasom_EE_command.linear.y);
-	// data_log.data.push_back(dasom_EE_command.linear.z);
-	// data_log.data.push_back(dasom_EE_command.angular.x);
-	// data_log.data.push_back(dasom_EE_command.angular.y);
-	// data_log.data.push_back(dasom_EE_command.angular.z);
-	// data_log.data.push_back(dasom_EE_measured.linear.x);
-	// data_log.data.push_back(dasom_EE_measured.linear.y);
-	// data_log.data.push_back(dasom_EE_measured.linear.z);
-	// data_log.data.push_back(dasom_EE_measured.angular.x);
-	// data_log.data.push_back(dasom_EE_measured.angular.y);
-	// data_log.data.push_back(dasom_EE_measured.angular.z);
+	data_log.data[42] = PWM_cmd[0];
+	data_log.data[43] = PWM_cmd[1];
+	data_log.data[44] = PWM_cmd[2];
+	data_log.data[45] = PWM_cmd[3];
+	data_log.data[46] = PWM_cmd[4];
+	data_log.data[47] = PWM_cmd[5];
+	data_log.data[48] = PWM_cmd[6];
+	data_log.data[49] = PWM_cmd[7];
 
-	// data_log.data.push_back(dasom_global_fixed_gimbal_EE_pose.pose.position.x);
-	// data_log.data.push_back(dasom_global_fixed_gimbal_EE_pose.pose.position.y);
-	// data_log.data.push_back(dasom_global_fixed_gimbal_EE_pose.pose.position.z);
-	// data_log.data.push_back(dasom_global_fixed_gimbal_EE_pose.pose.orientation.x);
-	// data_log.data.push_back(dasom_global_fixed_gimbal_EE_pose.pose.orientation.y);
-	// data_log.data.push_back(dasom_global_fixed_gimbal_EE_pose.pose.orientation.z);
-	// data_log.data.push_back(dasom_global_fixed_gimbal_EE_pose.pose.orientation.w);
-
-	// data_log.data.push_back(dasom_global_meas_gimbal_EE_pose.linear.x);
-	// data_log.data.push_back(dasom_global_meas_gimbal_EE_pose.linear.y);
-	// data_log.data.push_back(dasom_global_meas_gimbal_EE_pose.linear.z);
-	// data_log.data.push_back(dasom_global_meas_gimbal_EE_pose.angular.x);
-	// data_log.data.push_back(dasom_global_meas_gimbal_EE_pose.angular.y);
-
-	// data_log.data.push_back(dasom_meas_effort0);
-	// data_log.data.push_back(dasom_meas_effort1);
-	// data_log.data.push_back(dasom_meas_effort2);
-	// data_log.data.push_back(dasom_meas_effort3);
-	// data_log.data.push_back(dasom_meas_effort4);
-	// data_log.data.push_back(dasom_meas_effort5);
+	data_log.data[50] = battery_voltage;
 
 	data_log_publisher.publish(data_log);
 }
@@ -570,9 +548,9 @@ void dasom_EE_meas_callback(const geometry_msgs::Twist &msg)
 	dasom_EE_measured = msg;
 }
 
-void dasom_global_fixed_gimbal_EE_pose_callback(const geometry_msgs::PoseStamped &msg)
+void dasom_global_EE_command_callback(const geometry_msgs::Twist &msg)
 {
-	dasom_global_fixed_gimbal_EE_pose = msg;
+	dasom_global_EE_command = msg;
 }
 
 void dasom_global_meas_gimbal_EE_pose_callback(const geometry_msgs::Twist &msg)

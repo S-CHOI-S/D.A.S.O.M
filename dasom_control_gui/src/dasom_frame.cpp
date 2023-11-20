@@ -193,9 +193,13 @@ void DasomFrame::cameraImageCallback(const sensor_msgs::CompressedImage::ConstPt
     if (qimage.format() == QImage::Format_RGB888)
     {
       qimage = qimage.rgbSwapped(); // BGR에서 RGB로 변환
-    } 
+    }
 
-    // image_frame에 이미지 표시
+    QRect croppedRect(0, 10, 480, 600);
+    qimage = qimage.copy(croppedRect);
+
+    qimage = qimage.scaledToWidth(ui_.image_frame->width());
+    
     ui_.image_frame->setPixmap(QPixmap::fromImage(qimage));
   }
   catch (cv_bridge::Exception& e)

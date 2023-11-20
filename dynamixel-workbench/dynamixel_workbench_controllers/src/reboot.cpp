@@ -33,7 +33,7 @@
 // Default setting
 #define DXL_ID                          4                   // Dynamixel ID: 1
 #define BAUDRATE                        1000000
-#define DEVICENAME                      "/dev/ttyDASOMU2D2"      // Check which port is being used on your controller
+#define DEVICENAME                      "/dev/ttyUSB0"      // Check which port is being used on your controller
                                                             // ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 
 int getch()

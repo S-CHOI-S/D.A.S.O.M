@@ -475,10 +475,14 @@ void DasomControl::DOB()
   {
     // ROS_WARN("DOB Start!");
     d_hat[1] = ds_jnt2_->updateDOB(time_loop, angle_measured[1], angle_d[1]);
+    if(d_hat[1] > 0.3) d_hat[1] = 0.3;
+    else if (d_hat[1] < -0.3) d_hat[1] = -0.3;
     angle_d[1] = angle_safe[1] - d_hat[1];
     angle_safe[1] = angle_d[1];
 
     d_hat[2] = ds_jnt3_->updateDOB(time_loop, angle_measured[2], angle_d[2]);
+    if(d_hat[2] > 0.3) d_hat[2] = 0.3;
+    else if (d_hat[2] < -0.3) d_hat[2] = -0.3;
     angle_d[2] = angle_safe[2] - d_hat[2];
     angle_safe[2] = angle_d[2];
 
@@ -813,7 +817,7 @@ int main(int argc, char **argv)
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
       ds_ctrl_.AngleSafeFunction();
-      // ds_ctrl_.DOB();
+      ds_ctrl_.DOB();
     }
   
     ds_ctrl_.PublishData();

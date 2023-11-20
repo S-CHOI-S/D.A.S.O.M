@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 
     geometry_msgs::PoseStamped global_frame;
     geometry_msgs::Twist global_EE_meas_position;
+    
     double roll, pitch, yaw;
 
     ros::Publisher global_publisher = nh.advertise<geometry_msgs::PoseStamped>("/dasom/tf/global_EE_pose", 10);
@@ -51,9 +52,6 @@ int main(int argc, char** argv)
         global_frame.pose.orientation.w = transformStamped_globalEE.transform.rotation.w;
 
         global_publisher.publish(global_frame);
-
-
-
 
         global_EE_meas_position.linear = transformStamped_globalEE.transform.translation;
 

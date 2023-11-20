@@ -100,6 +100,7 @@ class TFBroadcaster
   ros::Subscriber palletrone_optitrack_sub_;
   ros::Subscriber dasom_EE_pose_sub_; 
   ros::Subscriber global_fixed_gimbal_pose_sub_;  
+  ros::Subscriber dasom_EE_cmd_sub_;
 
   /*****************************************************************************
   ** Define variables
@@ -114,6 +115,7 @@ class TFBroadcaster
 
   void palletroneOptitrackCallback(const geometry_msgs::PoseStamped& msg);
   void dasomEEPoseCallback(const geometry_msgs::Twist& msg);
+  void dasomEECmdCallback(const geometry_msgs::Twist& msg);
   void globalFixedGimbalPoseCallback(const geometry_msgs::PoseStamped &msg);
 };
 
