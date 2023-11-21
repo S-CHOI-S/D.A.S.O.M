@@ -83,7 +83,7 @@ void DasomCam::UpdateCameraCommand(Eigen::Vector3d core)
   DetectLightBulb();
 
   frame = drawCoordinate(frame);
-  frame = drawManipulatorWorkspace(frame);
+  // frame = drawManipulatorWorkspace(frame);
 
   frame = drawHapticJoystick(frame, core);
 
@@ -111,7 +111,7 @@ void DasomCam::UpdateCameraGimbal(Eigen::Vector3d core, Eigen::Vector3d gimbal)
   DetectLightBulb();
 
   frame = drawCoordinate(frame);
-  frame = drawManipulatorWorkspace(frame);
+  // frame = drawManipulatorWorkspace(frame);
 
   frame = drawGimbalCross(gimbal, pink);
 
@@ -138,9 +138,7 @@ void DasomCam::UpdateCameraGimbalCommandSafety(Eigen::Vector3d core, Eigen::Vect
   DetectLightBulb();
 
   frame = drawCoordinate(frame);
-  frame = drawManipulatorWorkspace(frame);
-
-  core = gimbal; //default = X
+  // frame = drawManipulatorWorkspace(frame);
 
   if(abs(core[1] - gimbal[1]) < 20 && abs(core[0] - gimbal[0]) < 20 && abs(core[2] - gimbal[2]) < 20)
   {
@@ -183,7 +181,7 @@ void DasomCam::UpdateCameraGimbalCommand(Eigen::Vector3d core, Eigen::Vector3d g
   DetectLightBulb();
 
   frame = drawCoordinate(frame);
-  frame = drawManipulatorWorkspace(frame);
+  // frame = drawManipulatorWorkspace(frame);
 
   frame = drawMovingGimbalCross(frame, core);
 
@@ -261,12 +259,12 @@ cv::Mat DasomCam::drawHapticJoystick(cv::Mat frame, Eigen::Vector3d core)
 
 cv::Mat DasomCam::drawHapticPosition(cv::Mat frame, Eigen::Vector3d core)
 {
-  circle(frame, cv::Point(240 + core[1], 320 - core[0]), 180 + core[2], blue, 3, 4, 0);
+  circle(frame, cv::Point(240 + core[1], 420 - core[0]), 180 + core[2], blue, 3, 4, 0);
 
-  line(frame, cv::Point(220 + core[1], 320 - core[0]), cv::Point(260 + core[1], 320 - core[0]), white, 3, 4, 0);
-  line(frame, cv::Point(240 + core[1], 300 - core[0]), cv::Point(240 + core[1], 340 - core[0]), white, 3, 4, 0);
+  line(frame, cv::Point(220 + core[1], 420 - core[0]), cv::Point(260 + core[1], 420 - core[0]), white, 3, 4, 0);
+  line(frame, cv::Point(240 + core[1], 400 - core[0]), cv::Point(240 + core[1], 440 - core[0]), white, 3, 4, 0);
 
-  putText(frame, "joystick", cv::Point(195 + core[1], 360 - core[0]), 3, 0.7, white, 1, 8);
+  putText(frame, "joystick", cv::Point(195 + core[1], 460 - core[0]), 3, 0.7, white, 1, 8);
 
   return frame;
 }

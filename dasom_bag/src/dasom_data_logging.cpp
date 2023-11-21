@@ -361,6 +361,19 @@ void publisherSet()
 
 	data_log.data[50] = battery_voltage;
 
+	data_log.data[51] = attitude.x;
+	data_log.data[52] = attitude.y;
+	data_log.data[53] = attitude.z;
+	data_log.data[54] = desired_attitude.x;
+	data_log.data[55] = desired_attitude.y;
+	data_log.data[56] = desired_attitude.z;
+	data_log.data[57] = position.x;
+	data_log.data[58] = position.y;
+	data_log.data[59] = position.z;
+	data_log.data[60] = desired_position.x;
+	data_log.data[61] = desired_position.y;
+	data_log.data[62] = desired_position.z;
+
 	data_log_publisher.publish(data_log);
 }
 

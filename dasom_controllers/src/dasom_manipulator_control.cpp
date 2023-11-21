@@ -49,7 +49,7 @@ DasomControl::DasomControl()
   initPose.resize(6,1);
   initPose_for_initPoseFunction.resize(6,1);
   angle_init.resize(6);
-  haptic_offset << -0.03917811, 0, 0.0342381, 0, 0, 0;
+  haptic_offset << -0.0391781188965, 0, 0.0570636393229, 0, 0, 0;
   initPose << 0, 0.2, 0.3, M_PI/2, 0, 0;
   initPose_for_initPoseFunction = initPose + haptic_offset;
   angle_init = InverseKinematics(initPose_for_initPoseFunction);
