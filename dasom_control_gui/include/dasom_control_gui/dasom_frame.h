@@ -13,6 +13,9 @@
 #include <QObject>
 #include <QMovie>
 #include <QImage>
+#include <QProgressBar>
+#include <QResizeEvent>
+#include <QVBoxLayout>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <cv_bridge/cv_bridge.h>
@@ -43,6 +46,7 @@
 #include <std_msgs/Float32.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <std_srvs/SetBool.h>
+#include <omni_msgs/OmniButtonEvent.h>
 
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
@@ -90,6 +94,8 @@ private:
 
   QwtPlotCurve *Xcurve;
 
+  QProgressBar *bar_X;
+
   ros::Subscriber palletrone_battery_sub_;
   ros::Subscriber estimated_force_sub_;
   ros::Subscriber cam_ds_sub_;
@@ -100,19 +106,33 @@ private:
   ros::Subscriber data_log_sub_;
   ros::Subscriber pt_cmd_sub_;
   ros::Subscriber pt_meas_sub_;
+  ros::Subscriber button_sub_;
 
   bool ds = false;
   bool hpt = false;
   bool dyn = false;
+  bool pt_dyn = false;
+  bool ds_cam = false;
+  bool pt_cam = false;
+  bool opt = false;
+  bool tf = false;
+
   bool ds_found = false;
   bool hpt_found = false;
   bool dyn_found = false;
+  bool pt_dyn_found = false;
+  bool ds_cam_found = false;
+  bool pt_cam_found = false;
+  bool opt_found = false;
+  bool tf_found = false;
 
   QVector<double> yValues;
 
   int ds_node_status = 0;
   int currentTime = 0;
-  double voltage_value = 15;
+  double voltage_value = 23;
+  int grey_button = 0;
+  int ds_start = 0;
 
   Eigen::VectorXd ds_measured_position;
   Eigen::VectorXd ds_cmd_position;
@@ -128,6 +148,7 @@ private:
   void ptEEMeasuredCallback(const std_msgs::Float64MultiArray &msg);
   void ptEECommandCallback(const std_msgs::Float64MultiArray &msg);
   void batteryVoltageCallback(const geometry_msgs::Twist &msg);
+  void buttonCallback(const omni_msgs::OmniButtonEvent &msg);
   void initWidget();
   void setNodeStatus(QString label_name, bool status);
   void cameraImageCallback(const sensor_msgs::CompressedImage::ConstPtr& msg);

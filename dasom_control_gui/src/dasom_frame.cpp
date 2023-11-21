@@ -46,8 +46,7 @@ DasomFrame::DasomFrame(QWidget *widget)
   dataTimer->start();
 
   setTXT = nh_.createTimer(ros::Duration(0.1), &DasomFrame::setManipulatorTXT, this);
-
-  // drawEstimatedForcePlot();
+  
 }
 
 DasomFrame::~DasomFrame() 
@@ -68,7 +67,7 @@ void DasomFrame::onUpdate()
 void DasomFrame::initSubscriber()
 {
   palletrone_battery_sub_ = nh_.subscribe("/palletrone/battery", 10, &DasomFrame::batteryVoltageCallback, this);
-  estimated_force_sub_ = nh_.subscribe("/dasom/estimated_force", 10, &DasomFrame::estimatedForceCallback, this);
+  estimated_force_sub_ = nh_.subscribe("/dasom/external_force", 10, &DasomFrame::estimatedForceCallback, this);
   cam_ds_sub_ = nh_.subscribe("/dasom/camera_image/dasom/compressed", 10, &DasomFrame::cameraImageCallback, this);
   cam_pt_sub_ = nh_.subscribe("/dasom/camera_image/palletrone/compressed", 10, &DasomFrame::cameraPtImageCallback, this);
   EE_measured_sub_ = nh_.subscribe("/dasom/EE_pose", 10, &DasomFrame::dsEEMeasuredCallback, this);
@@ -77,6 +76,7 @@ void DasomFrame::initSubscriber()
   data_log_sub_ = nh_.subscribe("/data_log", 10, &DasomFrame::globalEEPoseCallback, this);
   pt_cmd_sub_ = nh_.subscribe("/data_log", 10, &DasomFrame::ptEECommandCallback, this);
   pt_meas_sub_ = nh_.subscribe("/data_log", 10, &DasomFrame::ptEEMeasuredCallback, this);
+  button_sub_ = nh_.subscribe("/phantom/button", 10, &DasomFrame::buttonCallback, this);
 }
 
 void DasomFrame::batteryVoltageCallback(const geometry_msgs::Twist &msg)
@@ -117,6 +117,11 @@ void DasomFrame::initNodeStatus()
   ui_.dyn_status->setMovie(movie_);
   ui_.haptic_status->setMovie(movie_);
   ui_.ds_status->setMovie(movie_);
+  ui_.pt_dyn_status->setMovie(movie_);
+  ui_.ds_camera_status->setMovie(movie_);
+  ui_.pt_camera_status->setMovie(movie_);
+  ui_.opt_status->setMovie(movie_);
+  ui_.tf_status->setMovie(movie_);
   movie_->start();
 }
 
@@ -180,6 +185,106 @@ void DasomFrame::setNodeStatus(QString label_name, bool status)
       movie_ = new QMovie(crossmark_path);
       movie_->setScaledSize(QSize(ui_.ds_status->width(), ui_.ds_status->height()));
       ui_.ds_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
+
+  if(label_name == "pt_dyn_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.pt_dyn_status->width();
+      int h = ui_.pt_dyn_status->height();
+      ui_.pt_dyn_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.pt_dyn_status->width(), ui_.pt_dyn_status->height()));
+      ui_.pt_dyn_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
+
+  if(label_name == "ds_camera_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.ds_camera_status->width();
+      int h = ui_.ds_camera_status->height();
+      ui_.ds_camera_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.ds_camera_status->width(), ui_.ds_camera_status->height()));
+      ui_.ds_camera_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
+
+  if(label_name == "pt_camera_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.pt_camera_status->width();
+      int h = ui_.pt_camera_status->height();
+      ui_.pt_camera_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.pt_camera_status->width(), ui_.pt_camera_status->height()));
+      ui_.pt_camera_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
+
+  if(label_name == "opt_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.opt_status->width();
+      int h = ui_.opt_status->height();
+      ui_.opt_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.opt_status->width(), ui_.opt_status->height()));
+      ui_.opt_status->setMovie(movie_);
+      movie_->setSpeed(250);
+      movie_->start();
+    }
+  }
+
+  if(label_name == "tf_status")
+  {
+    if(status)
+    {
+      QPixmap pixmap;
+      pixmap.load(check_path);
+      int w = ui_.tf_status->width();
+      int h = ui_.tf_status->height();
+      ui_.tf_status->setPixmap(pixmap.scaled(w,h,Qt::KeepAspectRatio));
+    }
+    else
+    {
+      movie_ = new QMovie(crossmark_path);
+      movie_->setScaledSize(QSize(ui_.tf_status->width(), ui_.tf_status->height()));
+      ui_.tf_status->setMovie(movie_);
       movie_->setSpeed(250);
       movie_->start();
     }
@@ -259,6 +364,40 @@ void DasomFrame::batteryCallback(const std_msgs::Float32& msg)
 	mSpeedNeedle->setCurrentValue(voltage_value);
 }
 
+void DasomFrame::buttonCallback(const omni_msgs::OmniButtonEvent &msg)
+{
+  if(msg.grey_button == 1) 
+  {
+    if(grey_button == 0)
+    // For gimbaling
+    {
+      grey_button++;
+      // ROS_INFO("Grey 1: Gimbaling mode");
+      ui_.label->setStyleSheet("color: rgb(0, 200, 0);");
+      ui_.lbl_manipulator_mode->setStyleSheet("color: rgba(255, 255, 255, 200)");
+      ui_.label_2->setStyleSheet("color: rgba(255, 255, 255, 200)");
+    }
+    else if(grey_button == 1)
+    // For gimbaling + command mode
+    {
+      grey_button++;
+      // ROS_INFO("Grey 2: Gimbaling + Command mode");
+      ui_.label_2->setStyleSheet("color: rgb(0, 200, 0);");
+      ui_.label->setStyleSheet("color: rgba(255, 255, 255, 200)");
+      ui_.lbl_manipulator_mode->setStyleSheet("color: rgba(255, 255, 255, 200)");
+    }
+    else if(grey_button == 2)
+    // For command mode
+    {
+      grey_button = 0;
+      // ROS_INFO("Grey 0: Command mode");
+      ui_.lbl_manipulator_mode->setStyleSheet("color: rgb(0, 200, 0);");
+      ui_.label->setStyleSheet("color: rgba(255, 255, 255, 200)");
+      ui_.label_2->setStyleSheet("color: rgba(255, 255, 255, 200)");
+    }
+  }
+}
+
 void DasomFrame::rosNodeStatus()
 {
   std::vector<std::string> node_names;
@@ -267,6 +406,11 @@ void DasomFrame::rosNodeStatus()
   std::string dyn_node_string = "/torque_ctrl_6DOF";
   std::string ds_node_string = "/dasom_manipulator_control";
   std::string haptic_node_string = "/omni_state";
+  std::string pt_dyn_node_string = "/t3_mav_controller";
+  std::string ds_cam_node_string = "/dasom_camera_control";
+  std::string pt_cam_node_string = "/dasom_camera_control_palletrone";
+  std::string opt_node_string = "/optitrack";
+  std::string tf_string = "/dasom_tf2_listener3";
 
   // std::cout << "Running nodes:" << std::endl;
   for (const std::string& node_name : node_names)
@@ -285,6 +429,14 @@ void DasomFrame::rosNodeStatus()
       setNodeStatus("ds_status", true);
       ds = true;
       ds_found = true;
+      if(ds_start == 0)
+      {
+        ui_.lbl_manipulator_mode->setStyleSheet("color: rgb(0, 200, 0);");
+        ui_.label->setStyleSheet("color: rgba(255, 255, 255, 200)");
+        ui_.label_2->setStyleSheet("color: rgba(255, 255, 255, 200)");
+
+        ds_start = 1;
+      }
     }
     
     if(node_name == haptic_node_string)
@@ -292,6 +444,41 @@ void DasomFrame::rosNodeStatus()
       setNodeStatus("haptic_status", true);
       hpt = true;
       hpt_found = true;
+    }
+
+    if(node_name == pt_dyn_node_string)
+    {
+      setNodeStatus("pt_dyn_status", true);
+      pt_dyn = true;
+      pt_dyn_found = true;
+    }
+
+    if(node_name == ds_cam_node_string)
+    {
+      setNodeStatus("ds_camera_status", true);
+      ds_cam = true;
+      ds_cam_found = true;
+    }
+
+    if(node_name == pt_cam_node_string)
+    {
+      setNodeStatus("pt_camera_status", true);
+      pt_cam = true;
+      pt_cam_found = true;
+    }
+
+    if(node_name == opt_node_string)
+    {
+      setNodeStatus("opt_status", true);
+      opt = true;
+      opt_found = true;
+    }
+
+    if(node_name == tf_string)
+    {
+      setNodeStatus("tf_status", true);
+      tf = true;
+      tf_found = true;
     }
   }
 
@@ -303,6 +490,10 @@ void DasomFrame::rosNodeStatus()
   if((ds_found == false) && (ds == true))
   {
     setNodeStatus("ds_status", false);
+    ds_start = 0;
+    ui_.lbl_manipulator_mode->setStyleSheet("");
+    ui_.label->setStyleSheet("");
+    ui_.label_2->setStyleSheet("");
   }
 
   if((hpt_found == false) && (hpt == true))
@@ -310,9 +501,39 @@ void DasomFrame::rosNodeStatus()
     setNodeStatus("haptic_status", false);
   }
 
+  if((pt_dyn_found == false) && (pt_dyn == true))
+  {
+    setNodeStatus("pt_dyn_status", false);
+  }
+
+  if((ds_cam_found == false) && (ds_cam == true))
+  {
+    setNodeStatus("ds_camera_status", false);
+  }
+
+  if((pt_cam_found == false) && (pt_cam == true))
+  {
+    setNodeStatus("pt_camera_status", false);
+  }
+
+  if((opt_found == false) && (opt == true))
+  {
+    setNodeStatus("opt_status", false);
+  }
+
+  if((tf_found == false) && (tf == true))
+  {
+    setNodeStatus("tf_status", false);
+  }
+
   ds_found = false;
   hpt_found = false;
   dyn_found = false;
+  pt_dyn_found = false;
+  ds_cam_found = false;
+  pt_cam_found = false;
+  opt_found = false;
+  tf_found = false;
 }
 
 void DasomFrame::globalEEPoseCallback(const std_msgs::Float64MultiArray &msg)
@@ -338,13 +559,13 @@ void DasomFrame::setBatteryVoltageGauge()
   mSpeedGauge->setFixedSize(220, 220);
 
   QcDegreesItem* speedDegreesItem = mSpeedGauge->addDegrees(40);
-  speedDegreesItem->setValueRange(0,24);
-  speedDegreesItem->setStep(4);
+  speedDegreesItem->setValueRange(14,26);
+  speedDegreesItem->setStep(2);
   mSpeedGauge->addColorBand(30);
 
   QcValuesItem* speedValuesItem = mSpeedGauge->addValues(65);
-  speedValuesItem->setValueRange(0, 24);
-  speedValuesItem->setStep(4);
+  speedValuesItem->setValueRange(14, 26);
+  speedValuesItem->setStep(2);
 
   QString voltage = QString::number(voltage_value);
   voltageLabel = mSpeedGauge->addLabel(28);
@@ -352,7 +573,7 @@ void DasomFrame::setBatteryVoltageGauge()
 
   mSpeedNeedle = mSpeedGauge->addNeedle(25);
   mSpeedNeedle->setColor(Qt::white);
-  mSpeedNeedle->setValueRange(0,24);
+  mSpeedNeedle->setValueRange(14,26);
   
   ui_.battery_gauge->addWidget(mSpeedGauge);
 
@@ -403,14 +624,13 @@ void DasomFrame::drawEstimatedForcePlot()
 
 void DasomFrame::estimatedForceCallback(const geometry_msgs::WrenchStamped &msg)
 {
-  estimated_force_x = abs(msg.wrench.force.x);
-  estimated_force_y = abs(msg.wrench.force.y);
-  estimated_force_z = abs(msg.wrench.force.z);
-
-  ui_.progressBar_X->setStyleSheet("border: 2px solid #FF0000; border-radius: 5px; background-color: lightgrey;"
-                              "QProgressBar::chunk { background-color: #37CDFA; width: 10px; }");
+  estimated_force_x = abs(msg.wrench.torque.x);
+  estimated_force_y = abs(msg.wrench.torque.y);
+  estimated_force_z = abs(msg.wrench.torque.z);
 
   ui_.progressBar_X->setValue(estimated_force_x);
+  ui_.progressBar_Y->setValue(estimated_force_y);
+  ui_.progressBar_Z->setValue(estimated_force_z);
 }
 
 double DasomFrame::returnEstimatedForceX()
