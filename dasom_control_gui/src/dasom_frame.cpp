@@ -81,11 +81,11 @@ void DasomFrame::initSubscriber()
 
 void DasomFrame::batteryVoltageCallback(const geometry_msgs::Twist &msg)
 {
-  voltage_value = msg.linear.x;
+  // voltage_value = msg.linear.x;
 
-  QString voltage = QString::number(voltage_value);
-  voltageLabel->setText(voltage + " V");
-  mSpeedNeedle->setCurrentValue(voltage_value);
+  // QString voltage = QString::number(voltage_value);
+  // voltageLabel->setText(voltage + " V");
+  // mSpeedNeedle->setCurrentValue(voltage_value);
 }
 
 void DasomFrame::initWidget()
@@ -361,6 +361,9 @@ void DasomFrame::batteryCallback(const std_msgs::Float32& msg)
 {
   voltage_value = msg.data;
 
+  QString voltage = QString::number(voltage_value);
+  voltageLabel->setText(voltage + " V");
+
 	mSpeedNeedle->setCurrentValue(voltage_value);
 }
 
@@ -406,7 +409,7 @@ void DasomFrame::rosNodeStatus()
   std::string dyn_node_string = "/torque_ctrl_6DOF";
   std::string ds_node_string = "/dasom_manipulator_control";
   std::string haptic_node_string = "/omni_state";
-  std::string pt_dyn_node_string = "/t3_mav_controller";
+  std::string pt_dyn_node_string = "/FAC_MAV_D_ctrler";
   std::string ds_cam_node_string = "/dasom_camera_control";
   std::string pt_cam_node_string = "/dasom_camera_control_palletrone";
   std::string opt_node_string = "/optitrack";
