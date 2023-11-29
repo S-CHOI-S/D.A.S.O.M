@@ -51,13 +51,18 @@ TorqueControl::TorqueControl()
 
   initMsg();
 
+  dxl_wb_->itemWrite(dxl_id_[0], "Drive_Mode", 0);
+  dxl_wb_->itemWrite(dxl_id_[1], "Drive_Mode", 0);
+  dxl_wb_->itemWrite(dxl_id_[2], "Drive_Mode", 0);
+  dxl_wb_->itemWrite(dxl_id_[3], "Drive_Mode", 0);
+  dxl_wb_->itemWrite(dxl_id_[4], "Drive_Mode", 0);
   dxl_wb_->itemWrite(dxl_id_[5], "Drive_Mode", 1);
 
   for (int index = 0; index < dxl_cnt_; index++)
   {
-    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
-    dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
-    dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
+    // dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 0);
+    // dxl_wb_->itemWrite(dxl_id_[index], "Operating_Mode", X_SERIES_CURRENT_BASED_POSITION_CONTROL_MODE);
+    // dxl_wb_->itemWrite(dxl_id_[index], "Torque_Enable", 1);
   }
 
   dxl_wb_->addSyncWrite("Goal_Position");
