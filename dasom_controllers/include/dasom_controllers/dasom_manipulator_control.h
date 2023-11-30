@@ -62,6 +62,7 @@ class DasomControl : public dasom::DasomWorkbench
   ** Define functions
   *****************************************************************************/
   void CalcExternalForce();
+  void ForceGenerator();
   void DOB();
   void AngleSafeFunction();
   void CommandGenerator();
@@ -207,6 +208,9 @@ class DasomControl : public dasom::DasomWorkbench
   
   // For tanh
   Eigen::Vector3d bf_F_ext_tanh;
+
+  // For generating force
+  int cnt_force = 0;
 
   /*****************************************************************************
   ** Define functions

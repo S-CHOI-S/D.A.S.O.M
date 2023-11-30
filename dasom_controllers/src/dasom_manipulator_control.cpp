@@ -392,41 +392,45 @@ void DasomControl::CalcExternalForce()
 
   F_ext = JTI * (tau_measured - C_matrix - G_matrix);
 
+  bf_F_ext[0] = F_ext[0];
+  bf_F_ext[1] = F_ext[1];
+  bf_F_ext[2] = F_ext[2];
+
   // band pass filter
-  // bf_F_ext[0] = F_ext[0];
-  bp_X_dot1 = bp_A * bp_X1 + bp_B * F_ext[0];
-  bp_X1 += bp_X_dot1 * time_loop;
-  bf_F_ext[0] = bp_C.dot(bp_X1) + F_ext[0] * bp_D;
+  // bf_F_ext[0] = F_ext[0]; // raw data
+  // bp_X_dot1 = bp_A * bp_X1 + bp_B * F_ext[0];
+  // bp_X1 += bp_X_dot1 * time_loop;
+  // bf_F_ext[0] = bp_C.dot(bp_X1) + F_ext[0] * bp_D;
 
-  bp_X_dot2 = bp_A * bp_X2 + bp_B * F_ext[1];
-  bp_X2 += bp_X_dot2 * time_loop;
-  bf_F_ext[1] = bp_C.dot(bp_X2) + F_ext[1] * bp_D;
+  // bp_X_dot2 = bp_A * bp_X2 + bp_B * F_ext[1];
+  // bp_X2 += bp_X_dot2 * time_loop;
+  // bf_F_ext[1] = bp_C.dot(bp_X2) + F_ext[1] * bp_D;
 
-  bp_X_dot3 = bp_A * bp_X3 + bp_B * F_ext[2];
-  bp_X3 += bp_X_dot3 * time_loop;
-  bf_F_ext[2] = bp_C.dot(bp_X3) + F_ext[2] * bp_D;
+  // bp_X_dot3 = bp_A * bp_X3 + bp_B * F_ext[2];
+  // bp_X3 += bp_X_dot3 * time_loop;
+  // bf_F_ext[2] = bp_C.dot(bp_X3) + F_ext[2] * bp_D;
 
-  if(bf_F_ext[2] < 0) bf_F_ext[2] = bf_F_ext[2] * 0.7;
+  // if(bf_F_ext[2] < 0) bf_F_ext[2] = bf_F_ext[2] * 0.7;
 
   // Hyperbolic tangent
-  bf_F_ext_tanh[0] = tanh_function(bf_F_ext[0], 5) * bf_F_ext[0];
-  bf_F_ext_tanh[1] = tanh_function(bf_F_ext[1], 40) * bf_F_ext[1];
-  bf_F_ext_tanh[2] = tanh_function(bf_F_ext[2], 20) * bf_F_ext[2];
+  bf_F_ext_tanh[0] = tanh_function(bf_F_ext[0], 10) * bf_F_ext[0];
+  bf_F_ext_tanh[1] = tanh_function(bf_F_ext[1], 60) * bf_F_ext[1];
+  bf_F_ext_tanh[2] = tanh_function(bf_F_ext[2], 30) * bf_F_ext[2];
 
-  if (bf_F_ext[0] <= hysteresis_max[0] && bf_F_ext[0] >= hysteresis_min[0]) bf_F_ext[0] = 0;
-  else if (bf_F_ext[0] > hysteresis_max[0]) bf_F_ext[0] -= hysteresis_max[0];
-  else if (bf_F_ext[0] < hysteresis_min[0]) bf_F_ext[0] -= hysteresis_min[0];
+  // if (bf_F_ext[0] <= hysteresis_max[0] && bf_F_ext[0] >= hysteresis_min[0]) bf_F_ext[0] = 0;
+  // else if (bf_F_ext[0] > hysteresis_max[0]) bf_F_ext[0] -= hysteresis_max[0];
+  // else if (bf_F_ext[0] < hysteresis_min[0]) bf_F_ext[0] -= hysteresis_min[0];
 
-  if (bf_F_ext[1] <= hysteresis_max[1] && bf_F_ext[1] >= hysteresis_min[1]) bf_F_ext[1] = 0;
-  else if (bf_F_ext[1] > hysteresis_max[1]) bf_F_ext[1] -= hysteresis_max[1];
-  else if (bf_F_ext[1] < hysteresis_min[1]) bf_F_ext[1] -= hysteresis_min[1];
+  // if (bf_F_ext[1] <= hysteresis_max[1] && bf_F_ext[1] >= hysteresis_min[1]) bf_F_ext[1] = 0;
+  // else if (bf_F_ext[1] > hysteresis_max[1]) bf_F_ext[1] -= hysteresis_max[1];
+  // else if (bf_F_ext[1] < hysteresis_min[1]) bf_F_ext[1] -= hysteresis_min[1];
 
-  if (bf_F_ext[2] <= hysteresis_max[2] && bf_F_ext[2] >= hysteresis_min[2]) bf_F_ext[2] = 0;
-  else if (bf_F_ext[2] > hysteresis_max[2]) bf_F_ext[2] -= hysteresis_max[2];
-  else if (bf_F_ext[2] < hysteresis_min[2]) bf_F_ext[2] -= hysteresis_min[2];
+  // if (bf_F_ext[2] <= hysteresis_max[2] && bf_F_ext[2] >= hysteresis_min[2]) bf_F_ext[2] = 0;
+  // else if (bf_F_ext[2] > hysteresis_max[2]) bf_F_ext[2] -= hysteresis_max[2];
+  // else if (bf_F_ext[2] < hysteresis_min[2]) bf_F_ext[2] -= hysteresis_min[2];
 
-  //bf_F_ext_tanh: only hyperbolic tangent
-  //bf_F_ext: dead zone!
+  // bf_F_ext_tanh: only hyperbolic tangent
+  // bf_F_ext: dead zone!
 
   ext_force.header.stamp = ros::Time::now();
 
@@ -437,7 +441,23 @@ void DasomControl::CalcExternalForce()
   ext_force.wrench.torque.y = bf_F_ext_tanh[1];
   ext_force.wrench.torque.z = bf_F_ext_tanh[2];
 
-  force_pub_.publish(ext_force);
+  force_pub_.publish(ext_force); // all 8 20 0 (8 20 20)
+}
+
+void DasomControl::ForceGenerator()
+{
+  ROS_INFO("cnt_force = %d", cnt_force);
+
+  if(cnt_force > 1000 && cnt_force < 1100)
+  {
+    bf_F_ext_tanh[0] = 1;// 0.5* sin(cnt_force*2*M_PI/2000);
+    bf_F_ext_tanh[1] = 1;
+    bf_F_ext_tanh[2] = 1;
+    
+    ROS_INFO("bf_F_ext_tanh[0] = %lf", bf_F_ext_tanh[0]);
+  }
+
+  cnt_force++;
 }
 
 void DasomControl::AdmittanceControl()
@@ -806,6 +826,7 @@ int main(int argc, char **argv)
     {
       ds_ctrl_.CommandGenerator();
       ds_ctrl_.CalcExternalForce();
+      // ds_ctrl_.ForceGenerator();
       ds_ctrl_.AdmittanceControl();
       ds_ctrl_.CommandVelocityLimit();
       ds_ctrl_.SolveInverseKinematics();
