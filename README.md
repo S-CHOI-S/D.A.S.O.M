@@ -15,7 +15,7 @@ Manipulator System Based on Compliance Control For Object Manipulation
 
 (You can check the publication in this page!: <a href="https://www.notion.so/pineasol/Publications-fc1044dd280544079cae4b1204109b53?pvs=4"><img src="https://img.shields.io/badge/Publications-FFFFFF?style=flat-square&logo=Notion&logoColor=black&link=https://www.notion.so/pineasol/Publications-fc1044dd280544079cae4b1204109b53?pvs=4"/>)
 
-<br/><br/><br/><br/>
+<br/><br/><br/>
 
 Capstone Design 2023: 2023.02.20 ~ 2023.11.24
 -
