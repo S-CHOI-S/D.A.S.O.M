@@ -26,7 +26,9 @@ Manipulator System Based on Compliance Control For Object Manipulation
 
 ## Capstone Design 2023: 2023.02.20 ~ 2023.11.24
 Development of Aerial Manipulator System for Object Manipulation  
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&color=F72213&width=435&lines=%5BCapstone+Design+1st+Place+Winner%5D)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&color=F72213&width=435&lines=%5BCapstone+Design+1st+Place+Winner%5D)](https://git.io/typing-svg)  
+(You can check the publication in this page!: <a href="https://www.notion.so/pineasol/Publications-fc1044dd280544079cae4b1204109b53?pvs=4"><img src="https://img.shields.io/badge/Publications-FFFFFF?style=flat-square&logo=Notion&logoColor=black&link=https://www.notion.so/pineasol/Publications-fc1044dd280544079cae4b1204109b53?pvs=4"/>)
+
 ### Control Diagram
 <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/6d163de3-d29f-4e70-a752-75571233e692" width="70%" height="70%"/>
 <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
@@ -36,12 +38,12 @@ Development of Aerial Manipulator System for Object Manipulation
 > For User (in control center): can manipulate objects while looking at the screen of the GUI
 
 __Default__  
-  <img align="center" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/fbde13d5-d6be-40e8-9640-d21d4c874222" width="50%" height="50%"/>
+  <img align="center" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/fbde13d5-d6be-40e8-9640-d21d4c874222" width="65%" height="65%"/>
 
 __Running__  
-  <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/bca287cf-c504-4f3c-95ae-a04f5ddfaa3c" width="50%" height="50%"/>
+  <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/bca287cf-c504-4f3c-95ae-a04f5ddfaa3c" width="65%" height="65%"/>  
 
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
 
 ## Installation
 ### Hardware
