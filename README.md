@@ -33,17 +33,17 @@ Development of Aerial Manipulator System for Object Manipulation
 
 ### Control Diagram
 <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/6d163de3-d29f-4e70-a752-75571233e692" width="70%" height="70%"/>
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
 
 ### Interface (GUI)
 > [!Tip]
 > For User (in control center): can manipulate objects while looking at the screen of the GUI
 
 __Default__  
-  <img align="center" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/fbde13d5-d6be-40e8-9640-d21d4c874222" width="65%" height="65%"/>
+  <img align="center" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/fbde13d5-d6be-40e8-9640-d21d4c874222" width="70%" height="70%"/>
 
 __Running__  
-  <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/bca287cf-c504-4f3c-95ae-a04f5ddfaa3c" width="65%" height="65%"/>  
+  <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/bca287cf-c504-4f3c-95ae-a04f5ddfaa3c" width="70%" height="70%"/>  
 
 <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
 
