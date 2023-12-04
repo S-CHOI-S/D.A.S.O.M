@@ -120,3 +120,6 @@ __Step 8.__ Palletrone
 ```shell
 roslaunch FAC_MAV FAC_MAV_with_ARM.launch
 ```
+__Step 9.__ Enjoy your flight!!  
+
+<img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/45e7b681-3c64-47b0-baa9-08871c21e14d" width="70%" height="70%"/>  
