@@ -45,7 +45,7 @@ __Default__
 __Running__  
   <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/bca287cf-c504-4f3c-95ae-a04f5ddfaa3c" width="70%" height="70%"/>  
 
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
 
 ## Installation
 ### Hardware
