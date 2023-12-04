@@ -13,7 +13,6 @@ Project period: 2023.01. ~ 2024.01.
 
 > Our experiment video can be found at: https://youtu.be/yVvbRuphMrc?si=mRRZsSERV7XZkeGD
 
-<br/>
 
 ## ICROS 2023: 2023.06.21 ~ 2023.06.23 
 Manipulator System Based on Compliance Control For Object Manipulation  
@@ -29,7 +28,7 @@ Development of Aerial Manipulator System for Object Manipulation
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&color=F72213&width=435&lines=%5BCapstone+Design+1st+Place+Winner%5D)](https://git.io/typing-svg)
 ### Control Diagram
 <img align="left" src="https://github.com/S-CHOI-S/D.A.S.O.M/assets/113012648/6d163de3-d29f-4e70-a752-75571233e692" width="70%" height="70%"/>
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>  
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/> 
 
 ### Interface (GUI)
 > [!Tip]
@@ -78,7 +77,7 @@ git clone https://github.com/S-CHOI-S/D.A.S.O.M.git
 ```
 > For Palletrone
 ```shell
-
+git clone https://github.com/S-CHOI-S/D.A.S.O.M-Palletrone.git
 ```
 
 <br/><br/>
