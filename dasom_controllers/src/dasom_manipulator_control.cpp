@@ -725,26 +725,26 @@ void DasomControl::PublishData()
   // joint_cmd.velocity.push_back(ds_jnt3_->updateLPF(time_loop, tau_measured[1]));
   // joint_cmd.velocity.push_back(G_matrix[1]);
 
-  joint_cmd.velocity.push_back(tau_measured[5]);
-  joint_cmd.velocity.push_back(ds_jnt2_->updateLPF(time_loop, tau_measured[5]));
-  joint_cmd.velocity.push_back(ds_jnt3_->updateLPF(time_loop, tau_measured[5]));
-  joint_cmd.velocity.push_back(G_matrix[5]);
+  // joint_cmd.velocity.push_back(tau_measured[5]);
+  // joint_cmd.velocity.push_back(ds_jnt2_->updateLPF(time_loop, tau_measured[5]));
+  // joint_cmd.velocity.push_back(ds_jnt3_->updateLPF(time_loop, tau_measured[5]));
+  // joint_cmd.velocity.push_back(G_matrix[5]);
 
-  joint_cmd.velocity.push_back(tau_measured[3]);
-  joint_cmd.velocity.push_back(ds_jnt4_->updateLPF(time_loop, tau_measured[3]));
-  joint_cmd.velocity.push_back(G_matrix[3]);
+  // joint_cmd.velocity.push_back(tau_measured[3]);
+  // joint_cmd.velocity.push_back(ds_jnt4_->updateLPF(time_loop, tau_measured[3]));
+  // joint_cmd.velocity.push_back(G_matrix[3]);
 
-  joint_cmd.velocity.push_back(tau_measured[4]);
-  joint_cmd.velocity.push_back(ds_jnt5_->updateLPF(time_loop, tau_measured[4]));
-  joint_cmd.velocity.push_back(G_matrix[4]);
+  // joint_cmd.velocity.push_back(tau_measured[4]);
+  // joint_cmd.velocity.push_back(ds_jnt5_->updateLPF(time_loop, tau_measured[4]));
+  // joint_cmd.velocity.push_back(G_matrix[4]);
 
-  joint_cmd.velocity.push_back(tau_measured[5]);
-  joint_cmd.velocity.push_back(ds_jnt6_->updateLPF(time_loop, tau_measured[5]));
-  joint_cmd.velocity.push_back(G_matrix[5]);
+  // joint_cmd.velocity.push_back(tau_measured[5]);
+  // joint_cmd.velocity.push_back(ds_jnt6_->updateLPF(time_loop, tau_measured[5]));
+  // joint_cmd.velocity.push_back(G_matrix[5]);
 
-  joint_cmd.effort.push_back(angle_d[0]); 
-  joint_cmd.effort.push_back(angle_d[1]); 
-  joint_cmd.effort.push_back(angle_d[2]); 
+  // joint_cmd.effort.push_back(angle_d[0]); 
+  // joint_cmd.effort.push_back(angle_d[1]); 
+  // joint_cmd.effort.push_back(angle_d[2]); 
   // joint_cmd.effort.push_back(angle_measured[4]); 
   // joint_cmd.effort.push_back(angle_measured[5]);  
 
@@ -774,12 +774,12 @@ void DasomControl::test()
   first_publisher.angular.y = EE_command_vel_limit[4];
   first_publisher.angular.z = EE_command_vel_limit[5];
 
-  second_publisher.linear.x = angle_ref[0];
-  second_publisher.linear.y = angle_ref[1];
-  second_publisher.linear.z = angle_ref[2];
-  second_publisher.angular.x = angle_ref[3];
-  second_publisher.angular.y = angle_ref[4];
-  second_publisher.angular.z = angle_ref[5];
+  second_publisher.linear.x = X_ref[0];
+  second_publisher.linear.y = X_ref[1];
+  second_publisher.linear.z = X_ref[2];
+  second_publisher.angular.x = X_ref[3];
+  second_publisher.angular.y = X_ref[4];
+  second_publisher.angular.z = X_ref[5];
 
   test_Pub.publish(first_publisher);
   test_Pub2.publish(second_publisher);

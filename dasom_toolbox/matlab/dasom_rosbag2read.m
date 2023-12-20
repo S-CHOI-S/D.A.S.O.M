@@ -27,7 +27,7 @@ end
 close all
 for a=1
 
-    % D.A.S.O.M global End-Effector pose
+    % D.A.S.O.M global End-Effector pose-------------------
     figure('Name', "DASOM global EE pose")
     subplot(3,1,1);
     hold on
@@ -93,7 +93,7 @@ for a=1
     title('voltage')
 
 
-    % Drone attitude
+    % Drone attitude-------------------
     figure("Name","Palletrone attitude");
     subplot(3,1,1);
     hold on
@@ -120,7 +120,7 @@ for a=1
     title("Attitude Z");
 
 
-    % Drone position
+    % Drone position-------------------
     figure("Name","Palletrone position");
     subplot(3,1,1);
     hold on
@@ -145,5 +145,62 @@ for a=1
     legend({'Z_{des}','Z_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Position Z");
+
+
+    % DASOM External Force-------------------
+    figure("Name","DASOM External Force");
+    subplot(3,1,1);
+    hold on
+    plot(data_log_time.Time-time_origin,data(:,64),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,67),'-','LineWidth',2.0);
+    legend({'F^{raw}_{extX}','F^{filtered}_{extX}'},'Location','northwest','Orientation','horizontal');
+    grid
+    title("External Force X");
+    
+    subplot(3,1,2);
+    hold on
+    plot(data_log_time.Time-time_origin,data(:,65),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,68),'-','LineWidth',2.0);
+    legend({'F^{raw}_{extY}','F^{filtered}_{extY}'},'Location','northwest','Orientation','horizontal');
+    grid
+    title("External Force Y");
+    
+    subplot(3,1,3);
+    hold on
+    plot(data_log_time.Time-time_origin,data(:,66),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,69),'-','LineWidth',2.0);
+    legend({'F^{raw}_{extZ}','F^{filtered}_{extZ}'},'Location','northwest','Orientation','horizontal');
+    grid
+    title("External Force Z");
+
+
+    % DASOM Admittance Control-------------------
+    figure("Name","DASOM Admittance Control");
+    subplot(3,1,1);
+    hold on
+    plot(data_log_time.Time-time_origin,data(:,70),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,1),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,7),'-','LineWidth',2.0);
+    legend({'X_{ref}','X_{cmd}','X_{meas}'},'Location','northwest','Orientation','horizontal');
+    grid
+    title("Admittance Control X");
+    
+    subplot(3,1,2);
+    hold on
+    plot(data_log_time.Time-time_origin,data(:,71),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,2),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,8),'-','LineWidth',2.0);
+    legend({'Y_{ref}','Y_{cmd}','Y_{meas}'},'Location','northwest','Orientation','horizontal');
+    grid
+    title("Admittance Control Y");
+    
+    subplot(3,1,3);
+    hold on
+    plot(data_log_time.Time-time_origin,data(:,72),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,3),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,9),'-','LineWidth',2.0);
+    legend({'Z_{ref}','Z_{cmd}','Z_{meas}'},'Location','northwest','Orientation','horizontal');
+    grid
+    title("Admittance Control Z");
 
 end

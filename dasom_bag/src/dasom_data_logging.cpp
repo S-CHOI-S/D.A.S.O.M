@@ -27,6 +27,8 @@
 #include <geometry_msgs/Transform.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <geometry_msgs/WrenchStamped.h>
+
 #include "nav_msgs/Odometry.h"
 
 ros::Publisher data_log_publisher;
@@ -64,6 +66,8 @@ geometry_msgs::Twist dasom_EE_measured;
 geometry_msgs::Twist dasom_global_EE_command;
 geometry_msgs::Twist dasom_global_meas_gimbal_EE_pose;
 sensor_msgs::JointState dasom_meas_effort;
+geometry_msgs::WrenchStamped ext_force;
+geometry_msgs::Twist admittance_X_ref;
 
 
 double PWM_cmd[8]={1000., 1000., 1000., 1000., 1000., 1000., 1000., 1000.};
@@ -148,6 +152,8 @@ void dasom_global_EE_command_callback(const geometry_msgs::Twist &msg);
 void dasom_global_meas_gimbal_EE_pose_callback(const geometry_msgs::Twist &msg);
 void dasom_meas_effort_callback(const sensor_msgs::JointState &msg);
 void dasom_desired_angle_callback(const sensor_msgs::JointState &msg);
+void dasom_external_force_callback(const geometry_msgs::WrenchStamped &msg);
+void dasom_admittance_X_ref_callback(const geometry_msgs::Twist &msg);
 
 
 int main(int argc, char **argv)
@@ -185,13 +191,15 @@ int main(int argc, char **argv)
 	ros::Subscriber torque_dhat_sub=nh.subscribe("/torque_dhat",1,torque_dhat_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber imu_lin_acc_sub=nh.subscribe("/imu_lin_acl",1,imu_lin_acc_callback, ros::TransportHints().tcpNoDelay());
 
-	// Dasom
-	ros::Subscriber dasom_EE_cmd_position_sub=nh.subscribe("/dasom/EE_command",1,dasom_EE_cmd_callback, ros::TransportHints().tcpNoDelay());
+	// dasom
+	ros::Subscriber dasom_EE_cmd_position_sub=nh.subscribe("/dasom/EE_command",1,dasom_EE_cmd_callback, ros::TransportHints().tcpNoDelay()); // ?
 	ros::Subscriber dasom_EE_meas_position_sub=nh.subscribe("/dasom/EE_pose",1,dasom_EE_meas_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_global_EE_cmd_sub=nh.subscribe("/dasom/tf/global_EE_cmd", 1, dasom_global_EE_command_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_global_meas_gimbal__EE_pose_sub=nh.subscribe("/dasom/tf/global_EE_meas_pose", 1, dasom_global_meas_gimbal_EE_pose_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_measured_effort_sub=nh.subscribe("/dasom/joint_states", 1, dasom_meas_effort_callback, ros::TransportHints().tcpNoDelay());
 	ros::Subscriber dasom_desired_position_sub=nh.subscribe("/dasom/goal_dynamixel_position", 1, dasom_desired_angle_callback, ros::TransportHints().tcpNoDelay());
+	ros::Subscriber dasom_external_force_sub=nh.subscribe("/dasom/external_force", 1, dasom_external_force_callback, ros::TransportHints().tcpNoDelay());
+	ros::Subscriber dasom_admittance_X_ref_sub=nh.subscribe("/dasom/test_Pub2", 1, dasom_admittance_X_ref_callback, ros::TransportHints().tcpNoDelay());
 
 	data_log_publisher=nh.advertise<std_msgs::Float64MultiArray>("data_log",10);
 	ros::Timer timerPulish_log=nh.createTimer(ros::Duration(1.0/200.0), std::bind(publisherSet));
@@ -350,6 +358,7 @@ void publisherSet()
 	data_log.data[40] = dasom_meas_position4;
 	data_log.data[41] = dasom_meas_position5;
 
+	// palletrone
 	data_log.data[42] = PWM_cmd[0];
 	data_log.data[43] = PWM_cmd[1];
 	data_log.data[44] = PWM_cmd[2];
@@ -373,6 +382,21 @@ void publisherSet()
 	data_log.data[60] = desired_position.x;
 	data_log.data[61] = desired_position.y;
 	data_log.data[62] = desired_position.z;
+
+	// dasom
+	data_log.data[63] = ext_force.wrench.force.x;
+	data_log.data[64] = ext_force.wrench.force.y;
+	data_log.data[65] = ext_force.wrench.force.z;
+	data_log.data[66] = ext_force.wrench.torque.x;
+	data_log.data[67] = ext_force.wrench.torque.y;
+	data_log.data[68] = ext_force.wrench.torque.z;
+
+	data_log.data[69] = admittance_X_ref.linear.x;
+	data_log.data[70] = admittance_X_ref.linear.y;
+	data_log.data[71] = admittance_X_ref.linear.z;
+	data_log.data[72] = admittance_X_ref.angular.x;
+	data_log.data[73] = admittance_X_ref.angular.y;
+	data_log.data[74] = admittance_X_ref.angular.z;
 
 	data_log_publisher.publish(data_log);
 }
@@ -596,4 +620,14 @@ void dasom_desired_angle_callback(const sensor_msgs::JointState &msg)
 	dasom_des_position3 = msg.position[3];
 	dasom_des_position4 = msg.position[4];
 	dasom_des_position5 = msg.position[5];
+}
+
+void dasom_external_force_callback(const geometry_msgs::WrenchStamped &msg)
+{
+	ext_force = msg;
+}
+
+void dasom_admittance_X_ref_callback(const geometry_msgs::Twist &msg)
+{
+	admittance_X_ref = msg;
 }
