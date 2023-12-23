@@ -42,6 +42,7 @@ add_service_files(
   movingFlag.srv
   admittanceSRV.srv
   bandpassSRV.srv
+  admittanceKD_SRV.srv
 )
 ################################################
 ## Declare ROS messages, services and actions ##

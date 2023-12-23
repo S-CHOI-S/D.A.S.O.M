@@ -56,6 +56,14 @@ namespace dasom
     double virtual_mass_z;
     double virtual_damper_z;
     double virtual_spring_z;
+
+    double virtual_spring_DK_x;
+    double virtual_damper_DK_x;
+    double virtual_spring_DK_y;
+    double virtual_damper_DK_y;
+    double virtual_spring_DK_z;
+    double virtual_damper_DK_z;
+    
     
     Eigen::Vector2d X_from_model_matrix;
     Eigen::Vector2d X_dot_from_model_matrix;
@@ -63,6 +71,15 @@ namespace dasom
     Eigen::Vector2d Y_dot_from_model_matrix;
     Eigen::Vector2d Z_from_model_matrix;
     Eigen::Vector2d Z_dot_from_model_matrix;
+
+  double X_position_from_model_DK;
+  double X_position_dot_from_model_DK;
+  double Y_position_from_model_DK;
+  double Y_position_dot_from_model_DK;
+  double Z_position_from_model_DK;
+  double Z_position_dot_from_model_DK;  
+
+
 
     /*****************************************************************************
     ** Define functions
@@ -79,6 +96,12 @@ namespace dasom
     double admittanceControlX(double time_loop, double ref, double f_ext);
     double admittanceControlY(double time_loop, double ref, double f_ext);
     double admittanceControlZ(double time_loop, double ref, double f_ext);
+
+    void initializeAdmittanceDK();
+    double admittanceControlDK_X(double time_loop, double ref, double f_ext);
+    double admittanceControlDK_Y(double time_loop, double ref, double f_ext);
+    double admittanceControlDK_Z(double time_loop, double ref, double f_ext);
+
 
     Eigen::MatrixXd EE_pose(Eigen::VectorXd measured_angle);
     Eigen::MatrixXd Jacobian(Eigen::VectorXd measured_angle);

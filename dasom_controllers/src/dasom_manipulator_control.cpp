@@ -27,6 +27,7 @@ DasomControl::DasomControl()
   ds_jnt4_ = new DasomJoint(4,4);
   ds_jnt5_ = new DasomJoint(4,4);
   ds_jnt6_ = new DasomJoint(4,4);
+  force_lpf_ = new DasomJoint(5,4); // 나바
 
   /************************************************************
   ** Initialize ROS Subscribers and Clients
@@ -177,6 +178,7 @@ void DasomControl::initSubscriber()
 void DasomControl::initServer()
 {
   admittance_srv_ = node_handle_.advertiseService(robot_name_ + "/admittance_srv", &DasomControl::admittanceCallback, this);
+  admittanceKD_srv_ = node_handle_.advertiseService(robot_name_ + "/admittance_KD_srv", &DasomControl::admittanceCallback_KD, this);
   bandpass_srv_ = node_handle_.advertiseService(robot_name_ + "/bandpass_srv", &DasomControl::bandpassCallback, this);
 }
 
@@ -309,6 +311,8 @@ void DasomControl::gimbalEECmdCallback(const geometry_msgs::PoseStamped &msg)
 bool DasomControl::admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
                                       dasom_controllers::admittanceSRV::Response &res)
 {
+  mdk_bool = true;
+
   virtual_mass_x = req.x_m;
   virtual_damper_x = req.x_d;
   virtual_spring_x = req.x_k;
@@ -330,8 +334,34 @@ bool DasomControl::admittanceCallback(dasom_controllers::admittanceSRV::Request 
   Z_from_model_matrix << 0, 0;
   Z_dot_from_model_matrix << 0, 0;
 
+  ROS_WARN("MDK mode!");
+
   return true;
 }
+
+bool DasomControl::admittanceCallback_KD(dasom_controllers::admittanceKD_SRV::Request  &req,
+                                         dasom_controllers::admittanceKD_SRV::Response &res)
+{
+  mdk_bool = false;
+
+  virtual_damper_DK_z = req.z_d;
+  virtual_spring_DK_z = req.z_k;
+
+  initializeAdmittanceDK();
+
+  X_position_from_model_DK = 0;
+  X_position_dot_from_model_DK = 0;
+  Y_position_from_model_DK = 0;
+  Y_position_dot_from_model_DK = 0;
+  Z_position_from_model_DK = 0;
+  Z_position_dot_from_model_DK = 0;
+
+  ROS_WARN("DK mode!");
+
+  return true;
+}
+
+
 
 bool DasomControl::bandpassCallback(dasom_controllers::bandpassSRV::Request & req,
                                     dasom_controllers::bandpassSRV::Response & res)
@@ -394,7 +424,9 @@ void DasomControl::CalcExternalForce()
 
   bf_F_ext[0] = F_ext[0];
   bf_F_ext[1] = F_ext[1];
-  bf_F_ext[2] = F_ext[2];
+
+  if(mdk_bool) bf_F_ext[2] = F_ext[2];
+  else bf_F_ext[2] = force_lpf_->updateLPF(time_loop, F_ext[2]);
 
   // band pass filter
   // bf_F_ext[0] = F_ext[0]; // raw data
@@ -464,13 +496,19 @@ void DasomControl::AdmittanceControl()
 // X_ref: haptic command
 {
   // 2 10 6(bp 1 3) // 10 15 10(bp 2 8)
-  X_cmd[0] = admittanceControlX(time_loop, X_ref[0], bf_F_ext_tanh[0]);
+  //X_cmd[0] = admittanceControlX(time_loop, X_ref[0], bf_F_ext_tanh[0]);
+  //X_cmd[0] = admittanceControlDK_X(time_loop, X_ref[0], bf_F_ext_tanh[0]);
+  X_cmd[0] = X_ref[0];
 
   // 0.1 3 1(bp 1 3) // 5 20 10(bp 2 8)
-  X_cmd[1] = admittanceControlY(time_loop, X_ref[1], bf_F_ext_tanh[1]);
+  //X_cmd[1] = admittanceControlY(time_loop, X_ref[1], bf_F_ext_tanh[1]);
+  //X_cmd[1] = admittanceControlDK_Y(time_loop, X_ref[1], bf_F_ext_tanh[1]);
+  X_cmd[1] = X_ref[1];
 
   // 2 5 4(bp 1 3) // 5 20 10(bp 2 8)
-  X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], bf_F_ext_tanh[2]);
+  //X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], bf_F_ext_tanh[2]);
+  if(mdk_bool) X_cmd[2] = admittanceControlZ(time_loop, X_ref[2], bf_F_ext_tanh[2]);
+  else X_cmd[2] = admittanceControlDK_Z(time_loop, X_ref[2], bf_F_ext_tanh[2]);
 
   EE_command[0] = X_cmd[0];
   EE_command[1] = X_cmd[1];
