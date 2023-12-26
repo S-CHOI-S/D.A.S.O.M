@@ -1,5 +1,5 @@
 clear all; close all; clc;
-bag=rosbag("/home/choisol/dasom_ws/src/dasom_bag/bag/2023-11-21-15-36-58.bag");
+bag=rosbag("/home/seuk/dasom_ws/src/dasom_bag/bag/2023-12-23-20-02-44.bag");
 % ssh paletrone@192.168.0.37
 % scp paletrone3@192.168.1.10:~/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/_2023-11-02-22-21-59.bag C:\Users\Admin\Documents\MATLAB
 bag_data_log                 =select(bag,'Topic','/data_log');
@@ -27,34 +27,31 @@ end
 close all
 for a=1
 
-    % D.A.S.O.M global End-Effector pose-------------------
-    figure('Name', "DASOM global EE pose")
+    % D.A.S.O.M command End-Effector position-------------------
+    figure('Name', "DASOM EE pose")
     subplot(3,1,1);
     hold on
-    plot(data_log_time.Time-time_origin,data(:,13),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,19),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,1),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,7),'--','LineWidth',2.0);
     legend({'X_{des}','X_{meas}'},'Location','northwest','Orientation','horizontal');
-    xlim([0 29])
     grid
-    title("global position X");
+    title("Position X");
     
     subplot(3,1,2);
     hold on
-    plot(data_log_time.Time-time_origin,data(:,14),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,20),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,2),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,8),'--','LineWidth',2.0);
     legend({'Y_{des}','Y_{meas}'},'Location','northwest','Orientation','horizontal');
-    xlim([0 29])
     grid
-    title("global position Y");
+    title("Position Y");
     
     subplot(3,1,3);
     hold on
-    plot(data_log_time.Time-time_origin,data(:,15),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,21),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,3),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,9),'--','LineWidth',2.0);
     legend({'Z_{des}','Z_{meas}'},'Location','northwest','Orientation','horizontal');
-    xlim([0 29])
     grid
-    title("global position Z");
+    title("Position Z");
 
 
     % PWM--------------------------
@@ -98,7 +95,7 @@ for a=1
     subplot(3,1,1);
     hold on
     plot(data_log_time.Time-time_origin,data(:,55),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,52),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,52),'--','LineWidth',2.0);
     legend({'X_{des}','X_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Attitude X");
@@ -106,7 +103,7 @@ for a=1
     subplot(3,1,2);
     hold on
     plot(data_log_time.Time-time_origin,data(:,56),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,53),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,53),'--','LineWidth',2.0);
     legend({'Y_{des}','Y_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Attitude Y");
@@ -114,7 +111,7 @@ for a=1
     subplot(3,1,3);
     hold on
     plot(data_log_time.Time-time_origin,data(:,57),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,54),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,54),'--','LineWidth',2.0);
     legend({'Z_{des}','Z_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Attitude Z");
@@ -125,7 +122,7 @@ for a=1
     subplot(3,1,1);
     hold on
     plot(data_log_time.Time-time_origin,data(:,61),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,58),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,58),'--','LineWidth',2.0);
     legend({'X_{des}','X_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Position X");
@@ -133,7 +130,7 @@ for a=1
     subplot(3,1,2);
     hold on
     plot(data_log_time.Time-time_origin,data(:,62),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,59),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,59),'--','LineWidth',2.0);
     legend({'Y_{des}','Y_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Position Y");
@@ -141,7 +138,7 @@ for a=1
     subplot(3,1,3);
     hold on
     plot(data_log_time.Time-time_origin,data(:,63),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,60),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,60),'--','LineWidth',2.0);
     legend({'Z_{des}','Z_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Position Z");
@@ -152,7 +149,7 @@ for a=1
     subplot(3,1,1);
     hold on
     plot(data_log_time.Time-time_origin,data(:,64),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,67),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,67),'--','LineWidth',2.0);
     legend({'F^{raw}_{extX}','F^{filtered}_{extX}'},'Location','northwest','Orientation','horizontal');
     grid
     title("External Force X");
@@ -160,7 +157,7 @@ for a=1
     subplot(3,1,2);
     hold on
     plot(data_log_time.Time-time_origin,data(:,65),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,68),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,68),'--','LineWidth',2.0);
     legend({'F^{raw}_{extY}','F^{filtered}_{extY}'},'Location','northwest','Orientation','horizontal');
     grid
     title("External Force Y");
@@ -168,7 +165,7 @@ for a=1
     subplot(3,1,3);
     hold on
     plot(data_log_time.Time-time_origin,data(:,66),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,69),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,69),'--','LineWidth',2.0);
     legend({'F^{raw}_{extZ}','F^{filtered}_{extZ}'},'Location','northwest','Orientation','horizontal');
     grid
     title("External Force Z");
@@ -179,8 +176,8 @@ for a=1
     subplot(3,1,1);
     hold on
     plot(data_log_time.Time-time_origin,data(:,70),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,1),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,7),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,1),'--','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,7),':','LineWidth',2.0);
     legend({'X_{ref}','X_{cmd}','X_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Admittance Control X");
@@ -188,8 +185,8 @@ for a=1
     subplot(3,1,2);
     hold on
     plot(data_log_time.Time-time_origin,data(:,71),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,2),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,8),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,2),'--','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,8),':','LineWidth',2.0);
     legend({'Y_{ref}','Y_{cmd}','Y_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Admittance Control Y");
@@ -197,8 +194,8 @@ for a=1
     subplot(3,1,3);
     hold on
     plot(data_log_time.Time-time_origin,data(:,72),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,3),'-','LineWidth',2.0);
-    plot(data_log_time.Time-time_origin,data(:,9),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,3),'--','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,9),':','LineWidth',2.0);
     legend({'Z_{ref}','Z_{cmd}','Z_{meas}'},'Location','northwest','Orientation','horizontal');
     grid
     title("Admittance Control Z");

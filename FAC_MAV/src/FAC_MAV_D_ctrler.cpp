@@ -1,4 +1,4 @@
- //############################################################### CODE UPDATE HISTORY ###########################################################
+//############################################################### CODE UPDATE HISTORY ###########################################################
 //
 //		         ███╗   ███╗    ██████╗     ██╗     
 //        		 ████╗ ████║    ██╔══██╗    ██║     
@@ -50,6 +50,7 @@
 #include "FAC_MAV/PosCtrlService.h" //ASDF
 #include "FAC_MAV/HoverService.h" //ASDF
 #include "FAC_MAV/FAC_HoverService.h" //ASDF
+#include "std_srvs/Empty.h" //ASDF
 // //-----For CasADi-----//
 // #include <casadi/casadi.hpp>
 // #include "DoubleLinkedList.h"
@@ -444,6 +445,9 @@ void Rotation_matrix();
 void external_force_estimation();
 void admittance_controller();
 void joystickCallback(const geometry_msgs::Twist &msg); //Dasom
+bool paletroneMoveSrvCallback(std_srvs::Empty::Request  &req, //Dasom
+  		                      std_srvs::Empty::Response &res);
+void dasom_sineGenerator(); //Dasoms
 
 
 double position_dob_fc=0.1;
@@ -509,6 +513,7 @@ ros::Publisher force_dhat_pub;
 ros::Publisher torque_dhat_pub;
 ros::Publisher mass_pub;
 ros::Publisher non_bias_external_force_pub;
+ros::ServiceServer paletroneMoveSrvServer;
 //ros::Publisher tau_yaw_thrust;
 //----------------------------------------------------
 
@@ -625,6 +630,14 @@ Eigen::Vector3d haptic_command; // /phantom/xyzrpy
 double haptic_command_velocity = 0.03; // [m/s]
 double X_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
 double Y_position_command_temp;  //모드 변경하는 순간의 커맨드 포지션 -> 안 썼음
+double dasom_paletrone_Amp;
+double dasom_paletrone_Period;
+bool movingFlag = false;
+double dasom_sine= 0;
+double cnt=0;
+double dasom_period = 10;
+double dasom_Amp = 0.05;
+double paletrone_command_velocity = 0.07;
 //-----------------------------------------------------
 
 
@@ -879,7 +892,7 @@ int main(int argc, char **argv){
 	ros::Subscriber t265_rot=nh.subscribe("/t265_rot",100,rotCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber t265_odom=nh.subscribe("/rs_t265/odom/sample",100,t265OdomCallback,ros::TransportHints().tcpNoDelay());
 	ros::Subscriber joystick_sub_ = nh.subscribe("/phantom/xyzrpy/palletrone", 10, joystickCallback, ros::TransportHints().tcpNoDelay()); // Dasom
-
+	ros::ServiceServer paletroneMoveSrvServer = nh.advertiseService("/moveSrv", paletroneMoveSrvCallback);
 	//ros::Subscriber external_force_sub=nh.subscribe("/external_force",1,external_force_Callback,ros::TransportHints().tcpNoDelay());
 	//ros::Subscriber external_torque_sub=nh.subscribe("/external_torque",1,external_torque_Callback,ros::TransportHints().tcpNoDelay());
 	//ros::Subscriber adaptive_external_force_sub=nh.subscribe("/adaptive_external_force",1,adaptive_external_force_Callback,ros::TransportHints().tcpNoDelay());
@@ -1037,8 +1050,7 @@ void rpyT_ctrl() {
 		else if(Sbus[2]<1200){
 			Z_d+=0.0005;
 		}
-			
-		if(Z_d <-0.7) Z_d=-0.7;
+					if(Z_d <-0.7) Z_d=-0.7 + dasom_sine;
 		if(Z_d > 0) Z_d=0;
 	//Z_d = -altitude_limit*(((double)Sbus[2]-(double)1500)/(double)500)-altitude_limit;
 	}
@@ -1093,13 +1105,16 @@ void rpyT_ctrl() {
 
 	}*/
 
+
+	if (movingFlag) dasom_sineGenerator();
+
 	if(position_mode || velocity_mode){
 		torque_dob();
 		if(position_mode){ // Dasom
 			if(!position_joystick_control) // joystick control mode가 아닐 때(gimbaling or gimabling + command)
 			{
-				X_d = X_d_base - XY_limit*(((double)Sbus[1]-(double)1500)/(double)500); // 이걸 바꾼다 // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
-				Y_d = Y_d_base + XY_limit*(((double)Sbus[3]-(double)1500)/(double)500); // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+				X_d -= paletrone_command_velocity*(((double)Sbus[1]-(double)1500)/(double)500)*delta_t.count(); // 이걸 바꾼다 // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
+				Y_d += paletrone_command_velocity*(((double)Sbus[3]-(double)1500)/(double)500)*delta_t.count(); // Sbus에서 들어오는 신호 값에 따라 부호가 다르다
 			
 				ROS_INFO("FUTABA MODE!!!");
 			}
@@ -1114,10 +1129,6 @@ void rpyT_ctrl() {
 				X_d_base = X_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
 				Y_d_base = Y_d; // 현재 drone의 위치를 새로운 base 좌표계로 지정
 
-ROS_INFO("haptic_command_velocity = %lf", haptic_command_velocity);
-ROS_INFO("haptic_command[0] = %lf", haptic_command[0]);
-ROS_INFO("haptic_command[1] = %lf", haptic_command[1]);
-ROS_INFO("result = %lf", haptic_command_velocity*haptic_command[0]*delta_t.count());
 			
 				ROS_WARN("JoYStIcK MOdE :) ");
 			}
@@ -2053,4 +2064,27 @@ void joystickCallback(const geometry_msgs::Twist &msg) //Dasom
   	// ROS_WARN("JOYhapticmd = %lf, %lf, %lf", haptic_command[0], haptic_command[1], haptic_command[2]);
 	// ROS_WARN("time_loop = %lf", delta_t.count());
 	// ROS_INFO("X_d, Y_d = %lf, %lf", X_d, Y_d);
+}
+
+bool paletroneMoveSrvCallback(std_srvs::Empty::Request  &req, //Dasom
+  		                      std_srvs::Empty::Response &res)
+{
+	if (movingFlag) 
+	{
+		movingFlag = false;
+		ROS_INFO("False!");
+	}
+	else 
+	{
+		movingFlag = true;
+		ROS_INFO("True!");
+	}
+	return true;
+}
+
+
+void dasom_sineGenerator()
+{
+	cnt = cnt+1;
+	dasom_sine = dasom_Amp * sin(cnt / dasom_period / freq * 2 * pi + pi / 2) - dasom_Amp;
 }

@@ -99,7 +99,7 @@
 
 
 		<!--Tilt Mode Altitude gains-->
-		<param name="tilt_altitude_P_gain"	value="13.0"/>
+		<param name="tilt_altitude_P_gain"	value="23.0"/>
 		<param name="tilt_altitude_I_gain"	value="5.0"/>
 		<param name="tilt_altitude_D_gain"	value="8.0"/>
 
@@ -114,9 +114,6 @@
 		<param name="tilt_position_D_gain"	value="4.0"/>	
 
     	<node name="FAC_MAV_D_ctrler"  pkg="FAC_MAV" type="FAC_MAV_D_ctrler"  output="screen"/>
-	<node pkg="dasom_bag" name="dasom_data_logging" type="dasom_data_logging"/>
-	
-    
-	<!-- Rosbag -->
-  <node pkg="rosbag" type="record" name="record" output="screen" args="-o /home/paletrone3/dasom_ws/src/dasom_bag/ /data_log" />
+<!--	<node name="external_wrench_estimator_node" pkg="external_wrench_nmhe" type="external_wrench_estimator" output="screen"/> -->
+
 </launch> 
