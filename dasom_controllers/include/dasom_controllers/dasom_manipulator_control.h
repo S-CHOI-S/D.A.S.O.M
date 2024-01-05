@@ -35,6 +35,7 @@
 #include <tf2_msgs/TFMessage.h>
 #include <dasom_toolbox/dasom_workbench.h>
 #include <dasom_toolbox/dasom_joint.h>
+#include "std_srvs/Empty.h"
 
 using namespace dasom;
 
@@ -114,7 +115,8 @@ class DasomControl : public dasom::DasomWorkbench
   ros::Publisher gimbal_pub_;
   ros::Publisher force_pub_;
   ros::Publisher test_Pub;
-  ros::Publisher test_Pub2;
+  ros::Publisher test_Pub2; 
+  ros::Publisher angle_d_pub_;
 
   /*****************************************************************************
   ** ROS Subscribers, Callback Functions and Relevant Functions
@@ -131,6 +133,7 @@ class DasomControl : public dasom::DasomWorkbench
   ros::ServiceServer admittance_srv_;
   ros::ServiceServer admittanceKD_srv_;
   ros::ServiceServer bandpass_srv_;
+  ros::ServiceServer grey_button_srv_;
 
   /*****************************************************************************
   ** Define variables
@@ -183,7 +186,7 @@ class DasomControl : public dasom::DasomWorkbench
   Eigen::Vector3d F_min;
   Eigen::VectorXd hysteresis_max;
   Eigen::VectorXd hysteresis_min;
-
+  
   // For admittance control
   Eigen::VectorXd X_ref;
   Eigen::VectorXd X_cmd;
@@ -229,9 +232,12 @@ class DasomControl : public dasom::DasomWorkbench
   bool admittanceCallback(dasom_controllers::admittanceSRV::Request  &req,
                           dasom_controllers::admittanceSRV::Response &res);
   bool admittanceCallback_KD(dasom_controllers::admittanceKD_SRV::Request  &req,
-                             dasom_controllers::admittanceKD_SRV::Response &res);
+                          dasom_controllers::admittanceKD_SRV::Response &res);
   bool bandpassCallback(dasom_controllers::bandpassSRV::Request  &req,
                         dasom_controllers::bandpassSRV::Response &res);
+  bool grey_button_Callback(std_srvs::Empty::Request &req,
+                           std_srvs::Empty::Request &res);
+                      
   double tanh_function(double input_data, double cut_off_force);
   void tauLPFforExternalForce();
   void startGimbalHapticCommand();

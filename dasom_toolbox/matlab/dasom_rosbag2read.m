@@ -1,5 +1,5 @@
 clear all; close all; clc;
-bag=rosbag("/home/seuk/dasom_ws/src/dasom_bag/bag/2023-12-23-20-02-44.bag");
+bag=rosbag("/home/choisol/dasom_ws/src/dasom_bag/bag/2023-12-23-20-02-44.bag");
 % ssh paletrone@192.168.0.37
 % scp paletrone3@192.168.1.10:~/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/_2023-11-02-22-21-59.bag C:\Users\Admin\Documents\MATLAB
 bag_data_log                 =select(bag,'Topic','/data_log');
@@ -25,7 +25,6 @@ end
 
 %%
 close all
-for a=1
 
     % D.A.S.O.M command End-Effector position-------------------
     figure('Name', "DASOM EE pose")
@@ -200,4 +199,11 @@ for a=1
     grid
     title("Admittance Control Z");
 
-end
+    subplot(2,1,1);
+    hold on
+    plot(data_log_time.Time-time_origin,data(:,77),'-','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,31),'--','LineWidth',2.0);
+    plot(data_log_time.Time-time_origin,data(:,37),':','LineWidth',2.0);
+    legend({'Z_{angle_d}','Z_{angle_command}','Z_{angle_measured}'},'Location','northwest','Orientation','horizontal');
+    grid
+    title("angle w/ w/o DOB");

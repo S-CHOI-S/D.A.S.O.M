@@ -160,6 +160,7 @@ void DasomControl::initPublisher()
   dasom_EE_pos_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/EE_pose", 10); //use
   gimbal_pub_ = node_handle_.advertise<geometry_msgs::PoseStamped>(robot_name_ + "/tf/global_fixed_gimbal_EE_pose", 10); //use
   force_pub_ = node_handle_.advertise<geometry_msgs::WrenchStamped>(robot_name_ + "/external_force", 10); //use
+  angle_d_pub_ = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/angle_d", 10);
 
   // For Test
   test_Pub = node_handle_.advertise<geometry_msgs::Twist>(robot_name_ + "/test_Pub", 10); //use
@@ -180,6 +181,8 @@ void DasomControl::initServer()
   admittance_srv_ = node_handle_.advertiseService(robot_name_ + "/admittance_srv", &DasomControl::admittanceCallback, this);
   admittanceKD_srv_ = node_handle_.advertiseService(robot_name_ + "/admittance_KD_srv", &DasomControl::admittanceCallback_KD, this);
   bandpass_srv_ = node_handle_.advertiseService(robot_name_ + "/bandpass_srv", &DasomControl::bandpassCallback, this);
+  grey_button_srv_ = node_handle_.advertiseService(robot_name_ + "/grey_button_srv", &DasomControl::grey_button_Callback, this);
+
 }
 
 void DasomControl::jointCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -392,6 +395,48 @@ bool DasomControl::bandpassCallback(dasom_controllers::bandpassSRV::Request & re
   return true;
 }
 
+
+bool DasomControl::grey_button_Callback(std_srvs::Empty::Request &req,
+                                        std_srvs::Empty::Request &res)
+{
+    if(grey_button == 0)
+    // For gimbaling
+    {
+      grey_button++;
+      ROS_INFO("Grey 1: Gimbaling mode");
+
+      gimbal_tf = global_EE_tf; // globalEEPoseCallback
+
+      geometry_msgs::PoseStamped gimbal_tf_msg;
+
+      gimbal_tf_msg.pose.position.x = gimbal_tf[0];
+      gimbal_tf_msg.pose.position.y = gimbal_tf[1];
+      gimbal_tf_msg.pose.position.z = gimbal_tf[2];
+
+      gimbal_tf_msg.pose.orientation.x = gimbal_tf[3];
+      gimbal_tf_msg.pose.orientation.y = gimbal_tf[4];
+      gimbal_tf_msg.pose.orientation.z = gimbal_tf[5];
+      gimbal_tf_msg.pose.orientation.w = gimbal_tf[6];
+
+      gimbal_pub_.publish(gimbal_tf_msg);
+    }
+    else if(grey_button == 1)
+    // For gimbaling + command mode
+    {
+      grey_button++;
+      ROS_INFO("Grey 2: Gimbaling + Command mode");
+    }
+    else if(grey_button == 2)
+    // For command mode
+    {
+      grey_button = 0;
+      ROS_INFO("Grey 0: Command mode");
+
+      gimbalcommand_safe = false;
+    }
+  return true;
+}
+
 double DasomControl::tanh_function(double input_data, double cut_off_force)
 {
   double data = input_data / cut_off_force * 4;
@@ -522,6 +567,7 @@ void DasomControl::DOB()
 {
   dob_cnt++;
 
+  geometry_msgs::Twist angle_d_msg;
   if(dob_cnt > 600)
   {
     // ROS_WARN("DOB Start!");
@@ -548,6 +594,16 @@ void DasomControl::DOB()
     d_hat[5] = ds_jnt6_->updateDOB(time_loop, angle_measured[5], angle_d[5]);
     angle_d[5] = angle_ref[5] - d_hat[5];
     angle_safe[5] = angle_d[5];
+
+    angle_d_msg.linear.x = angle_d[0];
+    angle_d_msg.linear.y = angle_d[1];
+    angle_d_msg.linear.z = angle_d[2];
+    
+    angle_d_msg.angular.x = angle_d[3];
+    angle_d_msg.angular.y = angle_d[4];
+    angle_d_msg.angular.z = angle_d[5];    
+
+    angle_d_pub_.publish(angle_d_msg);
   }
 }
 
