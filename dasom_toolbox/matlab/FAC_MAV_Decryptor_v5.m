@@ -1,5 +1,5 @@
 clear all; close all; clc;
-bag=rosbag("/home/choisol/dasom_ws/src/dasom_bag/bag/_2023-11-14-17-31-39.bag");
+bag=rosbag("/home/choisol/dasom_ws/src/dasom_bag/bag/_2024-01-08-17-19-30.bag");
 % ssh paletrone@192.168.0.37
 % scp paletrone3@192.168.1.10:~/catkin_ws/src/FAC_MAV_paletrone/FAC_MAV/bag/_2023-11-02-22-21-59.bag C:\Users\Admin\Documents\MATLAB
 bag_data_log                 =select(bag,'Topic','/data_log');
