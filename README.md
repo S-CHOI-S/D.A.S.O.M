@@ -26,7 +26,8 @@ Manipulator System Based on Compliance Control For Object Manipulation
 
 ## Capstone Design 2023: 2023.02.20 ~ 2023.11.24
 Development of Aerial Manipulator System for Object Manipulation  
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&color=F72213&width=435&lines=%5BCapstone+Design+1st+Place+Winner%5D)](https://git.io/typing-svg)  
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&vCenter=true&color=F72213&width=435&height=30&lines=%5BCapstone+Design+1st+Place+Winner%5D)](https://git.io/typing-svg)  
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Roboto&size=15&pause=1000&vCenter=true&color=F72213&width=435&height=20&lines=%5BST+LINC+3.0+1st+Place+Winner%5D)](https://git.io/typing-svg)  
 (You can check the publication in this page!: <a href="https://www.notion.so/pineasol/Publications-fc1044dd280544079cae4b1204109b53?pvs=4"><img src="https://img.shields.io/badge/Publications-FFFFFF?style=flat-square&logo=Notion&logoColor=black&link=https://www.notion.so/pineasol/Publications-fc1044dd280544079cae4b1204109b53?pvs=4"/>)
 
 <br/>
